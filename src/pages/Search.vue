@@ -7,16 +7,16 @@
                 @search="onSearch"
                 @cancel="onCancel"
         />
-        <van-divider content-position="left">已选择标签</van-divider>
-        <div v-if="activeIds.length===0">请选择标签</div>
-        <van-row gutter="16" style="padding: 0 16px">
-            <van-col v-for="tag in activeIds">
-                <van-tag closeable size="small" type="primary" @close="close(tag)">
-                    {{ tag }}
-                </van-tag>
-            </van-col>
-        </van-row>
-
+        <div v-if="activeIds.length > 0">
+            <van-divider content-position="left">已选择标签</van-divider>
+            <van-row gutter="16" style="padding: 0 16px">
+                <van-col v-for="tag in activeIds">
+                    <van-tag closeable size="small" type="primary" @close="close(tag)">
+                        {{ tag }}
+                    </van-tag>
+                </van-col>
+            </van-row>
+        </div>
         <van-divider content-position="left">选择标签</van-divider>
         <van-tree-select
                 v-model:active-id="activeIds"
@@ -24,13 +24,17 @@
                 :items="tagList"
         />
     </form>
+    <div style="margin: 20px">
+        <van-button block type="primary" @click="searchUser">搜索</van-button>
+    </div>
 </template>
 
 <script setup>
 
 import {ref} from "vue";
-import {showToast} from "vant";
+import {useRouter} from "vue-router";
 
+let router = useRouter();
 const originTagList = [
     {
         text: '性别',
@@ -67,9 +71,17 @@ const activeIndex = ref(0);
 
 const close = (tag) => {
     activeIds.value = activeIds.value.filter((item) => {
-        return item != tag;
+        return item !== tag;
     })
 };
+const searchUser = () => {
+    router.push({
+        path: '/search/userList',
+        query: {
+            tags: activeIds.value
+        }
+    })
+}
 </script>
 
 <style scoped>
