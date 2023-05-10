@@ -3,7 +3,7 @@ import axios from "axios";
 let myAxios = axios.create({
     baseURL: 'http://localhost:8080/api'
 });
-
+myAxios.defaults.withCredentials = true
 // 添加请求拦截器
 myAxios.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
