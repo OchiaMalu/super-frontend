@@ -31,6 +31,7 @@ onMounted(async () => {
         user.value = currentUser
     } else {
         showFailToast("未登录")
+        router.replace("/user/login")
     }
 })
 const toEdit = (editKey: string, editName: string, editValue: string) => {
