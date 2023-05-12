@@ -17,6 +17,8 @@
         <van-tabbar-item to="/team" icon="search" name="team">队伍</van-tabbar-item>
         <van-tabbar-item to="/user" icon="friends-o" name="user">个人</van-tabbar-item>
     </van-tabbar>
+
+
 </template>
 <script setup>
 import {showToast} from "vant";
@@ -24,7 +26,7 @@ import {useRouter} from "vue-router";
 
 let router = useRouter();
 const onClickLeft = () => {
-  router.back()
+    router.back()
 };
 const onClickRight = () => {
     router.push("/search")
@@ -33,7 +35,7 @@ const onChange = (index) => showToast(`标签 ${index}`);
 </script>
 
 <style scoped>
-#content{
+#content {
     padding-bottom: 50px;
 }
 </style>

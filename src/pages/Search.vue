@@ -2,10 +2,8 @@
     <form action="/">
         <van-search
                 v-model="searchText"
-                show-action
                 placeholder="请输入要搜索的标签"
                 @search="onSearch"
-                @cancel="onCancel"
         />
         <div v-if="activeIds.length > 0">
             <van-divider content-position="left">已选择标签</van-divider>

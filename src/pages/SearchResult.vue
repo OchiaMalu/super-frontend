@@ -1,6 +1,12 @@
 <template>
     <UserCardList :user-list="userList"/>
-    <van-empty v-if="!userList ||　userList.length===0" image="search" description="暂无符合要求的用户"/>
+    <van-empty v-if="(!userList ||　userList.length===0) && !onloading" image="search" description="暂无符合要求的用户"/>
+    <van-loading vertical v-if="onloading">
+        <template #icon>
+            <van-icon name="star-o" size="30"/>
+        </template>
+        加载中...
+    </van-loading>
 </template>
 
 <script setup>
@@ -11,6 +17,7 @@ import {showFailToast, showSuccessToast, showToast} from "vant";
 import qs from 'qs';
 import UserCardList from "../components/UserCardList.vue";
 
+const onloading = ref(true)
 let route = useRoute();
 const {tags} = route.query
 const userList = ref([])
@@ -29,6 +36,7 @@ onMounted(async () => {
         }).catch(function () {
             showFailToast("搜索失败")
         })
+    onloading.value=false
     if (userListData) {
         userListData.forEach(user => {
             if (user.tags) {
