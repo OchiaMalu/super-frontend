@@ -1,10 +1,10 @@
 import Index from "../pages/Index.vue";
-import Team from "../pages/Team.vue";
-import User from "../pages/User.vue";
-import Search from "../pages/Search.vue";
-import EditUser from "../pages/UserEdit.vue";
-import SearchResult from "../pages/SearchResult.vue";
-import UserLogin from "../pages/UserLogin.vue";
+import Team from "../pages/TeamPage.vue";
+import User from "../pages/UserPage.vue";
+import Search from "../pages/SearchPage.vue";
+import EditUser from "../pages/UserEditPage.vue";
+import SearchResult from "../pages/SearchResultPage.vue";
+import UserLogin from "../pages/UserLoginPage.vue";
 
 const routes = [
     { path: '/', component: Index },
