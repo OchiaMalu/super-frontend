@@ -3,8 +3,11 @@
 </template>
 
 <script setup>
-const doJoinTeam=()=>{
+import {useRouter} from "vue-router";
 
+let router = useRouter();
+const doJoinTeam=()=>{
+    router.push("/team/add")
 }
 </script>
 

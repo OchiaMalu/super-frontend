@@ -21,7 +21,7 @@ import myAxios from "../plugins/my-axios.js";
 import {ref} from "vue";
 import {showFailToast, showSuccessToast, showToast} from "vant";
 import {getCurrentUser} from "../services/user.ts";
-import {removeLoginUser} from "../status/user.ts";
+// import {removeLoginUser} from "../status/user.ts";
 const router = useRouter();
 const route = useRoute();
 const editUser = ref({
@@ -40,7 +40,7 @@ const onSubmit = async () => {
     if (response.data.code === 0) {
         showSuccessToast("修改成功")
         router.replace("/user");
-        removeLoginUser()
+        // removeLoginUser()
     }else {
         showFailToast(response.data.message)
     }

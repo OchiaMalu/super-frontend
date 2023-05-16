@@ -5,10 +5,12 @@ import Search from "../pages/SearchPage.vue";
 import EditUser from "../pages/UserEditPage.vue";
 import SearchResult from "../pages/SearchResultPage.vue";
 import UserLogin from "../pages/UserLoginPage.vue";
+import TeamAddPage from "../pages/TeamAddPage.vue";
 
 const routes = [
     { path: '/', component: Index },
     { path: '/team', component: Team },
+    { path: '/team/add',component: TeamAddPage },
     { path: '/user',component: User},
     { path: '/search',component: Search},
     { path: '/user/edit',component: EditUser},
