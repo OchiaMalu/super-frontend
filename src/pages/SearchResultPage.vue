@@ -36,7 +36,7 @@ onMounted(async () => {
         }).catch(function () {
             showFailToast("搜索失败")
         })
-    onloading.value=false
+    onloading.value = false
     if (userListData) {
         userListData.forEach(user => {
             if (user.tags) {
