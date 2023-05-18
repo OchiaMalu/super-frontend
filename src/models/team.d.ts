@@ -9,6 +9,7 @@ export type TeamType = {
     password?: string;
     //todo 枚举
     status: number;
+    userId:number;
     createTime: Date;
     updateTime:Date;
     createUser?:UserType;
