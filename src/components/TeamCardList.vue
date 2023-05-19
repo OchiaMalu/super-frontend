@@ -21,6 +21,12 @@
             <van-button v-if="team.userId===currentUser?.id" size="small" plain @click="doUpdateTeam(team.id)">
                 更新队伍
             </van-button>
+            <van-button v-if="team.userId===currentUser?.id" size="small" plain @click="doUpdateTeam(team.id)">
+                退出队伍
+            </van-button>
+            <van-button v-if="team.userId===currentUser?.id" size="small" plain @click="doUpdateTeam(team.id)">
+                解散队伍
+            </van-button>
         </template>
     </van-card>
 </template>
@@ -55,7 +61,7 @@ const doJoinTeam = async (id: number) => {
         showFailToast("加入队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
 }
-const doUpdateTeam = (id: string) => {
+const doUpdateTeam = (id: number) => {
     router.push({
         path: "/team/update",
         query: {
