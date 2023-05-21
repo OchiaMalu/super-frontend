@@ -53,7 +53,7 @@
     </van-form>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {onMounted, ref} from "vue";
 import axios from "axios";
@@ -65,7 +65,7 @@ let route = useRoute();
 const updateTeamData = ref({})
 const showCalendar = ref(false);
 const onConfirm = (date) => {
-    let month = date.getMonth() + 1;
+    let month: string | number = date.getMonth() + 1;
     month = month < 10 ? '0' + month : month
     let day = date.getDate();
     day = day < 10 ? '0' + day : day

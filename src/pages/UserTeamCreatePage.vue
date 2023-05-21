@@ -4,7 +4,7 @@
     <van-empty v-if="teamList?.length<1" description="数据为空"/>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {useRouter} from "vue-router";
 import TeamCardList from "../components/TeamCardList.vue";
 import {onMounted, ref} from "vue";

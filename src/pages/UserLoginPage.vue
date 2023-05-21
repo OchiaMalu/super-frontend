@@ -25,7 +25,7 @@
     </van-form>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
 import {showFailToast, showSuccessToast} from "vant";
@@ -42,7 +42,7 @@ const onSubmit = async () => {
     })
     if (response.data.code === 0 && response.data.data) {
         showSuccessToast("登录成功")
-        window.location.href=route.query.redirectUrl
+        window.location.href = <string>route.query.redirectUrl
     } else {
         showFailToast("登录失败，请重试")
     }

@@ -58,7 +58,7 @@
     </van-form>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {useRouter} from "vue-router";
 import {ref} from "vue";
 import axios from "axios";
@@ -68,7 +68,7 @@ import {showFailToast, showSuccessToast} from "vant";
 let router = useRouter();
 const showCalendar = ref(false);
 const onConfirm = (date) => {
-    let month = date.getMonth() + 1;
+    let month: string | number = date.getMonth() + 1;
     month = month < 10 ? '0' + month : month
     let day = date.getDate();
     day = day < 10 ? '0' + day : day
