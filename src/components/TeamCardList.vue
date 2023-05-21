@@ -1,43 +1,45 @@
 <template>
-    <van-card v-for="team in props.teamList"
-              :desc="team.description"
-              :title="team.name"
-              :thumb="defaultImg"
-    >
-        <template #tags>
-            <van-tag plain type="danger" style="margin-right: 8px;margin-top: 8px">{{ teamStatusEnum[team.status] }}
-            </van-tag>
-        </template>
-        <template #bottom>
-            <div style="margin-top: 20px">
-                {{ '队伍人数：' + team.hasJoinNum + "/" + team.maxNum }}
-            </div>
-            <div v-if="team.expireTime">
-                {{ '过期时间：' + team.expireTime }}
-            </div>
-        </template>
-        <template #footer>
-            <van-button v-if="!team.hasJoin" size="small" plain type="primary" @click="doJoinTeam(team)">
-                加入队伍
-            </van-button>
-            <van-button v-if="team.userId===currentUser?.id" size="small" plain @click="doUpdateTeam(team.id)">
-                更新队伍
-            </van-button>
-            <van-button v-if="team.hasJoin && team.userId!==currentUser?.id" size="small" plain
-                        @click="doQuitTeam(team.id)">
-                退出队伍
-            </van-button>
-            <van-button v-if="team.userId===currentUser?.id" size="small" plain type="danger"
-                        @click="doDeleteTeam(team.id)">
-                解散队伍
-            </van-button>
-        </template>
-    </van-card>
-    <van-dialog v-model:show="showPasswordDialog" title="请输入密码" show-cancel-button
-                @confirm="joinTeam(joinTeamId,teamPassword)"
-                @cancel="doClear">
-        <van-field v-model="teamPassword" placeholder="请输入密码"/>
-    </van-dialog>
+    <van-skeleton title avatar avatar-shape="square" :row="3" :loading="props.onLoading" v-for="team in props.teamList">
+        <van-card
+                :desc="team.description"
+                :title="team.name"
+                :thumb="defaultImg"
+        >
+            <template #tags>
+                <van-tag plain type="danger" style="margin-right: 8px;margin-top: 8px">{{ teamStatusEnum[team.status] }}
+                </van-tag>
+            </template>
+            <template #bottom>
+                <div style="margin-top: 20px">
+                    {{ '队伍人数：' + team.hasJoinNum + "/" + team.maxNum }}
+                </div>
+                <div v-if="team.expireTime">
+                    {{ '过期时间：' + team.expireTime }}
+                </div>
+            </template>
+            <template #footer>
+                <van-button v-if="!team.hasJoin" size="small" plain type="primary" @click="doJoinTeam(team)">
+                    加入队伍
+                </van-button>
+                <van-button v-if="team.userId===currentUser?.id" size="small" plain @click="doUpdateTeam(team.id)">
+                    更新队伍
+                </van-button>
+                <van-button v-if="team.hasJoin && team.userId!==currentUser?.id" size="small" plain
+                            @click="doQuitTeam(team.id)">
+                    退出队伍
+                </van-button>
+                <van-button v-if="team.userId===currentUser?.id" size="small" plain type="danger"
+                            @click="doDeleteTeam(team.id)">
+                    解散队伍
+                </van-button>
+            </template>
+        </van-card>
+        <van-dialog v-model:show="showPasswordDialog" title="请输入密码" show-cancel-button
+                    @confirm="joinTeam(joinTeamId,teamPassword)"
+                    @cancel="doClear">
+            <van-field v-model="teamPassword" placeholder="请输入密码"/>
+        </van-dialog>
+    </van-skeleton>
 </template>
 
 <script setup lang="ts">
@@ -50,15 +52,21 @@ import {getCurrentUser} from "../services/user.ts";
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 
-interface TeamCardListProps {
-    teamList: TeamType[]
-}
 
 const showPasswordDialog = ref(false)
 const teamPassword = ref('')
-const props = defineProps<TeamCardListProps>()
 let currentUser = ref()
 const joinTeamId = ref()
+
+interface TeamCardListProps {
+    onLoading: boolean
+    teamList: TeamType[]
+}
+
+const props = withDefaults(defineProps<TeamCardListProps>(), {
+    onLoading: true
+})
+
 onMounted(async () => {
     currentUser.value = await getCurrentUser()
 })

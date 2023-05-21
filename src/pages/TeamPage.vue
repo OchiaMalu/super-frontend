@@ -5,7 +5,7 @@
             <van-tab title="公开" name="public"/>
             <van-tab title="加密" name="private"/>
         </van-tabs>
-        <TeamCardList :team-list="teamList"/>
+        <TeamCardList :team-list="teamList" :onLoading="onLoading"/>
         <van-button class="add-button" icon="plus" type="primary" @click="toCreateTeam"></van-button>
         <van-empty image="search" v-if="!teamList || teamList.length===0" description="暂无符合要求的队伍"/>
     </div>
@@ -21,10 +21,11 @@ import {showFailToast, showSuccessToast} from "vant";
 const active = ref('public')
 let router = useRouter();
 const searchText = ref("")
-const teamList = ref([])
+const teamList = ref([{}, {}, {}, {}])
 
-
+const onLoading = ref(true)
 const tabChange = (name) => {
+    teamList.value=[{},{},{},{}]
     if (name === 'public') {
         listTeams(searchText.value, 0)
     } else {
@@ -35,6 +36,7 @@ const toCreateTeam = () => {
     router.push("/team/add")
 }
 const listTeams = async (val = '', status = 0) => {
+    onLoading.value = true
     const res = await myAxios.get("/team/list", {
         params: {
             searchText: val,
@@ -47,6 +49,7 @@ const listTeams = async (val = '', status = 0) => {
     } else {
         showFailToast("队伍加载失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
+    onLoading.value = false
 }
 const onSearch = async (val) => {
     await listTeams(val)

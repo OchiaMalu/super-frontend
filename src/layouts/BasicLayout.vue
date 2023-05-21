@@ -1,14 +1,16 @@
 <template>
-    <van-nav-bar
-            :title="title"
-            left-arrow
-            @click-left="onClickLeft"
-            @click-right="onClickRight"
-    >
-        <template #right>
-            <van-icon name="search" size="18"/>
-        </template>
-    </van-nav-bar>
+    <van-sticky>
+        <van-nav-bar
+                :title="title"
+                left-arrow
+                @click-left="onClickLeft"
+                @click-right="onClickRight"
+        >
+            <template #right>
+                <van-icon name="search" size="18"/>
+            </template>
+        </van-nav-bar>
+    </van-sticky>
     <div id="content">
         <router-view/>
     </div>
@@ -34,7 +36,8 @@ router.beforeEach((to, from) => {
     const route = routes.find((routes) => {
         return routes.path === toPath
     })
-    title.value=route?.title ?? DEFAULT_TITLE
+    document.title = "速配SUPER"
+    title.value = route?.title ?? DEFAULT_TITLE
 })
 const onClickLeft = () => {
     router.back()
