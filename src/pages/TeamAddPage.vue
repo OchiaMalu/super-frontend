@@ -95,7 +95,7 @@ const onSubmit = async () => {
         showSuccessToast("添加成功")
         router.replace("/team")
     } else {
-        showFailToast(res?.data.message)
+        showFailToast("添加失败"+ (res.data.description ? `,${res.data.description}` : ''))
     }
 }
 

@@ -42,7 +42,7 @@ const onSubmit = async () => {
         router.replace("/user");
         // removeLoginUser()
     }else {
-        showFailToast(response.data.message)
+        showFailToast("修改失败"+ (response.data.description ? `,${response.data.description}` : ''))
     }
 };
 </script>

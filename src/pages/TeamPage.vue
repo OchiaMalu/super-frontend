@@ -1,7 +1,14 @@
 <template>
-    <van-search v-model="searchText" placeholder="搜索队伍" @search="onSearch"/>
-    <van-button type="primary" @click="doAddTeam">创建队伍</van-button>
-    <TeamCardList :team-list="teamList"/>
+    <div id="teamPage">
+        <van-search v-model="searchText" placeholder="搜索队伍" @search="onSearch"/>
+        <van-tabs v-model:active="active" @change="tabChange">
+            <van-tab title="公开" name="public"/>
+            <van-tab title="加密" name="private"/>
+        </van-tabs>
+        <TeamCardList :team-list="teamList"/>
+        <van-button class="add-button" icon="plus" type="primary" @click="toCreateTeam"></van-button>
+        <van-empty image="search" v-if="!teamList || teamList.length===0" description="暂无符合要求的队伍"/>
+    </div>
 </template>
 
 <script setup>
@@ -11,49 +18,48 @@ import {onMounted, ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
 import {showFailToast, showSuccessToast} from "vant";
 
+const active = ref('public')
 let router = useRouter();
 const searchText = ref("")
-const doAddTeam = () => {
-    router.push("/team/add")
-}
 const teamList = ref([])
 
-/**
- * 搜索队伍
- * @param val
- * @returns {Promise<void>}
- */
-const onSearch = async (val) => {
-    const res = await myAxios.get("/team/list", {
-        params: {
-            searchText: val
-        }
-    });
-    if (res?.data.code === 0) {
-        showSuccessToast("队伍搜索成功")
-        teamList.value = res.data.data
-        console.log(res.data.data);
+
+const tabChange = (name) => {
+    if (name === 'public') {
+        listTeams(searchText.value, 0)
     } else {
-        showFailToast("队伍搜索失败，请稍后重试")
+        listTeams(searchText.value, 2)
     }
 }
-
-
-onMounted(async () => {
-    /**
-     * 搜索所有队伍
-     * @type {axios.AxiosResponse<any>}
-     */
-    const res = await myAxios.get("/team/list")
+const toCreateTeam = () => {
+    router.push("/team/add")
+}
+const listTeams = async (val = '', status = 0) => {
+    const res = await myAxios.get("/team/list", {
+        params: {
+            searchText: val,
+            status
+        }
+    })
     if (res?.data.code === 0) {
         showSuccessToast("队伍加载成功")
         teamList.value = res.data.data
     } else {
-        showFailToast("队伍加载失败，请稍后重试")
+        showFailToast("队伍加载失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
+}
+const onSearch = async (val) => {
+    await listTeams(val)
+}
+
+onMounted(async () => {
+    await listTeams();
 })
 </script>
 
 <style scoped>
+#teamPage {
+
+}
 
 </style>

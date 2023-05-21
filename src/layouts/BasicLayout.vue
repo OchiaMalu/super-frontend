@@ -1,6 +1,6 @@
 <template>
     <van-nav-bar
-            title="标题"
+            :title="title"
             left-arrow
             @click-left="onClickLeft"
             @click-right="onClickRight"
@@ -23,8 +23,19 @@
 <script setup>
 import {showToast} from "vant";
 import {useRouter} from "vue-router";
+import routes from "../config/routes.ts";
+import {ref} from "vue";
 
 let router = useRouter();
+const DEFAULT_TITLE = "速配SUPER"
+const title = ref(DEFAULT_TITLE)
+router.beforeEach((to, from) => {
+    const toPath = to.path
+    const route = routes.find((routes) => {
+        return routes.path === toPath
+    })
+    title.value=route?.title ?? DEFAULT_TITLE
+})
 const onClickLeft = () => {
     router.back()
 };

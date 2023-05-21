@@ -41,7 +41,7 @@ const onSearch = async (val) => {
 
 onMounted(async () => {
     /**
-     * 搜索所有队伍
+     * 获取我加入的队伍
      * @type {axios.AxiosResponse<any>}
      */
     const res = await myAxios.get("/team/list/my/join")

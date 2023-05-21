@@ -7,9 +7,10 @@ export type TeamType = {
     expireTime?: Date;
     maxNum: number;
     password?: string;
-    //todo 枚举
     status: number;
     userId:number;
+    hasJoin:boolean;
+    hasJoinNum:number;
     createTime: Date;
     updateTime:Date;
     createUser?:UserType;
