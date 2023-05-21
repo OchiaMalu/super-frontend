@@ -28,6 +28,7 @@ declare module '@vue/runtime-core' {
     VanImage: typeof import('vant/es')['Image']
     VanLoading: typeof import('vant/es')['Loading']
     VanNavBar: typeof import('vant/es')['NavBar']
+    VanPullRefresh: typeof import('vant/es')['PullRefresh']
     VanRadio: typeof import('vant/es')['Radio']
     VanRadioGroup: typeof import('vant/es')['RadioGroup']
     VanRow: typeof import('vant/es')['Row']
@@ -41,5 +42,6 @@ declare module '@vue/runtime-core' {
     VanTabs: typeof import('vant/es')['Tabs']
     VanTag: typeof import('vant/es')['Tag']
     VanTreeSelect: typeof import('vant/es')['TreeSelect']
+    VanUploader: typeof import('vant/es')['Uploader']
   }
 }
