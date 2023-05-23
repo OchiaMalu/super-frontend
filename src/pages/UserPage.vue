@@ -4,6 +4,12 @@
         <van-cell title="修改信息" is-link to="/user/update"/>
         <van-cell title="我创建的队伍" is-link to="/user/team/create"/>
         <van-cell title="我加入的队伍" is-link to="/user/team/join"/>
+        <div style="margin: 16px;">
+            <van-button style="margin-top: 10px" round block type="primary" native-type="submit" color="red"
+                        @click="logout">
+                退出
+            </van-button>
+        </div>
     </template>
 </template>
 
@@ -36,6 +42,15 @@ const toEdit = (editKey: string, editName: string, editValue: string) => {
             editValue
         }
     })
+}
+const logout = async () => {
+    let res = await myAxios.post("/user/logout");
+    if (res?.data.code === 0) {
+        showSuccessToast("退出成功")
+        await router.replace("/")
+    } else {
+        showFailToast("内部错误," + res?.data.message)
+    }
 }
 </script>
 
