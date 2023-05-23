@@ -54,7 +54,7 @@ const onSubmit = async () => {
     })
     if (response.data.code === 0 && response.data.data) {
         showSuccessToast("登录成功")
-        window.location.href = <string>route.query.redirectUrl
+        window.location.href = <string>route.query.redirectUrl ?? '/'
     } else {
         showFailToast("登录失败，请重试")
     }
