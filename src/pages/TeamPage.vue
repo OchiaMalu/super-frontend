@@ -9,7 +9,7 @@
             success-text="刷新成功"
             @refresh="onRefresh"
     >
-        <TeamCardList :team-list="teamList" :onLoading="onLoading"/>
+        <TeamCardList :team-list="teamList" :onLoading="onLoading" @refresh="onRefresh"/>
         <van-empty image="search" v-if="!teamList || teamList.length===0" description="暂无符合要求的队伍"/>
     </van-pull-refresh>
     <van-button class="add-button" icon="plus" type="primary" @click="toCreateTeam"></van-button>
@@ -71,6 +71,7 @@ const onRefresh = async () => {
     }
     refreshLoading.value = false
 }
+
 </script>
 
 <style scoped>

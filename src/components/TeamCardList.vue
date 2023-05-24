@@ -57,7 +57,7 @@ const showPasswordDialog = ref(false)
 const teamPassword = ref('')
 let currentUser = ref()
 const joinTeamId = ref()
-
+let emits = defineEmits(['refresh']);
 interface TeamCardListProps {
     onLoading: boolean
     teamList: TeamType[]
@@ -79,6 +79,7 @@ const joinTeam = async (teamId, password = '') => {
     })
     if (res?.data.code === 0) {
         showSuccessToast("加入队伍成功")
+        onRefresh()
     } else {
         showFailToast("加入队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
@@ -107,6 +108,7 @@ const doQuitTeam = async (id: number) => {
     })
     if (res?.data.code === 0) {
         showSuccessToast("退出队伍成功")
+        onRefresh()
     } else {
         showFailToast("加入队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
@@ -118,9 +120,14 @@ const doDeleteTeam = async (id: number) => {
     })
     if (res?.data.code === 0) {
         showSuccessToast("解散队伍成功")
+        onRefresh()
     } else {
         showFailToast("加入队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
+}
+
+const onRefresh= ()=>{
+    emits("refresh")
 }
 const doClear = () => {
     joinTeamId.value = ''
