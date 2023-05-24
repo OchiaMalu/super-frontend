@@ -1,6 +1,6 @@
 <template>
     <van-search v-model="searchText" placeholder="搜索队伍" @search="onSearch"/>
-    <TeamCardList :team-list="teamList"/>
+    <TeamCardList :team-list="teamList" :on-loading="onLoading"/>
     <van-empty v-if="teamList?.length<1" description="数据为空"/>
 </template>
 
@@ -13,6 +13,7 @@ import {showFailToast, showSuccessToast} from "vant";
 
 let router = useRouter();
 const searchText = ref("")
+const onLoading = ref(true)
 const doAddTeam = () => {
     router.push("/team/add")
 }
@@ -24,6 +25,7 @@ const teamList = ref([])
  * @returns {Promise<void>}
  */
 const onSearch = async (val) => {
+    onLoading.value = true
     const res = await myAxios.get("/team/list", {
         params: {
             searchText: val
@@ -36,14 +38,12 @@ const onSearch = async (val) => {
     } else {
         showFailToast("队伍搜索失败，请稍后重试")
     }
+    onLoading.value = false
 }
 
 
 onMounted(async () => {
-    /**
-     * 搜索所有队伍
-     * @type {axios.AxiosResponse<any>}
-     */
+    onLoading.value = true
     const res = await myAxios.get("/team/list/my/create")
     if (res?.data.code === 0) {
         showSuccessToast("队伍加载成功")
@@ -51,6 +51,7 @@ onMounted(async () => {
     } else {
         showFailToast("队伍加载失败，请稍后重试")
     }
+    onLoading.value = false
 })
 </script>
 
