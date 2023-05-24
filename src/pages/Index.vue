@@ -1,18 +1,23 @@
 <template>
-    <van-pull-refresh
-            v-model="refreshLoading"
-            success-text="刷新成功"
-            @refresh="onRefresh"
-    >
-        <UserCardList :user-list="userList"/>
-        <van-empty v-if="(!userList ||　userList.length===0) && !onLoading" image="search" description="暂无用户"/>
-        <van-loading vertical v-if="onLoading">
-            <template #icon>
-                <van-icon name="star-o" size="30"/>
-            </template>
-            加载中...
-        </van-loading>
-    </van-pull-refresh>
+    <div style="position: relative;height: 100%;width: 100%">
+        <van-pull-refresh
+                v-model="refreshLoading"
+                success-text="刷新成功"
+                @refresh="onRefresh"
+        >
+            <UserCardList :user-list="userList"/>
+            <van-empty v-if="(!userList ||　userList.length===0) && !onLoading" image="search" description="暂无用户"/>
+            <div style="margin-top: 50%">
+                <van-loading vertical v-if="onLoading">
+                    <template #icon>
+                        <van-icon name="star-o" size="30"/>
+                    </template>
+                    加载中...
+                </van-loading>
+            </div>
+        </van-pull-refresh>
+    </div>
+
 
 </template>
 <script setup>
