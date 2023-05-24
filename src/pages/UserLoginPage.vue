@@ -29,7 +29,7 @@
                 <van-button style="margin-top: 10px" round block type="primary" native-type="submit">
                     登录
                 </van-button>
-                <van-button style="margin-top: 10px" color="#FFA034" round block type="primary" native-type="submit">
+                <van-button style="margin-top: 10px" color="#FFA034" round block type="primary" native-type="submit" to="/user/signup">
                     注册
                 </van-button>
             </div>

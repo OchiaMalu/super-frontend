@@ -10,6 +10,7 @@ import TeamUpdatePage from "../pages/TeamUpdatePage.vue";
 import UserUpdatePage from "../pages/UserUpdatePage.vue";
 import UserTeamJoinPage from "../pages/UserTeamJoinPage.vue";
 import UserTeamCreatePage from "../pages/UserTeamCreatePage.vue";
+import SignUpPage from "../pages/SignUpPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
@@ -19,6 +20,7 @@ const routes = [
     {path: '/team/add', title: "创建队伍", component: TeamAddPage},
     {path: '/team/update', title: "更新队伍", component: TeamUpdatePage},
     {path: '/user', title: "个人", component: User},
+    {path: '/user/signup',component: SignUpPage},
     {path: '/user/login', title: "用户登录", component: UserLogin},
     {path: '/user/edit', title: "修改用户", component: EditUser},
     {path: '/user/update', title: "修改用户", component: UserUpdatePage},
