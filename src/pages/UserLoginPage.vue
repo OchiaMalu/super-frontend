@@ -1,12 +1,12 @@
 <template>
     <div id="login">
-        <div id="img">
+        <van-row justify="center">
             <van-image
                     width="343"
                     src="../../public/super.jpg"
                     style="background-position:center"
             />
-        </div>
+        </van-row>
         <van-form @submit="onSubmit">
             <van-cell-group inset>
                 <van-field
@@ -59,12 +59,6 @@ const onSubmit = async () => {
         showFailToast("登录失败，请重试")
     }
 };
-onMounted(() => {
-    let ele = document.getElementsByClassName("van-field")[0];
-    let padding_left = window.getComputedStyle(ele).getPropertyValue("padding-left");
-    let img = document.getElementById("img");
-    img.style.paddingLeft = padding_left
-})
 </script>
 
 <style scoped>
