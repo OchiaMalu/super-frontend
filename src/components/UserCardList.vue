@@ -5,7 +5,8 @@
               :thumb="user.avatarUrl"
     >
         <template #tags>
-            <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px">{{ tag }}
+            <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px">
+                {{ tag }}
             </van-tag>
         </template>
         <template #footer>
@@ -17,9 +18,10 @@
 <script setup lang="ts">
 import {UserType} from "../models/user.js";
 
-interface UserCardListProps{
-    userList:UserType[]
+interface UserCardListProps {
+    userList: UserType[]
 }
+
 const props = defineProps<UserCardListProps>()
 </script>
 

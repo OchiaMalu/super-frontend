@@ -7,8 +7,8 @@
         >
             <UserCardList :user-list="userList"/>
             <van-empty v-if="(!userList ||　userList.length===0) && !onLoading" image="search" description="暂无用户"/>
-            <div style="margin-top: 50%">
-                <van-loading vertical v-if="onLoading">
+            <div style="margin-top: 50%" v-if="onLoading">
+                <van-loading vertical >
                     <template #icon>
                         <van-icon name="star-o" size="30"/>
                     </template>

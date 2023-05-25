@@ -1,12 +1,17 @@
 <template>
-    <UserCardList :user-list="userList"/>
-    <van-empty v-if="(!userList ||　userList.length===0) && !onloading" image="search" description="暂无符合要求的用户"/>
-    <van-loading vertical v-if="onloading">
-        <template #icon>
-            <van-icon name="star-o" size="30"/>
-        </template>
-        加载中...
-    </van-loading>
+    <div style="position: relative;height: 100%;width: 100%">
+        <UserCardList :user-list="userList"/>
+        <van-empty v-if="(!userList ||　userList.length===0) && !onloading" image="search"
+                   description="暂无符合要求的用户"/>
+        <div style="margin-top: 50%" v-if="onloading">
+            <van-loading vertical>
+                <template #icon>
+                    <van-icon name="star-o" size="30"/>
+                </template>
+                加载中...
+            </van-loading>
+        </div>
+    </div>
 </template>
 
 <script setup>
