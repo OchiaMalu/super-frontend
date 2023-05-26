@@ -16,9 +16,20 @@
                     :rules="[{ required: true, message: '请填写手机号' }]"
             >
                 <template #button>
-                    <van-button size="small" type="primary">发送验证码</van-button>
+                    <van-button size="small" type="primary" @click="sendMessage">
+                        <span v-if="!codeTime">发送验证码</span>
+                        <span v-else>{{ codeTime }}秒</span>
+                    </van-button>
                 </template>
             </van-field>
+            <van-field
+                    v-if="codeTime"
+                    v-model="code"
+                    required
+                    label="验证码"
+                    placeholder="请输入验证码"
+                    :rules="[{ required: true, message: '请填写验证码' }]"
+            />
             <van-field
                     v-model="username"
                     required
@@ -53,16 +64,72 @@
 
 <script setup>
 import {ref} from "vue";
+import {showFailToast, showNotify, showSuccessToast} from "vant";
+import myAxios from "../plugins/my-axios.js";
+import {useRouter} from "vue-router";
 
+const reg_tel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
 const username = ref('');
 const password = ref('');
 const phone = ref('');
+const code = ref('')
 const confirmPassword = ref('')
+const codeTime = ref(0)
+
+let router = useRouter();
 const validator = () => {
     return password.value === confirmPassword.value;
 }
-const onSubmit = (values) => {
-    console.log('submit', values);
+
+const sendMessage = async () => {
+    if (phone.value === '') {
+        showNotify({message: '请先输入手机号'});
+    } else {
+        if (!reg_tel.test(phone.value)) {
+            showNotify({message: '手机号格式错误'});
+        } else {
+            let flag = countDown();
+            if (flag) {
+                const res = await myAxios.get("/user/message?phone=" + phone.value)
+                if (res?.data.code === 0) {
+                    showSuccessToast("短信发送成功，15分钟内有效")
+                } else {
+                    showFailToast("短信发送失败," + res?.data.description ?? '')
+                }
+            }
+        }
+    }
+}
+const countDown = () => {
+    if (codeTime.value > 0) {
+        showFailToast("不能重复获取")
+        return false;
+    } else {
+        codeTime.value = 60
+        let time = setInterval(() => {
+            codeTime.value--
+            if (codeTime.value < 1) {
+                clearInterval(time)
+                codeTime.value = 0
+            }
+        }, 1000)
+        return true;
+    }
+}
+const onSubmit = async () => {
+    const res = await myAxios.post("/user/register", {
+        phone: phone.value,
+        code: code.value,
+        userAccount: username.value,
+        userPassword: password.value,
+        checkPassword: confirmPassword.value
+    })
+    if (res?.data.code === 0) {
+        showSuccessToast("注册成功")
+        router.replace("/user/login")
+    } else {
+        showFailToast("注册失败," + res?.data.description ?? '')
+    }
 };
 </script>
 
