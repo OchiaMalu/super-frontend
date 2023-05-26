@@ -1,8 +1,9 @@
 <template>
     <template v-if="user">
-        <van-cell title="头像" is-link>
-            <van-uploader v-model="fileList" :max-count="1" preview-size="60">
+        <van-cell title="头像" is-link center >
+            <van-uploader v-model="fileList" :max-count="1" :after-read="afterRead" preview-size="60px">
                 <template #preview-delete/>
+                <img :src="imgSrc" style="width: 60px;height: 60px;border-radius: 50%" alt=""/>
             </van-uploader>
         </van-cell>
         <van-cell title="用户账号" :value="user.userAccount"/>
@@ -21,21 +22,18 @@ import {useRouter} from "vue-router";
 import {onMounted, ref} from "vue";
 import {showFailToast, showSuccessToast} from "vant";
 import {getCurrentUser} from "../services/user.ts";
+import myAxios from "../plugins/my-axios.js";
 
 let router = useRouter();
-const fileList = ref([
-    {
-        url: '',
-        isImage: true
-    }
-]);
+const fileList = ref([]);
 const user = ref()
+const imgSrc = ref('')
 onMounted(async () => {
     let currentUser = await getCurrentUser();
     if (currentUser) {
         showSuccessToast("获取个人信息成功")
         user.value = currentUser
-        fileList.value[0].url = currentUser.avatarUrl
+        imgSrc.value = currentUser.avatarUrl
     } else {
         showFailToast("未登录")
         router.replace("/user/login")
@@ -50,6 +48,22 @@ const toEdit = (editKey: string, editName: string, editValue: string) => {
             editValue
         }
     })
+}
+const afterRead = async () => {
+    let formData = new FormData();
+    formData.append("file", fileList.value[0].file)
+    const res = await myAxios.post("/common/upload", formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+    if (res?.data.code === 0) {
+        showSuccessToast("头像更新成功")
+        imgSrc.value = res?.data.data
+    } else {
+        showFailToast("头像更新失败")
+    }
+    fileList.value = []
 }
 </script>
 
