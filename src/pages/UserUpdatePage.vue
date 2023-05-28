@@ -1,6 +1,6 @@
 <template>
     <template v-if="user">
-        <van-cell title="头像" is-link center >
+        <van-cell title="头像" is-link center>
             <van-uploader v-model="fileList" :max-count="1" :after-read="afterRead" preview-size="60px">
                 <template #preview-delete/>
                 <img :src="imgSrc" style="width: 60px;height: 60px;border-radius: 50%" alt=""/>
@@ -9,10 +9,21 @@
         <van-cell title="用户账号" :value="user.userAccount"/>
         <van-cell title="昵称" is-link :value="user.username"
                   @click="toEdit('username','昵称',user.username)"/>
-        <van-cell title="性别" is-link :value="user.gender"
-                  @click="toEdit('gender','性别',user.gender)"/>
+        <van-cell title="性别" is-link @click="()=>showPicker=true">
+            <span v-if="user.gender===1">男</span>
+            <span v-if="user.gender===0">女</span>
+            <span v-if="user.gender===2">保密</span>
+        </van-cell>
         <van-cell title="电话" is-link :value="user.phone" @click="toEdit('phone','电话',user.phone)"/>
         <van-cell title="邮箱" is-link :value="user.email" @click="toEdit('email','邮箱',user.email)"/>
+        <van-popup v-model:show="showPicker" round position="bottom">
+            <van-picker
+                    title="性别"
+                    :columns="genders"
+                    @confirm="onConfirmGender"
+                    @cancel="()=>showPicker=false"
+            />
+        </van-popup>
     </template>
 </template>
 
@@ -28,7 +39,14 @@ let router = useRouter();
 const fileList = ref([]);
 const user = ref()
 const imgSrc = ref('')
-onMounted(async () => {
+const showPicker = ref(false);
+const genders = [
+    {text: '男', value: '1'},
+    {text: '女', value: '0'},
+    {text: '保密', value: '2'}
+];
+
+async function getUser() {
     let currentUser = await getCurrentUser();
     if (currentUser) {
         showSuccessToast("获取个人信息成功")
@@ -38,6 +56,10 @@ onMounted(async () => {
         showFailToast("未登录")
         router.replace("/user/login")
     }
+}
+
+onMounted(async () => {
+    await getUser();
 })
 const toEdit = (editKey: string, editName: string, editValue: string) => {
     router.push({
@@ -64,6 +86,22 @@ const afterRead = async () => {
         showFailToast("头像更新失败")
     }
     fileList.value = []
+}
+const onConfirmGender = async ({selectedValues}) => {
+    const res = await myAxios.put("/user/update", {
+        gender: selectedValues[0]
+    })
+    if (res?.data.code === 0) {
+        showSuccessToast("修改成功")
+    } else {
+        showFailToast("修改失败")
+    }
+    showPicker.value = false
+    await refresh()
+};
+
+const refresh = async () => {
+    await getUser()
 }
 </script>
 
