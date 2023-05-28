@@ -16,11 +16,13 @@
             <van-list
                     v-model:loading="listLoading"
                     :finished="listFinished"
+                    offset="0"
                     finished-text="没有更多了"
                     @load="onLoad"
             >
                 <UserCardList :user-list="userList"/>
             </van-list>
+            <van-back-top right="20px" bottom="60px" />
             <van-empty v-if="(!userList ||　userList.length===0) && !listLoading" image="search" description="暂无用户"/>
         </van-pull-refresh>
     </div>
@@ -50,8 +52,9 @@ async function getUserList(currentPage) {
     } else {
         showFailToast("加载失败")
     }
-    if (userListData?.data.data.records == null) {
+    if (userListData?.data.data.records.length===0) {
         listFinished.value = true
+        return
     }
     if (userListData?.data.data.records) {
         userListData.data.data.records.forEach(user => {
