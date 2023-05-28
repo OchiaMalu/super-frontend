@@ -1,5 +1,13 @@
 <template>
     <template v-if="user">
+        <van-row justify="center">
+            <van-image
+                round
+                width="80"
+                :src="user?.avatarUrl"
+                style="margin-bottom: 40px"
+            />
+        </van-row>
         <van-cell title="当前用户" :value="user?.username"/>
         <van-cell title="修改信息" is-link to="/user/update"/>
         <van-cell title="我创建的队伍" is-link to="/user/team/create"/>
