@@ -15,6 +15,7 @@
                 <UserCardList :user-list="userList"/>
             </van-list>
         </van-pull-refresh>
+        <van-back-top right="20px" bottom="60px" />
         <van-empty v-if="(!userList ||　userList.length===0)" image="search"
                    description="暂无符合要求的用户"/>
     </div>
