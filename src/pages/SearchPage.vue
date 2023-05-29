@@ -39,30 +39,33 @@ const originTagList = [
         children: [
             {text: '男', id: '男'},
             {text: '女', id: '女'},
+            {text: '保密', id: '保密'}
         ],
     },
     {
         text: '年级',
         children: [
+            {text: '高一', id: '高一'},
+            {text: '高二', id: '高二'},
+            {text: '高三', id: '高三'},
             {text: '大一', id: '大一'},
             {text: '大二', id: '大二'},
             {text: '大三', id: '大三'},
+            {text: '大四', id: '大四'},
+            {text: '研究生', id: '研究生'},
+            {text: '已工作', id: '已工作'},
         ],
     },
 ];
 let tagList = ref(originTagList);
 const searchText = ref('');
-const onSearch = (val) => {
+const onSearch = () => {
     tagList.value = originTagList.map(parentTag => {
         const tempChildren = [...parentTag.children];
         const tempParentTag = {...parentTag};
         tempParentTag.children = tempChildren.filter(item => item.text.includes(searchText.value))
         return tempParentTag;
     })
-};
-const onCancel = () => {
-    // searchText.value = '';
-    tagList.value = originTagList;
 };
 const activeIds = ref([]);
 const activeIndex = ref(0);

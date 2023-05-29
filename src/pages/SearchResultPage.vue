@@ -1,16 +1,22 @@
 <template>
     <div style="position: relative;height: 100%;width: 100%">
-        <UserCardList :user-list="userList"/>
-        <van-empty v-if="(!userList ||　userList.length===0) && !onloading" image="search"
+        <van-pull-refresh
+                v-model="refreshLoading"
+                success-text="刷新成功"
+                @refresh="onRefresh"
+        >
+            <van-list
+                    v-model:loading="listLoading"
+                    :finished="listFinished"
+                    offset="0"
+                    finished-text="没有更多了"
+                    @load="onLoad"
+            >
+                <UserCardList :user-list="userList"/>
+            </van-list>
+        </van-pull-refresh>
+        <van-empty v-if="(!userList ||　userList.length===0)" image="search"
                    description="暂无符合要求的用户"/>
-        <div style="margin-top: 50%" v-if="onloading">
-            <van-loading vertical>
-                <template #icon>
-                    <van-icon name="star-o" size="30"/>
-                </template>
-                加载中...
-            </van-loading>
-        </div>
     </div>
 </template>
 
@@ -22,12 +28,16 @@ import {showFailToast, showSuccessToast, showToast} from "vant";
 import qs from 'qs';
 import UserCardList from "../components/UserCardList.vue";
 
-const onloading = ref(true)
 let route = useRoute();
 const {tags} = route.query
 const userList = ref([])
-onMounted(async () => {
-    const userListData = await myAxios.get("/user/search/tags", {
+const currentPage = ref(0)
+const refreshLoading = ref(false)
+const listLoading = ref(false)
+const listFinished = ref(false)
+
+async function getSearchResult(currentPage) {
+    const res = await myAxios.get("/user/search/tags?currentPage=" + currentPage, {
         params: {
             tagNameList: tags
         },
@@ -41,16 +51,31 @@ onMounted(async () => {
         }).catch(function () {
             showFailToast("搜索失败")
         })
-    onloading.value = false
-    if (userListData) {
-        userListData.forEach(user => {
+    if (res.records.length !== 0) {
+        res.records.forEach(user => {
             if (user.tags) {
                 user.tags = JSON.parse(user.tags)
             }
         })
-        userList.value = userListData
+        res.records.forEach((item)=>userList.value.push(item))
+    } else {
+        listFinished.value = true
     }
-})
+}
+
+const onLoad = async () => {
+    currentPage.value++
+    await getSearchResult(currentPage.value)
+    listLoading.value = false;
+}
+
+const onRefresh = async () => {
+    currentPage.value = 1
+    userList.value = []
+    await getSearchResult(currentPage.value)
+    refreshLoading.value = false
+    listLoading.value = false;
+}
 </script>
 
 <style scoped>
