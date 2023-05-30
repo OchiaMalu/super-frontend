@@ -16,9 +16,15 @@
     </div>
     <van-tabbar route @change="onChange">
         <van-tabbar-item to="/" icon="home-o" name="index">主页</van-tabbar-item>
-        <van-tabbar-item to="/team" icon="friends-o" name="team">
-            队伍
+        <van-tabbar-item to="/team" icon="friends-o" name="team">队伍</van-tabbar-item>
+        <van-tabbar-item replace class="van-tabbar-return">
+            <div class="center-wrap" @click="toBlogEdit">
+                <div class="bgc-wrap">
+                    <van-icon name="plus" size="27" class="icon"/>
+                </div>
+            </div>
         </van-tabbar-item>
+        <van-tabbar-item to="/message" icon="envelop-o" name="message">消息</van-tabbar-item>
         <van-tabbar-item to="/user" icon="user-o" name="user">个人</van-tabbar-item>
     </van-tabbar>
 </template>
@@ -31,7 +37,7 @@ import {ref} from "vue";
 let router = useRouter();
 const DEFAULT_TITLE = "速配SUPER"
 const title = ref(DEFAULT_TITLE)
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
     const toPath = to.path
     const route = routes.find((routes) => {
         return routes.path === toPath
@@ -46,10 +52,46 @@ const onClickRight = () => {
     router.push("/search")
 };
 const onChange = (index) => showToast(`标签 ${index}`);
+
+//todo 跳转至博文编辑页
+const toBlogEdit=()=>{
+    alert(111)
+}
 </script>
 
 <style scoped>
 .content {
     padding-bottom: 50px;
+}
+
+.center-wrap {
+    width: 80px;
+    height: 80px;
+    margin-top: -20px;
+    z-index: 100000;
+    background-color: white;
+    border-radius: 50% 50% 0 0;
+    position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .4);
+}
+
+.bgc-wrap {
+    width: 50px;
+    height: 50px;
+    border-radius: 50% 50% 50% 50%;
+    background-color: #3c89fc;
+    position: absolute;
+    left: 15px;
+    top: 10px;
+}
+
+.icon {
+    margin-left: 11px;
+    margin-top: 10px;
+    color: white;
+}
+
+[class*=van-hairline]::after {
+    border: none !important
 }
 </style>
