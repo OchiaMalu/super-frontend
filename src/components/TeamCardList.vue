@@ -1,9 +1,9 @@
 <template>
-    <van-skeleton title avatar avatar-shape="square" :row="3" :loading="props.onLoading" v-for="team in props.teamList">
         <van-card
                 :desc="team.description"
                 :title="team.name"
                 :thumb="defaultImg"
+                v-for="team in props.teamList"
         >
             <template #tags>
                 <van-tag plain type="danger" style="margin-right: 8px;margin-top: 8px">{{ teamStatusEnum[team.status] }}
@@ -39,7 +39,6 @@
                     @cancel="doClear">
             <van-field v-model="teamPassword" placeholder="请输入密码"/>
         </van-dialog>
-    </van-skeleton>
 </template>
 
 <script setup lang="ts">
@@ -59,12 +58,10 @@ let currentUser = ref()
 const joinTeamId = ref()
 let emits = defineEmits(['refresh']);
 interface TeamCardListProps {
-    onLoading: boolean
     teamList: TeamType[]
 }
 
 const props = withDefaults(defineProps<TeamCardListProps>(), {
-    onLoading: true
 })
 
 onMounted(async () => {

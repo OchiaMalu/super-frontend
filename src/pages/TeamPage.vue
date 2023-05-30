@@ -9,9 +9,33 @@
             success-text="刷新成功"
             @refresh="onRefresh"
     >
-        <TeamCardList :team-list="teamList" :onLoading="onLoading" @refresh="onRefresh"/>
-        <van-empty image="search" v-if="!teamList || teamList.length===0" description="暂无符合要求的队伍"/>
+        <van-list
+                v-model:loading="listLoading"
+                :finished="listFinished"
+                offset="0"
+                finished-text="没有更多了"
+                @load="onLoad"
+        >
+            <template #loading>
+                <van-skeleton>
+                    <template #template>
+                        <div :style="{ display: 'flex', width: '100%' }">
+                            <van-skeleton-image/>
+                            <div :style="{ flex: 1, marginLeft: '16px' }">
+                                <van-skeleton-paragraph row-width="60%"/>
+                                <van-skeleton-paragraph/>
+                                <van-skeleton-paragraph/>
+                                <van-skeleton-paragraph/>
+                            </div>
+                        </div>
+                    </template>
+                </van-skeleton>
+            </template>
+            <TeamCardList :team-list="teamList" @refresh="onRefresh"/>
+        </van-list>
     </van-pull-refresh>
+
+    <van-empty image="search" v-if="(!teamList || teamList.length===0) && !isLoading" description="暂无符合要求的队伍"/>
     <van-button class="add-button" icon="plus" type="primary" @click="toCreateTeam"></van-button>
 </template>
 
@@ -25,49 +49,71 @@ import {showFailToast, showSuccessToast} from "vant";
 const active = ref('public')
 let router = useRouter();
 const searchText = ref("")
-const teamList = ref([{}, {}, {}, {}])
+const teamList = ref([])
 const refreshLoading = ref(false)
-const onLoading = ref(true)
+const listLoading = ref(false)
+const listFinished = ref(false)
+const currentPage = ref(0)
+const isLoading = ref(true)
 const tabChange = (name) => {
-    teamList.value = [{}, {}, {}, {}]
+    teamList.value = []
+    listFinished.value = false
+    currentPage.value = 1
     if (name === 'public') {
-        listTeams(searchText.value, 0)
+        listTeams(currentPage.value, searchText.value, 0)
     } else {
-        listTeams(searchText.value, 2)
+        listTeams(currentPage.value, searchText.value, 2)
     }
 }
 const toCreateTeam = () => {
     router.push("/team/add")
 }
-const listTeams = async (val = '', status = 0) => {
-    onLoading.value = true
+const listTeams = async (currentPage, val = '', status = 0) => {
+    listLoading.value = true
     const res = await myAxios.get("/team/list", {
         params: {
             searchText: val,
-            status
+            status,
+            currentPage
         }
     })
     if (res?.data.code === 0) {
         showSuccessToast("队伍加载成功")
-        teamList.value = res.data.data
+        if (res.data.data.records.length === 0) {
+            listFinished.value = true
+            return
+        }
+        res.data.data.records.forEach(team => teamList.value.push(team))
     } else {
         showFailToast("队伍加载失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
-    onLoading.value = false
+    listLoading.value = false
+    isLoading.value = false
 }
 const onSearch = async (val) => {
-    await listTeams(val)
+    teamList.value = []
+    listFinished.value = false
+    currentPage.value = 1
+    if (active.value === 'public') {
+        await listTeams(currentPage.value, searchText.value, 0)
+    } else {
+        await listTeams(currentPage.value, searchText.value, 2)
+    }
+}
+const onLoad = async () => {
+    currentPage.value++
+    await listTeams(currentPage.value)
+    // onLoading.value=false
 }
 
-onMounted(async () => {
-    await listTeams();
-})
-
 const onRefresh = async () => {
+    teamList.value = []
+    listFinished.value = false
+    currentPage.value = 1
     if (active.value === 'public') {
-        await listTeams()
+        await listTeams(currentPage.value, searchText.value)
     } else {
-        await listTeams(searchText.value, 2)
+        await listTeams(currentPage.value, searchText.value, 2)
     }
     refreshLoading.value = false
 }

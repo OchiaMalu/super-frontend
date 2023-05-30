@@ -38,6 +38,8 @@ declare module '@vue/runtime-core' {
     VanRow: typeof import('vant/es')['Row']
     VanSearch: typeof import('vant/es')['Search']
     VanSkeleton: typeof import('vant/es')['Skeleton']
+    VanSkeletonImage: typeof import('vant/es')['SkeletonImage']
+    VanSkeletonParagraph: typeof import('vant/es')['SkeletonParagraph']
     VanStepper: typeof import('vant/es')['Stepper']
     VanSticky: typeof import('vant/es')['Sticky']
     VanTab: typeof import('vant/es')['Tab']
