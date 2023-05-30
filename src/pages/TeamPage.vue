@@ -34,8 +34,7 @@
             <TeamCardList :team-list="teamList" @refresh="onRefresh"/>
         </van-list>
     </van-pull-refresh>
-
-    <van-empty image="search" v-if="(!teamList || teamList.length===0) && !isLoading" description="暂无符合要求的队伍"/>
+    <van-empty image="search" v-if="(!teamList || teamList.length===0) && !listLoading" description="暂无符合要求的队伍"/>
     <van-button class="add-button" icon="plus" type="primary" @click="toCreateTeam"></van-button>
 </template>
 
@@ -54,7 +53,6 @@ const refreshLoading = ref(false)
 const listLoading = ref(false)
 const listFinished = ref(false)
 const currentPage = ref(0)
-const isLoading = ref(true)
 const tabChange = (name) => {
     teamList.value = []
     listFinished.value = false
@@ -88,7 +86,6 @@ const listTeams = async (currentPage, val = '', status = 0) => {
         showFailToast("队伍加载失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
     listLoading.value = false
-    isLoading.value = false
 }
 const onSearch = async (val) => {
     teamList.value = []

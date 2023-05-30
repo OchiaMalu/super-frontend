@@ -30,7 +30,7 @@
             <TeamCardList :team-list="teamList"/>
         </van-list>
     </van-pull-refresh>
-    <van-empty v-if="teamList?.length<1" description="数据为空"/>
+    <van-empty v-if="teamList?.length<1 && !listLoading" description="数据为空"/>
 </template>
 
 <script setup lang="ts">
