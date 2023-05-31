@@ -17,8 +17,8 @@
     <van-tabbar route @change="onChange">
         <van-tabbar-item to="/" icon="home-o" name="index">主页</van-tabbar-item>
         <van-tabbar-item to="/team" icon="flag-o" name="team">队伍</van-tabbar-item>
-        <van-tabbar-item replace class="van-tabbar-return">
-            <div class="center-wrap" @click="toBlogEdit">
+        <van-tabbar-item replace class="van-tabbar-return" to="/blog/edit">
+            <div class="center-wrap">
                 <div class="bgc-wrap">
                     <van-icon name="plus" size="27" class="icon"/>
                 </div>
@@ -52,11 +52,6 @@ const onClickRight = () => {
     router.push("/search")
 };
 const onChange = (index) => showToast(`标签 ${index}`);
-
-//todo 跳转至博文编辑页
-const toBlogEdit=()=>{
-    alert(111)
-}
 </script>
 
 <style scoped>
