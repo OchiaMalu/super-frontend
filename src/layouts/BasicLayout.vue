@@ -16,7 +16,7 @@
     </div>
     <van-tabbar route @change="onChange">
         <van-tabbar-item to="/" icon="home-o" name="index">主页</van-tabbar-item>
-        <van-tabbar-item to="/team" icon="friends-o" name="team">队伍</van-tabbar-item>
+        <van-tabbar-item to="/team" icon="flag-o" name="team">队伍</van-tabbar-item>
         <van-tabbar-item replace class="van-tabbar-return">
             <div class="center-wrap" @click="toBlogEdit">
                 <div class="bgc-wrap">
@@ -61,7 +61,7 @@ const toBlogEdit=()=>{
 
 <style scoped>
 .content {
-    padding-bottom: 50px;
+    padding-bottom: 70px;
 }
 
 .center-wrap {
