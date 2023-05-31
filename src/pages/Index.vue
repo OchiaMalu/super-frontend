@@ -42,7 +42,7 @@ const refreshLoading = ref(false)
 const currentPage = ref(0)
 
 async function getUserList(currentPage) {
-    const userListData = await myAxios.get("/user/recommend", {
+    const userListData = await myAxios.get("/user/match", {
         params: {
             currentPage: currentPage
         }
@@ -52,18 +52,18 @@ async function getUserList(currentPage) {
     } else {
         showFailToast("加载失败")
     }
-    if (userListData?.data.data.records.length===0) {
+    if (userListData?.data.data.length===0) {
         listFinished.value = true
         return
     }
-    if (userListData?.data.data.records) {
-        userListData.data.data.records.forEach(user => {
+    if (userListData?.data.data) {
+        userListData.data.data.forEach(user => {
             if (user.tags) {
                 user.tags = JSON.parse(user.tags)
             }
         })
-        for (let i = 0; i < userListData.data.data.records.length; i++) {
-            userList.value.push(userListData.data.data.records[i])
+        for (let i = 0; i < userListData.data.data.length; i++) {
+            userList.value.push(userListData.data.data[i])
         }
     }
 }
