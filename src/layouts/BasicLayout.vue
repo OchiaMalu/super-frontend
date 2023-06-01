@@ -81,8 +81,8 @@ const onChange = (index) => showToast(`标签 ${index}`);
 }
 
 .icon {
-    margin-left: 11px;
-    margin-top: 10px;
+    margin-left: -3px;
+    margin-top: -3px;
     color: white;
 }
 
