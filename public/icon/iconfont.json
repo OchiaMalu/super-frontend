@@ -1,0 +1,16 @@
+{
+  "id": "4093533",
+  "name": "no name",
+  "font_family": "my-icon",
+  "css_prefix_text": "my-icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "17608625",
+      "name": "艾特",
+      "font_class": "aite",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    }
+  ]
+}

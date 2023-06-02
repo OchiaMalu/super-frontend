@@ -8,6 +8,7 @@ import routes from "./config/routes.ts";
 import "./global.css"
 import BasicLayout from "./layouts/BasicLayout.vue";
 import BlogEditPage from "./pages/BlogEditPage.vue";
+import "../public/icon/iconfont.css"
 
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),

@@ -14,29 +14,31 @@
     <div class="content">
         <router-view/>
     </div>
-    <van-tabbar route @change="onChange">
+    <van-tabbar route @change="onChange" v-model="active">
         <van-tabbar-item to="/" icon="home-o" name="index">主页</van-tabbar-item>
         <van-tabbar-item to="/team" icon="flag-o" name="team">队伍</van-tabbar-item>
-        <van-tabbar-item replace class="van-tabbar-return" to="/blog/edit">
+        <van-tabbar-item replace class="van-tabbar-addBlog" @click="checkLogin('/blog/edit',2)">
             <div class="center-wrap">
                 <div class="bgc-wrap">
                     <van-icon name="plus" size="27" class="icon"/>
                 </div>
             </div>
         </van-tabbar-item>
-        <van-tabbar-item to="/message" icon="envelop-o" name="message">消息</van-tabbar-item>
+        <van-tabbar-item icon="envelop-o" name="message" @click="checkLogin('/message',3)">消息</van-tabbar-item>
         <van-tabbar-item to="/user" icon="user-o" name="user">个人</van-tabbar-item>
     </van-tabbar>
 </template>
 <script setup>
-import {showToast} from "vant";
+import {showConfirmDialog, showToast} from "vant";
 import {useRouter} from "vue-router";
 import routes from "../config/routes.ts";
 import {ref} from "vue";
+import {getCurrentUser} from "../services/user.ts";
 
 let router = useRouter();
 const DEFAULT_TITLE = "速配SUPER"
 const title = ref(DEFAULT_TITLE)
+const active = ref(0)
 router.beforeEach((to) => {
     const toPath = to.path
     const route = routes.find((routes) => {
@@ -52,6 +54,24 @@ const onClickRight = () => {
     router.push("/search")
 };
 const onChange = (index) => showToast(`标签 ${index}`);
+
+const checkLogin = async (to, index) => {
+    let user = await getCurrentUser();
+    if (!user) {
+        showConfirmDialog({
+            message:
+                "该功能需要登陆后使用,是否登录",
+            confirmButtonText: "去登录"
+        })
+            .then(() => {
+                router.replace("/user/login")
+            })
+            .catch(() => {
+            });
+    } else {
+        await router.push(to)
+    }
+}
 </script>
 
 <style scoped>
