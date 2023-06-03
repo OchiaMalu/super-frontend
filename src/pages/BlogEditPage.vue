@@ -20,13 +20,16 @@
                 </div>
             </template>
         </van-uploader>
-        <van-field v-model="title" placeholder="填写标题"/>
+        <van-field v-model="title"
+                   placeholder="填写标题"
+                   :rules="[{ required: true, message: '请输入用户名' }]"/>
         <van-field
                 v-model="content"
                 rows="1"
                 autosize
                 type="textarea"
                 placeholder="添加正文"
+                :rules="[{ required: true, message: '请输入用户名' }]"
         />
     </div>
 </template>
@@ -36,6 +39,7 @@ import {onMounted, ref} from "vue";
 import {showFailToast, showSuccessToast} from "vant";
 import {useRouter} from "vue-router";
 import {getCurrentUser} from "../services/user.ts";
+import myAxios from "../plugins/my-axios.js";
 
 const fileList = ref([])
 const title = ref("")
@@ -45,8 +49,28 @@ const user = ref()
 const onClickLeft = () => {
     router.push("/")
 };
-const onClickRight = () => {
-    alert("添加")
+const onClickRight = async () => {
+    if (title.value === '') {
+        showFailToast("请填写标题")
+    }
+    if (content.value === '') {
+        showFailToast("请填写正文")
+    }
+    let formData = new FormData();
+    for (let i = 0; i < fileList.value.length; i++) {
+        formData.append("images", fileList.value[i].file)
+    }
+    formData.append("title", title.value)
+    formData.append("content", content.value)
+    let res = await myAxios.post("/blog/add", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    });
+    if (res?.data.code === 0) {
+        showSuccessToast("添加成功")
+        await router.replace("/")
+    }
 };
 const overSize = () => {
     showFailToast("单个图片不能超过5M")
