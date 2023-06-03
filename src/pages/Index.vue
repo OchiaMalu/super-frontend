@@ -27,7 +27,42 @@
                                description="暂无用户"/>
                 </van-pull-refresh>
             </van-tab>
-            <van-tab title="热门贴文">内容 2</van-tab>
+            <van-tab title="热门贴文">
+                <van-list
+                        v-model:loading="listLoading"
+                        :finished="blogListFinished"
+                        offset="0"
+                        finished-text="没有更多了"
+                        @load="blogLoad"
+                        style="margin: 15px"
+                >
+                    <van-cell-group>
+                        <van-cell
+                            v-for="blog in blogList"
+                            :title="blog.title">
+                            <template #right-icon>
+                                <van-image src="https://fastly.jsdelivr.net/npm/@vant/assets/ipad.jpeg" width="88px"/>
+                            </template>
+                            <template #title>
+                                <span style="margin-left: 20px">{{ blog.title}}</span>
+                            </template>
+                            <template #value>
+                                <div style="margin-top: 60px;margin-right: 10px">
+                                    <van-icon name="envelop-o" size="14" style="margin-right: 5px">
+                                        <span style="margin-left: 2px">{{blog.commentsNum}}</span>
+                                    </van-icon>
+                                    <van-icon name="good-job-o" size="14">
+                                        <span style="margin-left: 2px">{{blog.likedNum}}</span>
+                                    </van-icon>
+                                </div>
+                            </template>
+                            <template #label>
+                                <span style="margin-left: 20px">{{blog.createTime}}</span>
+                            </template>
+                        </van-cell>
+                    </van-cell-group>
+                </van-list>
+            </van-tab>
         </van-tabs>
 
     </div>
@@ -46,6 +81,26 @@ const userList = ref([])
 const refreshLoading = ref(false)
 const currentPage = ref(0)
 const active = ref(0)
+const blogList = ref([])
+const blogListFinished = ref(false)
+const blogCurrentPage = ref(0)
+
+const blogLoad = async () => {
+    blogCurrentPage.value++
+    await getBlogList(blogCurrentPage.value)
+}
+
+const getBlogList = async (currentPage) => {
+    let res = await myAxios.get("/blog/list?currentPage=" + currentPage);
+    if (res?.data.code === 0) {
+        if (res.data.data.records.length > 0) {
+            res.data.data.records.forEach(item => blogList.value.push(item))
+        } else {
+            blogListFinished.value = true
+        }
+        listLoading.value=false
+    }
+}
 
 async function getUserList(currentPage) {
     const userListData = await myAxios.get("/user/match", {
@@ -74,10 +129,6 @@ async function getUserList(currentPage) {
     }
 }
 
-// onMounted(async () => {
-//     await getUserList();
-//     onLoading.value = false
-// })
 const onLoad = async () => {
     currentPage.value++
     await getUserList(currentPage.value)
@@ -107,5 +158,13 @@ const onRefresh = async () => {
 .my-swipe {
     margin: 15px;
     border-radius: 3%;
+}
+
+:deep(.van-cell__label){
+    margin-top: 38px;
+}
+:deep(.van-cell){
+    padding-left: 0;
+    padding-right: 0;
 }
 </style>

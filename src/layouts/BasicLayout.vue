@@ -24,7 +24,7 @@
                 </div>
             </div>
         </van-tabbar-item>
-        <van-tabbar-item icon="envelop-o" name="message" @click="checkLogin('/message',3)">消息</van-tabbar-item>
+        <van-tabbar-item icon="smile-comment-o" name="message" @click="checkLogin('/message',3)">消息</van-tabbar-item>
         <van-tabbar-item to="/user" icon="user-o" name="user">个人</van-tabbar-item>
     </van-tabbar>
 </template>
