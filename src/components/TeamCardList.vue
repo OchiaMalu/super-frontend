@@ -1,9 +1,10 @@
 <template>
     <van-card
-            v-for="team in props.teamList"
-            :desc="team.description"
-            :title="team.name"
-            :thumb="defaultImg"
+        v-for="team in props.teamList"
+        :desc="team.description"
+        :title="team.name"
+        :thumb="defaultImg"
+        @click="getTeamDetail(team.id)"
     >
         <template #tags>
             <van-tag plain type="danger" style="margin-right: 8px;margin-top: 8px">{{ teamStatusEnum[team.status] }}
@@ -44,7 +45,7 @@
 <script setup lang="ts">
 import {TeamType} from "../models/team";
 import {teamStatusEnum} from "../constants/team.ts";
-import defaultImg from "../assets/defalutTeamImg.jpg"
+import defaultImg from "../../public/defalutTeamImg.jpg"
 import myAxios from "../plugins/my-axios.js";
 import {showFailToast, showSuccessToast} from "vant";
 import {getCurrentUser} from "../services/user.ts";
@@ -129,6 +130,14 @@ const onRefresh = () => {
 const doClear = () => {
     joinTeamId.value = ''
     teamPassword.value = ''
+}
+const getTeamDetail = (id) => {
+    router.push({
+        path: "/team/detail",
+        query: {
+            id
+        }
+    })
 }
 </script>
 

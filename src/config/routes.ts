@@ -14,12 +14,14 @@ import SignUpPage from "../pages/SignUpPage.vue";
 import BlogEditPage from "../pages/BlogEditPage.vue";
 import MessagePage from "../pages/MassagePage.vue";
 import UserBlogPage from "../pages/UserBlogPage.vue";
+import TeamDetailPage from "../pages/TeamDetailPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
     {path: '/search', title: "搜索", component: Search},
     {path: '/search/userList', title: "搜索到的用户", component: SearchResult},
     {path: '/team', title: "队伍", component: Team},
+    {path: '/team/detail', title: '队伍详情', component: TeamDetailPage},
     {path: '/team/add', title: "创建队伍", component: TeamAddPage},
     {path: '/team/update', title: "更新队伍", component: TeamUpdatePage},
     {path: '/user', title: "个人", component: User},
