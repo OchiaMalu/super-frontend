@@ -1,17 +1,40 @@
 <template>
     <template v-if="user">
-        <van-row justify="center">
+        <van-space style="margin: 20px">
             <van-image
-                round
-                width="80"
-                :src="user?.avatarUrl"
-                style="margin-bottom: 40px"
+                    round
+                    width="80"
+                    :src="user?.avatarUrl"
             />
-        </van-row>
-        <van-cell title="当前用户" :value="user?.username"/>
-        <van-cell title="修改信息" is-link to="/user/update"/>
-        <van-cell title="我创建的队伍" is-link to="/user/team/create"/>
-        <van-cell title="我加入的队伍" is-link to="/user/team/join"/>
+            <van-cell :title="user.username" :label="user?.profile" />
+        </van-space>
+        <van-grid :border="false">
+            <van-grid-item text="创建的队伍" to="/user/team/create" >
+                <template #icon>
+                    <van-icon class-prefix="my-icon" name="wochuangjiande" size="23" style="margin-bottom: 8px"/>
+                </template>
+            </van-grid-item>
+            <van-grid-item text="加入的队伍" to="/user/team/join" >
+                <template #icon>
+                    <van-icon class-prefix="my-icon" name="jiarubanji" size="23" style="margin-bottom: 8px"/>
+                </template>
+            </van-grid-item>
+            <van-grid-item text="我写的帖文" >
+                <template #icon>
+                    <van-icon class-prefix="my-icon" name="wofadetiezi" size="23" style="margin-bottom: 8px"/>
+                </template>
+            </van-grid-item>
+            <van-grid-item text="联系客服">
+                <template #icon>
+                    <van-icon class-prefix="my-icon" name="fankui" size="23" style="margin-bottom: 8px"/>
+                </template>
+            </van-grid-item>
+        </van-grid>
+        <van-cell title="修改信息" style="padding: 15px" is-link to="/user/update" :center="true">
+            <template #icon>
+                <van-icon name="user-circle-o" size="20" style="margin-right: 5px" color="#1989fa"/>
+            </template>
+        </van-cell>
         <div style="margin: 16px;">
             <van-button style="margin-top: 10px" round block type="primary" native-type="submit" color="red"
                         @click="logout">
@@ -63,5 +86,9 @@ const logout = async () => {
 </script>
 
 <style scoped>
+
+:deep(.van-grid-item__text) {
+    font-size: 8px;
+}
 
 </style>

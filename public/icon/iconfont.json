@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "577336",
+      "name": "反馈",
+      "font_class": "fankui",
+      "unicode": "e738",
+      "unicode_decimal": 59192
+    },
+    {
+      "icon_id": "595400",
+      "name": "我发的帖子",
+      "font_class": "wofadetiezi",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "4295363",
+      "name": "加入班级",
+      "font_class": "jiarubanji",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    },
+    {
+      "icon_id": "11757277",
+      "name": "我创建的",
+      "font_class": "wochuangjiande",
+      "unicode": "e64d",
+      "unicode_decimal": 58957
+    },
+    {
       "icon_id": "17608625",
       "name": "艾特",
       "font_class": "aite",
