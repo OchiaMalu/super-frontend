@@ -137,12 +137,5 @@ const onRefresh = async () => {
     border-radius: 3%;
 }
 
-:deep(.van-cell__label) {
-    margin-top: 38px;
-}
 
-:deep(.van-cell) {
-    padding-left: 0;
-    padding-right: 0;
-}
 </style>

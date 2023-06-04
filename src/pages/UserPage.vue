@@ -8,27 +8,27 @@
             />
             <van-cell :title="user.username" style="width: 120px">
                 <template #label>
-                    <van-text-ellipsis :content="user.profile || '点此编辑个性签名'" @click="toEditProfile" />
+                    <van-text-ellipsis :content="user.profile || '点此编辑个性签名'" @click="toEditProfile"/>
                 </template>
             </van-cell>
         </van-space>
         <van-grid :border="false">
-            <van-grid-item text="创建的队伍" to="/user/team/create" >
+            <van-grid-item text="创建的队伍" to="/user/team/create">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="wochuangjiande" size="23" style="margin-bottom: 8px"/>
                 </template>
             </van-grid-item>
-            <van-grid-item text="加入的队伍" to="/user/team/join" >
+            <van-grid-item text="加入的队伍" to="/user/team/join">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="jiarubanji" size="23" style="margin-bottom: 8px"/>
                 </template>
             </van-grid-item>
-            <van-grid-item text="我写的帖文" >
+            <van-grid-item text="我写的帖文" to="/user/blog">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="wofadetiezi" size="23" style="margin-bottom: 8px"/>
                 </template>
             </van-grid-item>
-            <van-grid-item text="联系客服">
+            <van-grid-item text="联系客服" @click="customerService">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="fankui" size="23" style="margin-bottom: 8px"/>
                 </template>
@@ -45,6 +45,11 @@
                 退出
             </van-button>
         </div>
+        <van-dialog v-model:show="showCustomerService" title="请加客服微信">
+            <van-image
+                src="../../public/customer-service.jpg"
+            />
+        </van-dialog>
     </template>
 </template>
 
@@ -58,6 +63,7 @@ import {getCurrentUser} from "../services/user.ts";
 
 let router = useRouter();
 const user = ref()
+const showCustomerService = ref(false)
 onMounted(async () => {
     let currentUser = await getCurrentUser();
     if (currentUser) {
@@ -87,8 +93,12 @@ const logout = async () => {
         showFailToast("内部错误," + res?.data.message)
     }
 }
-const toEditProfile=()=>{
+const toEditProfile = () => {
     router.push("/user/update")
+}
+
+const customerService = () => {
+    showCustomerService.value = true
 }
 </script>
 
