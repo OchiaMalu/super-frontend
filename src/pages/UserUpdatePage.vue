@@ -1,29 +1,37 @@
 <template>
     <template v-if="user">
-        <van-cell title="头像" is-link center>
-            <van-uploader v-model="fileList" :max-count="1" :after-read="afterRead" preview-size="60px">
-                <template #preview-delete/>
-                <img :src="imgSrc" style="width: 60px;height: 60px;border-radius: 50%" alt=""/>
-            </van-uploader>
-        </van-cell>
-        <van-cell title="用户账号" :value="user.userAccount"/>
-        <van-cell title="昵称" is-link :value="user.username"
-                  @click="toEdit('username','昵称',user.username)"/>
-        <van-cell title="性别" is-link @click="()=>showPicker=true">
-            <span v-if="user.gender===1">男</span>
-            <span v-if="user.gender===0">女</span>
-            <span v-if="user.gender===2">保密</span>
-        </van-cell>
-        <van-cell title="电话" is-link :value="user.phone" @click="toEdit('phone','电话',user.phone)"/>
-        <van-cell title="邮箱" is-link :value="user.email" @click="toEdit('email','邮箱',user.email)"/>
-        <van-popup v-model:show="showPicker" round position="bottom">
-            <van-picker
-                    title="性别"
-                    :columns="genders"
-                    @confirm="onConfirmGender"
-                    @cancel="()=>showPicker=false"
-            />
-        </van-popup>
+        <div>
+            <van-cell title="头像" is-link center>
+                <van-uploader v-model="fileList" :max-count="1" :after-read="afterRead" preview-size="60px">
+                    <template #preview-delete/>
+                    <img :src="imgSrc" style="width: 60px;height: 60px;border-radius: 50%" alt=""/>
+                </van-uploader>
+            </van-cell>
+            <van-cell title="用户账号" :value="user.userAccount"/>
+            <van-cell title="昵称" is-link :value="user.username"
+                      @click="toEdit('username','昵称',user.username)"/>
+            <van-cell title="个性签名" is-link
+                      @click="toEdit('profile','个性签名',user.profile)">
+                <template #value>
+                    <van-text-ellipsis :content="user.profile" />
+                </template>
+            </van-cell>
+            <van-cell title="性别" is-link @click="()=>showPicker=true">
+                <span v-if="user.gender===1">男</span>
+                <span v-if="user.gender===0">女</span>
+                <span v-if="user.gender===2">保密</span>
+            </van-cell>
+            <van-cell title="电话" is-link :value="user.phone" @click="toEdit('phone','电话',user.phone)"/>
+            <van-cell title="邮箱" is-link :value="user.email" @click="toEdit('email','邮箱',user.email)"/>
+            <van-popup v-model:show="showPicker" round position="bottom">
+                <van-picker
+                        title="性别"
+                        :columns="genders"
+                        @confirm="onConfirmGender"
+                        @cancel="()=>showPicker=false"
+                />
+            </van-popup>
+        </div>
     </template>
 </template>
 
@@ -112,5 +120,10 @@ const refresh = async () => {
 
 :deep(.van-uploader__preview-image) {
     border-radius: 50%;
+}
+
+:deep(.van-cell) {
+    padding-left: 23px;
+    padding-right: 16px;
 }
 </style>

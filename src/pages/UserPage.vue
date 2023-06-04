@@ -6,7 +6,11 @@
                     width="80"
                     :src="user?.avatarUrl"
             />
-            <van-cell :title="user.username" :label="user?.profile" />
+            <van-cell :title="user.username" style="width: 120px">
+                <template #label>
+                    <van-text-ellipsis :content="user.profile || '点此编辑个性签名'" @click="toEditProfile" />
+                </template>
+            </van-cell>
         </van-space>
         <van-grid :border="false">
             <van-grid-item text="创建的队伍" to="/user/team/create" >
@@ -82,6 +86,9 @@ const logout = async () => {
     } else {
         showFailToast("内部错误," + res?.data.message)
     }
+}
+const toEditProfile=()=>{
+    router.push("/user/update")
 }
 </script>
 
