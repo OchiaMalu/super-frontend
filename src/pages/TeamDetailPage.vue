@@ -5,12 +5,12 @@
             :src="defaultImg"
     />
     <van-cell-group inset>
-        <van-cell title="队伍名" icon="location-o" :value="team.name"/>
-        <van-cell title="队伍描述" icon="location-o" :value="team.description"/>
-        <van-cell title="队长" icon="location-o" :value="team.leaderName"/>
-        <van-cell title="队伍状态" icon="location-o" :value="teamStatusEnum[team.status]"/>
-        <van-cell title="队伍人数" icon="location-o" :value="`${team.hasJoinNum}/${team.maxNum}`"/>
-        <van-cell title="过期时间" icon="location-o" :value="team.expireTime || '永不过期'"/>
+        <van-cell title="队伍名" icon="flag-o" :value="team.name"/>
+        <van-cell title="队伍描述" icon="label-o" :value="team.description"/>
+        <van-cell title="队长" icon="manager-o" :value="team.leaderName"/>
+        <van-cell title="队伍状态" icon="shield-o" :value="teamStatusEnum[team.status]"/>
+        <van-cell title="队伍人数" icon="friends-o" :value="`${team.hasJoinNum}/${team.maxNum}`"/>
+        <van-cell title="过期时间" icon="clock-o" :value="team.expireTime || '永不过期'"/>
     </van-cell-group>
 </template>
 
