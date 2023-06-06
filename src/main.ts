@@ -9,6 +9,7 @@ import "./global.css"
 import BasicLayout from "./layouts/BasicLayout.vue";
 import BlogEditPage from "./pages/BlogEditPage.vue";
 import "../public/icon/iconfont.css"
+import BlogPage from "./pages/BlogPage.vue";
 
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
@@ -16,7 +17,8 @@ const router = VueRouter.createRouter({
 })
 const app = createApp(App);
 app.component("default-layout", BasicLayout)
-app.component("blog-layout", BlogEditPage)
+app.component("blog-edit-layout", BlogEditPage)
+app.component('blog', BlogPage)
 app.use(Button);
 app.use(NavBar);
 app.use(Icon);

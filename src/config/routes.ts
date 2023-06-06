@@ -15,6 +15,7 @@ import BlogEditPage from "../pages/BlogEditPage.vue";
 import MessagePage from "../pages/MassagePage.vue";
 import UserBlogPage from "../pages/UserBlogPage.vue";
 import TeamDetailPage from "../pages/TeamDetailPage.vue";
+import BlogPage from "../pages/BlogPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
@@ -31,7 +32,8 @@ const routes = [
     {path: '/user/update', title: "修改用户", component: UserUpdatePage},
     {path: '/user/team/join', title: "我加入的队伍", component: UserTeamJoinPage},
     {path: '/user/team/create', title: "我创建的队伍", component: UserTeamCreatePage},
-    {path: '/blog/edit', title: '博文编辑', component: BlogEditPage, meta: {layout: 'blog'}},
+    {path: '/blog', component: BlogPage, meta: {layout: 'blog'}},
+    {path: '/blog/edit', title: '博文编辑', component: BlogEditPage, meta: {layout: 'blog-edit'}},
     {path: '/user/blog', title: '我写的博文', component: UserBlogPage},
     {path: '/message', title: '消息中心', component: MessagePage}
 ]

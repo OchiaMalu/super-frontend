@@ -2,7 +2,8 @@
     <van-cell-group>
         <van-cell
             v-for="blog in props.blogList"
-            :title="blog.title">
+            :title="blog.title"
+            @click="toBlog(blog.id)">
             <template #right-icon>
                 <van-image src="https://fastly.jsdelivr.net/npm/@vant/assets/ipad.jpeg" width="88px"/>
             </template>
@@ -32,6 +33,7 @@
 <script setup lang="ts">
 import {BlogType} from "../models/blog.js";
 import myAxios from "../plugins/my-axios.js";
+import {useRouter} from "vue-router";
 
 interface BlogCardListProps {
     blogList: BlogType[]
@@ -47,6 +49,15 @@ const likeBlog = async (blog) => {
             blog.isLike = res_.data.data.isLike
         }
     }
+}
+let router = useRouter();
+const toBlog = (blogId) => {
+    router.push({
+        path: '/blog',
+        query: {
+            id: blogId
+        }
+    })
 }
 </script>
 

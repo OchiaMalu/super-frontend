@@ -1,4 +1,8 @@
+import {UserType} from "./user";
+
 export type BlogType = {
+    id: number,
+    author?: UserType,
     userId: number,
     title: string,
     content: string,
