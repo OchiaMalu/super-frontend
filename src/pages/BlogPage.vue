@@ -28,8 +28,9 @@
 
     <van-cell :title="blog.content" title-style="margin-left: 10px"/>
 
-    <van-cell-group inset>
-        <van-field v-model="comment" placeholder="评论" style="position: fixed;bottom: 0">
+    <van-cell-group>
+        <van-field v-model="comment" :autosize="{minHeight: 32}" type="textarea" rows="1" placeholder="评论"
+                   style="position: fixed;bottom: 0;padding-left: 16px;border-top: 1px solid #C1C1C1">
             <template #right-icon>
                 <van-icon class-prefix="my-icon" name="shangchuan" size="30" color="#4387f6"/>
             </template>
@@ -41,7 +42,7 @@
                     <span style="margin-left: 2px">{{ blog.likedNum }}</span>
                 </van-icon>
                 <van-icon name="good-job-o" v-else color="red" size="15" @click="likeBlog(blog)"
-                          style="margin-right: 10px">
+                          style="margin-right: 2px">
                     <span style="margin-left: 2px">{{ blog.likedNum }}</span>
                 </van-icon>
             </template>
@@ -74,10 +75,21 @@ onMounted(async () => {
         author.value = res.data.data.author
     }
 })
+const likeBlog = async (blog) => {
+    let res = await myAxios.put("/blog/like/" + blog.id);
+    if (res?.data.code === 0) {
+        let res_ = await myAxios.get("/blog/" + blog.id);
+        if (res_?.data.code === 0) {
+            blog.likedNum = res_.data.data.likedNum
+            blog.isLike = res_.data.data.isLike
+        }
+    }
+}
 </script>
 
 <style scoped>
 :deep(.van-field__value) {
     margin-right: 15px;
 }
+
 </style>

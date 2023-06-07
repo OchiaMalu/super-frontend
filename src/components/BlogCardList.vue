@@ -15,12 +15,6 @@
                     <van-icon name="envelop-o" size="14" style="margin-right: 5px">
                         <span style="margin-left: 2px">{{ blog.commentsNum }}</span>
                     </van-icon>
-                    <van-icon name="good-job-o" v-if="!blog.isLike" size="14" @click="likeBlog(blog)">
-                        <span style="margin-left: 2px">{{ blog.likedNum }}</span>
-                    </van-icon>
-                    <van-icon name="good-job-o" v-else color="red" size="14" @click="likeBlog(blog)">
-                        <span style="margin-left: 2px">{{ blog.likedNum }}</span>
-                    </van-icon>
                 </div>
             </template>
             <template #label>
@@ -32,7 +26,6 @@
 
 <script setup lang="ts">
 import {BlogType} from "../models/blog.js";
-import myAxios from "../plugins/my-axios.js";
 import {useRouter} from "vue-router";
 
 interface BlogCardListProps {
@@ -40,16 +33,6 @@ interface BlogCardListProps {
 }
 
 let props = defineProps<BlogCardListProps>();
-const likeBlog = async (blog) => {
-    let res = await myAxios.put("/blog/like/" + blog.id);
-    if (res?.data.code === 0) {
-        let res_ = await myAxios.get("/blog/" + blog.id);
-        if (res_?.data.code === 0) {
-            blog.likedNum = res_.data.data.likedNum
-            blog.isLike = res_.data.data.isLike
-        }
-    }
-}
 let router = useRouter();
 const toBlog = (blogId) => {
     router.push({
