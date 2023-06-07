@@ -30,7 +30,7 @@
 
     <van-cell-group>
         <van-field v-model="comment" :autosize="{minHeight: 32}" type="textarea" rows="1" placeholder="评论"
-                   style="position: fixed;bottom: 0;padding-left: 16px;border-top: 1px solid #C1C1C1">
+                   style="position: fixed;bottom: 0;padding-left: 16px;border-top: 1px solid #C1C1C1;padding-right: 10px">
             <template #right-icon>
                 <van-icon class-prefix="my-icon" name="shangchuan" size="30" color="#4387f6"/>
             </template>
