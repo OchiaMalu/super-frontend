@@ -27,6 +27,8 @@
 <script setup lang="ts">
 import {BlogType} from "../models/blog.js";
 import {useRouter} from "vue-router";
+import {getCurrentUser} from "../services/user.ts";
+import {showFailToast} from "vant";
 
 interface BlogCardListProps {
     blogList: BlogType[]
@@ -34,13 +36,20 @@ interface BlogCardListProps {
 
 let props = defineProps<BlogCardListProps>();
 let router = useRouter();
-const toBlog = (blogId) => {
-    router.push({
-        path: '/blog',
-        query: {
-            id: blogId
-        }
-    })
+const toBlog = async (blogId) => {
+    let currentUser = await getCurrentUser();
+    if (currentUser) {
+        await router.push({
+            path: '/blog',
+            query: {
+                id: blogId
+            }
+        })
+    } else {
+        showFailToast("未登录")
+        await router.replace("/user/login")
+    }
+
 }
 </script>
 
