@@ -1,5 +1,5 @@
 <template>
-    <van-cell-group v-for="comment in props.commentList">
+    <van-cell-group v-for="comment in props.commentList" :border="false" style="margin-left: 5px;margin-right: 5px">
         <van-cell center :title="comment.commentUser.username" :label="comment.createTime">
             <template #icon>
                 <van-image
