@@ -11,7 +11,10 @@
                 />
             </template>
             <template #value>
-                <van-icon name="good-job-o" size="15">
+                <van-icon v-if="!comment.isLiked" name="good-job-o" size="15" @click="likeComment(comment)">
+                    {{ comment.likedNum }}
+                </van-icon>
+                <van-icon v-else name="good-job-o" color="red" size="15" @click="likeComment(comment)">
                     {{ comment.likedNum }}
                 </van-icon>
             </template>
@@ -25,6 +28,7 @@
 
 <script setup lang="ts">
 import {CommentType} from "../models/comment.d.ts";
+import myAxios from "../plugins/my-axios.js";
 
 interface BlogCommentsProps {
     commentList: CommentType[]
@@ -32,6 +36,16 @@ interface BlogCommentsProps {
 
 let props = defineProps<BlogCommentsProps>();
 
+const likeComment = async (comment) => {
+    let res = await myAxios.put("/comments/like/" + comment.id);
+    if (res?.data.code === 0) {
+        let res_ = await myAxios.get("/comments/" + comment.id);
+        if (res_?.data.code === 0) {
+            comment.likedNum = res_.data.data.likedNum
+            comment.isLiked = res_.data.data.isLiked
+        }
+    }
+}
 </script>
 
 <style scoped>

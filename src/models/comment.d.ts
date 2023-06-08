@@ -7,6 +7,7 @@ export type CommentType = {
     blog_id: number,
     parentId?: number,
     answerId?: number,
+    isLiked: boolean,
     content: string,
     likedNum: number,
     status: number,
