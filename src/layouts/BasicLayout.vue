@@ -24,7 +24,8 @@
                 </div>
             </div>
         </van-tabbar-item>
-        <van-tabbar-item icon="smile-comment-o" name="message" @click="checkLogin('/message',3)">消息</van-tabbar-item>
+        <van-tabbar-item icon="smile-comment-o" name="message" class="message" @click="checkLogin('/message',3)">消息
+        </van-tabbar-item>
         <van-tabbar-item to="/user" icon="user-o" name="user">个人</van-tabbar-item>
     </van-tabbar>
 </template>
@@ -53,7 +54,7 @@ const onClickLeft = () => {
 const onClickRight = () => {
     router.push("/search")
 };
-const onChange = (index) => showToast(`标签 ${index}`);
+const onChange = (index) => showToast(`标签 ${active.value}`);
 
 const checkLogin = async (to, index) => {
     let user = await getCurrentUser();
@@ -70,6 +71,10 @@ const checkLogin = async (to, index) => {
             });
     } else {
         await router.push(to)
+        if (active.value === 'message') {
+            let message = document.getElementsByClassName("message")
+            message.item(0).style.color = '#1989fa'
+        }
     }
 }
 </script>
