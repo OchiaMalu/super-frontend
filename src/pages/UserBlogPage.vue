@@ -5,6 +5,7 @@
             @refresh="onRefresh"
     >
         <van-list
+            style="margin: 15px"
                 v-model:loading="listLoading"
                 :finished="listFinished"
                 offset="0"

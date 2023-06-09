@@ -5,7 +5,7 @@
             :title="blog.title"
             @click="toBlog(blog.id)">
             <template #right-icon>
-                <van-image src="https://fastly.jsdelivr.net/npm/@vant/assets/ipad.jpeg" width="88px"/>
+                <van-image v-if="blog.coverImage" :src="blog.coverImage" width="88px" height="88px"/>
             </template>
             <template #title>
                 <span style="margin-left: 20px">{{ blog.title }}</span>

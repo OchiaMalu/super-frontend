@@ -9,7 +9,7 @@ export type BlogType = {
     images?: string,
     likedNum: number,
     isLike: boolean,
-    coverImage: string,
+    coverImage?: string,
     commentsNum: number,
     createTime: Date,
     updateTime: Date

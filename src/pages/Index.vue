@@ -1,10 +1,9 @@
 <template>
     <div style="position: relative;height: 100%;width: 100%">
-        <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
-            <van-swipe-item>1</van-swipe-item>
-            <van-swipe-item>2</van-swipe-item>
-            <van-swipe-item>3</van-swipe-item>
-            <van-swipe-item>4</van-swipe-item>
+        <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white" :width="345" :height="150">
+          <van-swipe-item v-for="image in images" :key="image">
+            <img :src="image" style="width: 345px;height: 150px"/>
+          </van-swipe-item>
         </van-swipe>
         <van-tabs v-model:active="active">
             <van-tab title="匹配用户">
@@ -61,7 +60,12 @@ const active = ref(0)
 const blogList = ref([])
 const blogListFinished = ref(false)
 const blogCurrentPage = ref(0)
-
+const images=[
+  "http://niu.ochiamalu.xyz/b93d640cc856cb7035a851029aec190.jpg",
+  "http://niu.ochiamalu.xyz/c11ae3862b3ca45b0a6cdff1e1bf841.jpg",
+  "http://niu.ochiamalu.xyz/1bff61de34bdc7bf40c6278b2848fbcf.jpg",
+  "http://niu.ochiamalu.xyz/12d4949b4009d089eaf071aef0f1f40.jpg"
+]
 const blogLoad = async () => {
     blogCurrentPage.value++
     await getBlogList(blogCurrentPage.value)
