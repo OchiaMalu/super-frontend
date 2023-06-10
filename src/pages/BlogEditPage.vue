@@ -37,7 +37,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import {showFailToast, showSuccessToast} from "vant";
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {getCurrentUser} from "../services/user.ts";
 import myAxios from "../plugins/my-axios.js";
 
@@ -46,6 +46,7 @@ const title = ref("")
 const content = ref("")
 const router = useRouter()
 const user = ref()
+const blogId = ref()
 const onClickLeft = () => {
     router.push("/")
 };
@@ -56,26 +57,70 @@ const onClickRight = async () => {
     if (content.value === '') {
         showFailToast("请填写正文")
     }
-    let formData = new FormData();
-    for (let i = 0; i < fileList.value.length; i++) {
-        formData.append("images", fileList.value[i].file)
-    }
-    formData.append("title", title.value)
-    formData.append("content", content.value)
-    let res = await myAxios.post("/blog/add", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data"
+    if (!blogId.value) {
+        let formData = new FormData();
+        for (let i = 0; i < fileList.value.length; i++) {
+            formData.append("images", fileList.value[i].file)
         }
-    });
-    if (res?.data.code === 0) {
-        showSuccessToast("添加成功")
-        await router.replace("/")
+        formData.append("title", title.value)
+        formData.append("content", content.value)
+        let res = await myAxios.post("/blog/add", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+        if (res?.data.code === 0) {
+            showSuccessToast("添加成功")
+            await router.replace("/")
+        }
+    } else {
+        let formData = new FormData();
+        formData.append("id", blogId.value)
+        const imgStr = []
+        for (let i = 0; i < fileList.value.length; i++) {
+            if (fileList.value[i].url) {
+                imgStr.push(fileList.value[i].url)
+            } else {
+                formData.append("images", fileList.value[i].file)
+            }
+        }
+        let finalImgStr = imgStr.join(",");
+        formData.append("imgStr", finalImgStr)
+        formData.append("title", title.value)
+        formData.append("content", content.value)
+        let res = await myAxios.put("/blog/update", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+        if (res?.data.code === 0) {
+            showSuccessToast("更新成功")
+            await router.replace("/blog?id=" + blogId.value)
+        }
     }
 };
 const overSize = () => {
     showFailToast("单个图片不能超过5M")
 }
+let route = useRoute();
 onMounted(async () => {
+    if (route.query.id) {
+        blogId.value = route.query.id
+    }
+    if (route.query.images) {
+        route.query.images.forEach((item) => {
+            const image = {
+                url: item
+            }
+            fileList.value.push(image)
+        })
+    }
+    if (route.query.title) {
+        title.value = route.query.title
+    }
+    if (route.query.content) {
+        content.value = route.query.content
+    }
     let currentUser = await getCurrentUser();
     if (currentUser) {
         user.value = currentUser
