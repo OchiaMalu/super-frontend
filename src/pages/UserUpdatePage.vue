@@ -10,6 +10,7 @@
             <van-cell title="用户账号" :value="user.userAccount"/>
             <van-cell title="昵称" is-link :value="user.username"
                       @click="toEdit('username','昵称',user.username)"/>
+            <van-cell title="标签" to="/user/tag" is-link/>
             <van-cell title="个性签名" is-link
                       @click="toEdit('profile','个性签名',user.profile)">
                 <template #value>

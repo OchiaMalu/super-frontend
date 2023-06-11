@@ -16,6 +16,7 @@ import MessagePage from "../pages/MassagePage.vue";
 import UserBlogPage from "../pages/UserBlogPage.vue";
 import TeamDetailPage from "../pages/TeamDetailPage.vue";
 import BlogPage from "../pages/BlogPage.vue";
+import UserTagPage from "../pages/UserTagPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
@@ -26,6 +27,7 @@ const routes = [
     {path: '/team/add', title: "创建队伍", component: TeamAddPage},
     {path: '/team/update', title: "更新队伍", component: TeamUpdatePage},
     {path: '/user', title: "个人", component: User},
+    {path: '/user/tag', title: "标签", component: UserTagPage},
     {path: '/user/signup', component: SignUpPage},
     {path: '/user/login', title: "用户登录", component: UserLogin},
     {path: '/user/edit', title: "修改用户", component: EditUser},

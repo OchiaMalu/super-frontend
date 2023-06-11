@@ -2,16 +2,27 @@
     <template v-if="user">
         <van-space style="margin: 20px">
             <van-image
-                    round
-                    width="80"
-                    :src="user?.avatarUrl"
+                round
+                width="80"
+                :src="user?.avatarUrl"
             />
             <van-cell :title="user.username" style="width: 120px">
                 <template #label>
                     <van-text-ellipsis :content="user.profile || '点此编辑个性签名'" @click="toEditProfile"/>
                 </template>
             </van-cell>
+
         </van-space>
+        <van-cell center>
+            <template #title>
+                <span style="margin-left: 20px">我的标签</span>
+            </template>
+            <template #value>
+                <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px">
+                    {{ tag }}
+                </van-tag>
+            </template>
+        </van-cell>
         <van-grid :border="false">
             <van-grid-item text="创建的队伍" to="/user/team/create">
                 <template #icon>
@@ -69,9 +80,12 @@ onMounted(async () => {
     if (currentUser) {
         showSuccessToast("获取个人信息成功")
         user.value = currentUser
+        if (currentUser.tags) {
+            currentUser.tags = JSON.parse(currentUser.tags)
+        }
     } else {
         showFailToast("未登录")
-        router.replace("/user/login")
+        await router.replace("/user/login")
     }
 })
 const toEdit = (editKey: string, editName: string, editValue: string) => {
