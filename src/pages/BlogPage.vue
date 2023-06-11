@@ -29,7 +29,13 @@
                 <van-image :src="author.avatarUrl" width="40" round/>
             </template>
             <template #right-icon>
-                <van-button icon="plus" type="primary" size="small">关注</van-button>
+                <div v-if="author.id !== blog.userId">
+                    <van-button v-if="author.isFollow" type="primary" size="small" color="#c1c1c1"
+                                @click="followUser(author)">已关注
+                    </van-button>
+                    <van-button v-else icon="plus" type="primary" size="small" @click="followUser(author)">关注
+                    </van-button>
+                </div>
             </template>
         </van-cell>
         <van-cell :title="blog.content"/>
@@ -254,6 +260,15 @@ const updateBlog = () => {
             content: blog.value.content
         }
     })
+}
+const followUser = async (author) => {
+    let res = await myAxios.post("/follow/" + author.id);
+    if (res?.data.code === 0) {
+        let res_ = await myAxios.get("/user/" + author.id);
+        if (res_.data.code === 0) {
+            author.isFollow = res_.data.data.isFollow
+        }
+    }
 }
 </script>
 
