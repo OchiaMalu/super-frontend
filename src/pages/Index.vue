@@ -1,9 +1,9 @@
 <template>
     <div style="position: relative;height: 100%;width: 100%">
         <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white" :width="345" :height="150">
-          <van-swipe-item v-for="image in images" :key="image">
-            <img :src="image" style="width: 345px;height: 150px"/>
-          </van-swipe-item>
+            <van-swipe-item v-for="image in images" :key="image">
+                <img :src="image" style="width: 345px;height: 150px"/>
+            </van-swipe-item>
         </van-swipe>
         <van-tabs v-model:active="active">
             <van-tab title="匹配用户">
@@ -27,16 +27,24 @@
                 </van-pull-refresh>
             </van-tab>
             <van-tab title="热门贴文">
-                <van-list
+                <van-pull-refresh
+                    v-model="refreshLoading"
+                    success-text="刷新成功"
+                    @refresh="blogRefresh">
+                    <van-list
                         v-model:loading="listLoading"
                         :finished="blogListFinished"
                         offset="0"
                         finished-text="没有更多了"
                         @load="blogLoad"
                         style="margin: 15px"
-                >
-                    <blog-card-list :blog-list="blogList"/>
-                </van-list>
+                    >
+                        <blog-card-list :blog-list="blogList"/>
+                    </van-list>
+                    <van-back-top right="20px" bottom="60px"/>
+                    <van-empty v-if="(!blogList ||　blogList.length===0) && !listLoading" image="search"
+                               description="暂无博文"/>
+                </van-pull-refresh>
             </van-tab>
         </van-tabs>
 
@@ -60,11 +68,11 @@ const active = ref(0)
 const blogList = ref([])
 const blogListFinished = ref(false)
 const blogCurrentPage = ref(0)
-const images=[
-  "http://niu.ochiamalu.xyz/b93d640cc856cb7035a851029aec190.jpg",
-  "http://niu.ochiamalu.xyz/c11ae3862b3ca45b0a6cdff1e1bf841.jpg",
-  "http://niu.ochiamalu.xyz/1bff61de34bdc7bf40c6278b2848fbcf.jpg",
-  "http://niu.ochiamalu.xyz/12d4949b4009d089eaf071aef0f1f40.jpg"
+const images = [
+    "http://niu.ochiamalu.xyz/b93d640cc856cb7035a851029aec190.jpg",
+    "http://niu.ochiamalu.xyz/c11ae3862b3ca45b0a6cdff1e1bf841.jpg",
+    "http://niu.ochiamalu.xyz/1bff61de34bdc7bf40c6278b2848fbcf.jpg",
+    "http://niu.ochiamalu.xyz/12d4949b4009d089eaf071aef0f1f40.jpg"
 ]
 const blogLoad = async () => {
     blogCurrentPage.value++
@@ -124,7 +132,14 @@ const onRefresh = async () => {
     listLoading.value = false;
 }
 
-
+const blogRefresh = async () => {
+    blogCurrentPage.value = 1
+    blogList.value = []
+    blogListFinished.value = false
+    await getBlogList(currentPage.value)
+    refreshLoading.value = false
+    listLoading.value = false
+}
 </script>
 
 <style scoped>
