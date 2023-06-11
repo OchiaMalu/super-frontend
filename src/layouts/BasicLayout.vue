@@ -54,7 +54,6 @@ const onClickLeft = () => {
 const onClickRight = () => {
     router.push("/search")
 };
-const onChange = (index) => showToast(`标签 ${active.value}`);
 
 const checkLogin = async (to, index) => {
     let user = await getCurrentUser();

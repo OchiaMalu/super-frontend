@@ -126,7 +126,7 @@ onMounted(async () => {
         user.value = currentUser
     } else {
         showFailToast("未登录")
-        router.replace("/user/login")
+        await router.replace("/user/login")
     }
 })
 </script>

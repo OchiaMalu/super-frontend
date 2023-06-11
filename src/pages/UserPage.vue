@@ -78,7 +78,6 @@ const showCustomerService = ref(false)
 onMounted(async () => {
     let currentUser = await getCurrentUser();
     if (currentUser) {
-        showSuccessToast("获取个人信息成功")
         user.value = currentUser
         if (currentUser.tags) {
             currentUser.tags = JSON.parse(currentUser.tags)

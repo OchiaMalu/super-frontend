@@ -61,7 +61,6 @@
 <script setup lang="ts">
 import {useRouter} from "vue-router";
 import {ref} from "vue";
-import axios from "axios";
 import myAxios from "../plugins/my-axios.js";
 import {showFailToast, showSuccessToast} from "vant";
 
@@ -93,7 +92,7 @@ const onSubmit = async () => {
     const res = await myAxios.post("/team/add", postData)
     if (res?.data.code === 0) {
         showSuccessToast("添加成功")
-        router.replace("/team")
+        await router.replace("/team")
     } else {
         showFailToast("添加失败"+ (res.data.description ? `,${res.data.description}` : ''))
     }

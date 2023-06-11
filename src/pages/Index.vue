@@ -98,7 +98,6 @@ async function getUserList(currentPage) {
         }
     })
     if (userListData?.data.code === 0) {
-        showSuccessToast("加载成功")
     } else {
         showFailToast("加载失败")
     }

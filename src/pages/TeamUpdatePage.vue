@@ -56,7 +56,6 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {onMounted, ref} from "vue";
-import axios from "axios";
 import myAxios from "../plugins/my-axios.js";
 import {showFailToast, showSuccessToast} from "vant";
 
@@ -75,7 +74,6 @@ const onConfirm = (date) => {
 onMounted(async () => {
     const res = await myAxios.get("/team/" + route.query.id)
     if (res?.data.code === 0) {
-        showSuccessToast("队伍查询成功")
         res.data.data.status = String(res.data.data.status)
         updateTeamData.value = res.data.data
     } else {

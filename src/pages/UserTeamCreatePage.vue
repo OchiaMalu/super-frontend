@@ -36,9 +36,9 @@
 <script setup lang="ts">
 import {useRouter} from "vue-router";
 import TeamCardList from "../components/TeamCardList.vue";
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
-import {showFailToast, showSuccessToast} from "vant";
+import {showFailToast} from "vant";
 
 let router = useRouter();
 const searchText = ref("")
@@ -68,7 +68,6 @@ async function listTeams(currentPage, val = '') {
     listLoading.value = true
     const res = await myAxios.get("/team/list/my/create?currentPage=" + currentPage + "&searchText=" + val)
     if (res?.data.code === 0) {
-        showSuccessToast("队伍加载成功")
         if (res.data.data.records.length === 0) {
             listFinished.value = true
             return

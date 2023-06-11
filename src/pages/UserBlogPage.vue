@@ -54,7 +54,6 @@ async function listBlogs(currentPage) {
     listLoading.value = true
     const res = await myAxios.get("/blog/list/my/blog?currentPage=" + currentPage)
     if (res?.data.code === 0) {
-        showSuccessToast("博文加载成功")
         if (res.data.data.records.length === 0) {
             listFinished.value = true
             return
@@ -65,6 +64,13 @@ async function listBlogs(currentPage) {
         showFailToast("博文加载失败，请稍后重试")
     }
     listLoading.value = false
+}
+const onRefresh = async () => {
+    blogList.value = []
+    listFinished.value = false
+    currentPage.value = 1
+    await listBlogs(currentPage.value)
+    refreshLoading.value = false
 }
 </script>
 

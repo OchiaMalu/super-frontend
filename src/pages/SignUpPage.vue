@@ -126,7 +126,7 @@ const onSubmit = async () => {
     })
     if (res?.data.code === 0) {
         showSuccessToast("注册成功")
-        router.replace("/user/login")
+        await router.replace("/user/login")
     } else {
         showFailToast("注册失败," + res?.data.description ?? '')
     }
