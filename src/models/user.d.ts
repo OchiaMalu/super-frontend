@@ -10,6 +10,7 @@ export type UserType={
     status: number,
     role: number,
     tags: string[],
+    isFollow: boolean,
     createTime: Date,
     updateTime: Date
 }
