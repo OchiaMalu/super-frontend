@@ -41,7 +41,7 @@
 import {useRoute, useRouter} from "vue-router";
 import myAxios from "../plugins/my-axios.js";
 import {ref} from "vue";
-import {showFailToast, showNotify, showSuccessToast, showToast} from "vant";
+import {showFailToast, showNotify, showSuccessToast} from "vant";
 import {getCurrentUser} from "../services/user.ts";
 
 const codeTime = ref(0)
@@ -58,12 +58,12 @@ const onSubmit = async () => {
     const currentUser = await getCurrentUser();
     let response = await myAxios.put("/user/update", {
         'id': currentUser.id,
-        [editUser.value.editKey]: editUser.value.currentValue
+        [editUser.value.editKey]: editUser.value.currentValue,
+        code: code.value
     });
     if (response.data.code === 0) {
         showSuccessToast("修改成功")
-        router.replace("/user/update");
-        // removeLoginUser()
+        await router.replace("/user/update");
     } else {
         showFailToast("修改失败" + (response.data.description ? `,${response.data.description}` : ''))
     }
@@ -79,7 +79,7 @@ const sendMessage = async () => {
         } else {
             let flag = countDown();
             if (flag) {
-                const res = await myAxios.get("/user/message?phone=" + phone)
+                const res = await myAxios.get("/user/message/update/phone?phone=" + phone)
                 if (res?.data.code === 0) {
                     showSuccessToast("短信发送成功，15分钟内有效")
                 } else {
@@ -89,9 +89,22 @@ const sendMessage = async () => {
         }
     }
 }
-const sendEmailMessage = () => {
-    //todo 发送email验证码
-    alert("发送email验证码")
+const sendEmailMessage = async () => {
+    let email = editUser.value.currentValue;
+    if (email === '') {
+        showNotify({message: '请先输入手机号'});
+    } else {
+        let flag = countDown();
+        if (flag) {
+            let res = await myAxios.get("/user/message/update/email?email=" + email);
+            if (res?.data.code === 0) {
+                showSuccessToast("邮件发送成功，15分钟内有效")
+            } else {
+                showFailToast("邮件发送失败," + res?.data.description ?? '')
+            }
+        }
+
+    }
 }
 const countDown = () => {
     if (codeTime.value > 0) {
