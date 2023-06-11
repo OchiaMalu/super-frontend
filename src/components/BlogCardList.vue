@@ -15,6 +15,13 @@
                     <van-icon name="envelop-o" size="14" style="margin-right: 5px">
                         <span style="margin-left: 2px">{{ blog.commentsNum }}</span>
                     </van-icon>
+                    <van-icon name="good-job-o" v-if="!blog.isLike" size="14">
+                        <span style="margin-left: 2px">{{ blog.likedNum }}</span>
+                    </van-icon>
+                    <van-icon name="good-job-o" v-else color="red" size="14"
+                              style="margin-right: 2px">
+                        <span style="margin-left: 2px">{{ blog.likedNum }}</span>
+                    </van-icon>
                 </div>
             </template>
             <template #label>
