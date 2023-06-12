@@ -15,7 +15,7 @@
                 <UserCardList :user-list="userList"/>
             </van-list>
         </van-pull-refresh>
-        <van-back-top right="20px" bottom="60px" />
+        <van-back-top right="20px" bottom="60px"/>
         <van-empty v-if="(!userList ||　userList.length===0) && listLoading===false" image="search"
                    description="暂无符合要求的用户"/>
     </div>
@@ -57,7 +57,7 @@ async function getSearchResult(currentPage) {
                 user.tags = JSON.parse(user.tags)
             }
         })
-        res.records.forEach((item)=>userList.value.push(item))
+        res.records.forEach((item) => userList.value.push(item))
     } else {
         listFinished.value = true
     }
