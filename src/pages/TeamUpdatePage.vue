@@ -88,7 +88,7 @@ const onSubmit = async () => {
     //todo 前端校验
     const res = await myAxios.post("/team/update", postData)
     if (res?.data.code === 0) {
-        showSuccessToast("更新成功成功")
+        showSuccessToast("更新成功")
         router.replace("/team")
     } else {
         showFailToast("更新失败" + (res.data.description ? `,${res.data.description}` : ''))

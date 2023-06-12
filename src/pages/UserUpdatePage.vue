@@ -58,12 +58,11 @@ const genders = [
 async function getUser() {
     let currentUser = await getCurrentUser();
     if (currentUser) {
-        showSuccessToast("获取个人信息成功")
         user.value = currentUser
         imgSrc.value = currentUser.avatarUrl
     } else {
         showFailToast("未登录")
-        router.replace("/user/login")
+        await router.replace("/user/login")
     }
 }
 

@@ -13,7 +13,6 @@ declare module '@vue/runtime-core' {
     CommentList: typeof import('./src/components/CommentList.vue')['default']
     MessageDefalutGrid: typeof import('./src/components/MessageDefalutGrid.vue')['default']
     MessageList: typeof import('./src/components/MessageList.vue')['default']
-    RequestLoginDialog: typeof import('./src/components/RequestLoginDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TeamCardList: typeof import('./src/components/TeamCardList.vue')['default']
