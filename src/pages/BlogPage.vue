@@ -149,7 +149,7 @@ import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import myAxios from "../plugins/my-axios.js";
 import CommentList from "../components/CommentList.vue";
-import {showFailToast, showSuccessToast} from "vant";
+import {showConfirmDialog, showFailToast, showSuccessToast} from "vant";
 import {getCurrentUser} from "../services/user.ts";
 
 const showBottom = ref(false)
@@ -245,10 +245,20 @@ const report = () => {
     showBottom.value = false
 }
 const deleteBlog = async () => {
-    let res = await myAxios.delete("/blog/" + blog.value.id);
-    if (res?.data.code === 0) {
-        await router.replace("/")
-    }
+    showConfirmDialog({
+        title: '确定要删除博文吗',
+        message:
+            '此操作无法撤回',
+    })
+        .then(async () => {
+            let res = await myAxios.delete("/blog/" + blog.value.id);
+            if (res?.data.code === 0) {
+                await router.replace("/")
+            }
+        })
+        .catch(() => {
+            // on cancel
+        });
 }
 const updateBlog = () => {
     router.push({
