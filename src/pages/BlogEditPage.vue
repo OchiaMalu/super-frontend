@@ -86,6 +86,7 @@ const onClickRight = async () => {
             showSuccessToast("添加成功")
             await router.replace("/")
         } else {
+            addingOverlay.value = false
             showFailToast("添加失败," + (res.data.description ? `,${res.data.description}` : ''))
         }
     } else {
@@ -113,6 +114,7 @@ const onClickRight = async () => {
             showSuccessToast("更新成功")
             await router.replace("/blog?id=" + blogId.value)
         } else {
+            addingOverlay.value = false
             showFailToast("更新失败," + (res.data.description ? `,${res.data.description}` : ''))
         }
     }
