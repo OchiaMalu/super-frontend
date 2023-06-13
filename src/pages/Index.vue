@@ -1,8 +1,9 @@
 <template>
     <div style="position: relative;height: 100%;width: 100%">
-        <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white" :width="345" :height="150">
+        <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white" lazy-render
+                   style="width: 90%;height: 150px;margin: 0 auto">
             <van-swipe-item v-for="image in images" :key="image">
-                <img :src="image" style="width: 345px;height: 150px"/>
+                <img :src="image" style="width: 100%;height: 150px"/>
             </van-swipe-item>
         </van-swipe>
         <van-tabs v-model:active="active">
