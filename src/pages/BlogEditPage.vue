@@ -12,7 +12,7 @@
         </van-nav-bar>
     </van-sticky>
     <div style="padding: 15px">
-        <van-uploader v-model="fileList" preview-size="100" multiple :max-count="5" :max-size="5 * 1024 * 1024"
+        <van-uploader v-model="fileList" preview-size="100" multiple :max-count="5" :max-size="10 * 1024 * 1024"
                       @oversize="overSize" :preview-full-image="false">
             <template #default>
                 <div class="updateArea">
@@ -24,14 +24,24 @@
                    placeholder="填写标题"
                    :rules="[{ required: true, message: '请输入用户名' }]"/>
         <van-field
-                v-model="content"
-                rows="1"
-                autosize
-                type="textarea"
-                placeholder="添加正文"
-                :rules="[{ required: true, message: '请输入用户名' }]"
+            v-model="content"
+            rows="1"
+            autosize
+            type="textarea"
+            placeholder="添加正文"
+            :rules="[{ required: true, message: '请输入用户名' }]"
         />
     </div>
+    <van-overlay :show="addingOverlay">
+        <div class="wrapper">
+            <van-loading vertical>
+                <template #icon>
+                    <van-icon name="star-o" size="30"/>
+                </template>
+                添加中...
+            </van-loading>
+        </div>
+    </van-overlay>
 </template>
 
 <script setup>
@@ -41,6 +51,7 @@ import {useRoute, useRouter} from "vue-router";
 import {getCurrentUser} from "../services/user.ts";
 import myAxios from "../plugins/my-axios.js";
 
+const addingOverlay = ref(false)
 const fileList = ref([])
 const title = ref("")
 const content = ref("")
@@ -57,6 +68,7 @@ const onClickRight = async () => {
     if (content.value === '') {
         showFailToast("请填写正文")
     }
+    addingOverlay.value = true
     if (!blogId.value) {
         let formData = new FormData();
         for (let i = 0; i < fileList.value.length; i++) {
@@ -70,8 +82,11 @@ const onClickRight = async () => {
             }
         });
         if (res?.data.code === 0) {
+            addingOverlay.value = false
             showSuccessToast("添加成功")
             await router.replace("/")
+        } else {
+            showFailToast("添加失败," + (res.data.description ? `,${res.data.description}` : ''))
         }
     } else {
         let formData = new FormData();
@@ -94,13 +109,16 @@ const onClickRight = async () => {
             }
         });
         if (res?.data.code === 0) {
+            addingOverlay.value = false
             showSuccessToast("更新成功")
             await router.replace("/blog?id=" + blogId.value)
+        } else {
+            showFailToast("更新失败," + (res.data.description ? `,${res.data.description}` : ''))
         }
     }
 };
 const overSize = () => {
-    showFailToast("单个图片不能超过5M")
+    showFailToast("单个图片不能超过10M")
 }
 let route = useRoute();
 onMounted(async () => {
@@ -142,5 +160,12 @@ onMounted(async () => {
     height: 100px;
     background-color: #f7f8fa;
     color: #dcdddf;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 </style>
