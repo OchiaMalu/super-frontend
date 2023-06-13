@@ -135,7 +135,7 @@ const blogRefresh = async () => {
     blogCurrentPage.value = 1
     blogList.value = []
     blogListFinished.value = false
-    await getBlogList(currentPage.value)
+    await getBlogList(blogCurrentPage.value)
     refreshLoading.value = false
     listLoading.value = false
 }

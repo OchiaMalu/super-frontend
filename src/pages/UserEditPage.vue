@@ -31,7 +31,7 @@
         />
         <div style="margin: 16px;">
             <van-button round block type="primary" native-type="submit">
-                提交
+                确定
             </van-button>
         </div>
     </van-form>
