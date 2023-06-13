@@ -257,7 +257,7 @@ const deleteBlog = async () => {
             }
         })
         .catch(() => {
-            // on cancel
+            showBottom.value = false
         });
 }
 const updateBlog = () => {
