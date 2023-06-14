@@ -4,14 +4,15 @@
             <van-image
                 round
                 width="80"
+                height="80"
                 :src="user?.avatarUrl"
+                @click="toUserUpdatePage"
             />
             <van-cell :title="user.username" style="width: 120px">
                 <template #label>
                     <van-text-ellipsis :content="user.profile || '点此编辑个性签名'" @click="toEditProfile"/>
                 </template>
             </van-cell>
-
         </van-space>
         <van-cell center>
             <template #title>
@@ -107,11 +108,21 @@ const logout = async () => {
     }
 }
 const toEditProfile = () => {
-    router.push("/user/update")
+    router.push({
+        path: "/user/edit",
+        query: {
+            editKey: "profile",
+            editName: "个性签名",
+            editValue: user.value.profile
+        }
+    })
 }
 
 const customerService = () => {
     showCustomerService.value = true
+}
+const toUserUpdatePage = () => {
+    router.push("/user/update")
 }
 </script>
 

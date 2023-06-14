@@ -26,7 +26,7 @@
         <van-cell :title="blog.title" title-style="font-size:18px"/>
         <van-cell center :title="author.username" style="padding-right: 6px">
             <template #icon>
-                <van-image :src="author.avatarUrl" width="40" round style="margin-right: 10px"/>
+                <van-image :src="author.avatarUrl" width="40" height="40" round style="margin-right: 10px"/>
             </template>
             <template #right-icon>
                 <div v-if="author.id !== blog.userId">
