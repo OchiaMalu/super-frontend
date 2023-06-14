@@ -10,6 +10,7 @@ import BasicLayout from "./layouts/BasicLayout.vue";
 import BlogEditPage from "./pages/BlogEditPage.vue";
 import "../public/icon/iconfont.css"
 import BlogPage from "./pages/BlogPage.vue";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage.vue";
 
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
@@ -18,7 +19,8 @@ const router = VueRouter.createRouter({
 const app = createApp(App);
 app.component("default-layout", BasicLayout)
 app.component("blog-edit-layout", BlogEditPage)
-app.component('blog', BlogPage)
+app.component('blog-layout', BlogPage)
+app.component("forget-layout", ForgetPasswordPage)
 app.use(Button);
 app.use(NavBar);
 app.use(Icon);

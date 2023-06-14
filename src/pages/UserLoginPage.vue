@@ -17,19 +17,22 @@
                         :rules="[{ required: true, message: '请输入用户名' }]"
                 />
                 <van-field
-                        v-model="password"
-                        type="password"
-                        name="password"
-                        label="密码"
-                        placeholder="请输入密码"
-                        :rules="[{ required: true, message: '请输入密码' }]"
+                    v-model="password"
+                    type="password"
+                    name="password"
+                    label="密码"
+                    placeholder="请输入密码"
+                    :rules="[{ required: true, message: '请输入密码' }]"
                 />
             </van-cell-group>
-            <div style="margin: 16px;">
+            <span style="right: 22px;position: fixed;font-size: 12px;color: #3c89fc;text-decoration: underline"
+                  @click="toForget">忘记密码</span>
+            <div style="margin: 30px 16px 16px;">
                 <van-button style="margin-top: 10px" round block type="primary" native-type="submit">
                     登录
                 </van-button>
-                <van-button style="margin-top: 10px" color="#FFA034" round block type="primary" native-type="submit" to="/user/signup">
+                <van-button style="margin-top: 10px" color="#FFA034" round block type="primary" native-type="submit"
+                            to="/user/signup">
                     注册
                 </van-button>
             </div>
@@ -38,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
 import {showFailToast, showSuccessToast} from "vant";
 import {useRoute, useRouter} from "vue-router";
@@ -56,9 +59,12 @@ const onSubmit = async () => {
         showSuccessToast("登录成功")
         window.location.href = <string>route.query.redirectUrl ?? '/'
     } else {
-        showFailToast("登录失败，请重试")
+        showFailToast("登录失败" + (response.data.description ? `,${response.data.description}` : ''))
     }
 };
+const toForget = () => {
+    router.push("/forget")
+}
 </script>
 
 <style scoped>

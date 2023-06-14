@@ -17,6 +17,7 @@ import UserBlogPage from "../pages/UserBlogPage.vue";
 import TeamDetailPage from "../pages/TeamDetailPage.vue";
 import BlogPage from "../pages/BlogPage.vue";
 import UserTagPage from "../pages/UserTagPage.vue";
+import ForgetPasswordPage from "../pages/ForgetPasswordPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
@@ -37,6 +38,7 @@ const routes = [
     {path: '/blog', component: BlogPage, meta: {layout: 'blog'}},
     {path: '/blog/edit', title: '博文编辑', component: BlogEditPage, meta: {layout: 'blog-edit'}},
     {path: '/user/blog', title: '我写的博文', component: UserBlogPage},
-    {path: '/message', title: '消息中心', component: MessagePage}
+    {path: '/message', title: '消息中心', component: MessagePage},
+    {path: '/forget', title: '找回密码', component: ForgetPasswordPage, meta: {layout: 'forget'}}
 ]
 export default routes;
