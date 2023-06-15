@@ -1,6 +1,6 @@
 <template>
     <van-cell-group v-for="comment in props.commentList" :border="false" style="margin-left: 5px;margin-right: 5px">
-        <van-cell center :title="comment.commentUser.username" :label="comment.createTime">
+        <van-cell center :border="false" :title="comment.commentUser.username" :label="comment.createTime">
             <template #icon>
                 <van-image
                     round
@@ -19,7 +19,7 @@
                 </van-icon>
             </template>
         </van-cell>
-        <div style="display: block;width: 80%;word-wrap: break-word;margin-left: 50px">
+        <div style="display: block;width: 80%;word-wrap: break-word;margin-left: 55px">
             {{ comment.content }}
         </div>
     </van-cell-group>
