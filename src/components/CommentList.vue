@@ -17,6 +17,7 @@
                 <van-icon v-else name="good-job-o" color="red" size="15" @click="likeComment(comment)">
                     {{ comment.likedNum }}
                 </van-icon>
+              <van-icon v-if="String(currentUser.id)===comment.commentUser.id || currentUser.role===1" name="delete-o" size="15" style="margin-left: 10px" @click="deleteComment(comment.id)"/>
             </template>
         </van-cell>
         <div style="display: block;width: 80%;word-wrap: break-word;margin-left: 55px">
@@ -29,13 +30,18 @@
 <script setup lang="ts">
 import {CommentType} from "../models/comment.d.ts";
 import myAxios from "../plugins/my-axios.js";
-
+import {onMounted, ref} from "vue";
+import {getCurrentUser} from "../services/user";
+import {showConfirmDialog, showFailToast} from "vant";
+let emits = defineEmits(['refresh']);
 interface BlogCommentsProps {
     commentList: CommentType[]
 }
-
+const currentUser=ref()
 let props = defineProps<BlogCommentsProps>();
-
+onMounted(async ()=>{
+  currentUser.value = await getCurrentUser()
+})
 const likeComment = async (comment) => {
     let res = await myAxios.put("/comments/like/" + comment.id);
     if (res?.data.code === 0) {
@@ -45,6 +51,23 @@ const likeComment = async (comment) => {
             comment.isLiked = res_.data.data.isLiked
         }
     }
+}
+const deleteComment=async (id)=>{
+  showConfirmDialog({
+    title: '确定要删除评论吗',
+    message:
+        '此操作无法撤回',
+  })
+      .then(async () => {
+        let res = await myAxios.delete("/comments/"+id);
+        if (res?.data.code===0){
+          emits("refresh")
+        }else {
+          showFailToast("删除失败" + (res.data.description ? `,${res.data.description}` : ''))
+        }
+      })
+      .catch(() => {
+      });
 }
 </script>
 

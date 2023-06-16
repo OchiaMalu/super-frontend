@@ -49,12 +49,12 @@
     <div class="line"></div>
 
     <div style="padding-bottom: 80px">
-        <comment-list :comment-list="commentList"/>
+        <comment-list :comment-list="commentList" @refresh="refresh"/>
     </div>
 
 
-    <van-cell-group>
-        <van-field v-model="comment" :autosize="{minHeight: 32}" type="textarea" rows="1" placeholder="评论"
+    <van-cell-group :border="false">
+        <van-field v-model="comment" :autosize="{minHeight: 32}" type="textarea" rows="1" placeholder="评论" :border="false"
                    style="position: fixed;bottom: 0;padding-left: 16px;border-top: 1px solid #C1C1C1;padding-right: 10px">
             <template #right-icon>
                 <van-icon class-prefix="my-icon" name="shangchuan" size="30" color="#4387f6" @click="addComment"/>
@@ -279,6 +279,9 @@ const followUser = async (author) => {
             author.isFollow = res_.data.data.isFollow
         }
     }
+}
+const refresh=()=>{
+  location.reload();
 }
 </script>
 
