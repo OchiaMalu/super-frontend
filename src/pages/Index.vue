@@ -1,4 +1,11 @@
 <template>
+  <van-notice-bar
+      color="#1989fa"
+      background="#ecf9ff"
+      left-icon="volume-o"
+      style="margin-bottom: 10px"
+      text="富强、民主、文明、和谐；自由、平等、公正、法治；爱国、敬业、诚信、友善。"
+  />
     <div style="position: relative;height: 100%;width: 100%">
         <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white" lazy-render
                    style="width: 90%;height: 150px;margin: 0 auto">
