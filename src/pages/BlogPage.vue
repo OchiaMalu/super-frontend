@@ -74,7 +74,7 @@
         </van-field>
     </van-cell-group>
     <van-popup
-        v-if="blog.userId===currentUser.id"
+        v-if="blog.userId===currentUser.id || currentUser.role===1"
         v-model:show="showBottom"
         round
         position="bottom"
@@ -208,7 +208,7 @@ const addComment = async () => {
         if (res?.data.code === 0) {
             showSuccessToast("添加成功")
         } else {
-            showFailToast("添加失败," + res.data.description)
+            showFailToast("添加失败" + (res.data.description ? `,${res.data.description}` : ''))
         }
         await listComments()
         comment.value = ""

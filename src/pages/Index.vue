@@ -70,10 +70,10 @@ const blogList = ref([])
 const blogListFinished = ref(false)
 const blogCurrentPage = ref(0)
 const images = [
-    "http://niu.ochiamalu.xyz/b93d640cc856cb7035a851029aec190.jpg",
-    "http://niu.ochiamalu.xyz/c11ae3862b3ca45b0a6cdff1e1bf841.jpg",
-    "http://niu.ochiamalu.xyz/1bff61de34bdc7bf40c6278b2848fbcf.jpg",
-    "http://niu.ochiamalu.xyz/12d4949b4009d089eaf071aef0f1f40.jpg"
+    "http://niu.ochiamalu.xyz/tgy2.jpg",
+    "http://niu.ochiamalu.xyz/quanmiantuidongdangdeershidajingshen.jpg",
+    "http://niu.ochiamalu.xyz/banner_2020112601.jpg",
+    "http://niu.ochiamalu.xyz/20220301.jpg"
 ]
 const blogLoad = async () => {
     blogCurrentPage.value++

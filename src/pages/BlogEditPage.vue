@@ -87,7 +87,7 @@ const onClickRight = async () => {
             await router.replace("/")
         } else {
             addingOverlay.value = false
-            showFailToast("添加失败," + (res.data.description ? `,${res.data.description}` : ''))
+            showFailToast("添加失败" + (res.data.description ? `,${res.data.description}` : ''))
         }
     } else {
         let formData = new FormData();
