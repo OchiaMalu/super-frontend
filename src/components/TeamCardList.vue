@@ -32,7 +32,7 @@
                         @click="doQuitTeam(team.id)">
                 退出队伍
             </van-button>
-            <van-button v-if="team.userId===currentUser?.id" size="small" plain type="danger"
+            <van-button v-if="team.userId===currentUser?.id || currentUser?.role===1" size="small" plain type="danger"
                         @click="doDeleteTeam(team.id)">
                 解散队伍
             </van-button>
