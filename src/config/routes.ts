@@ -19,6 +19,8 @@ import BlogPage from "../pages/BlogPage.vue";
 import UserTagPage from "../pages/UserTagPage.vue";
 import ForgetPasswordPage from "../pages/ForgetPasswordPage.vue";
 import AfterSignUp from "../pages/AfterSignUp.vue";
+import ChatPage from "../pages/ChatPage.vue";
+
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
     {path: '/search', title: "搜索", component: Search},
@@ -30,7 +32,7 @@ const routes = [
     {path: '/user', title: "个人", component: User},
     {path: '/user/tag', title: "标签", component: UserTagPage},
     {path: '/user/signup', component: SignUpPage},
-    {path: '/after',title: '标签',component: AfterSignUp,meta: {layout: 'after'}},
+    {path: '/after', title: '标签', component: AfterSignUp, meta: {layout: 'after'}},
     {path: '/user/login', title: "用户登录", component: UserLogin},
     {path: '/user/edit', title: "修改用户", component: EditUser},
     {path: '/user/update', title: "修改用户", component: UserUpdatePage},
@@ -40,6 +42,7 @@ const routes = [
     {path: '/blog/edit', title: '博文编辑', component: BlogEditPage, meta: {layout: 'blog-edit'}},
     {path: '/user/blog', title: '我写的博文', component: UserBlogPage},
     {path: '/message', title: '消息中心', component: MessagePage},
-    {path: '/forget', title: '找回密码', component: ForgetPasswordPage, meta: {layout: 'forget'}}
+    {path: '/forget', title: '找回密码', component: ForgetPasswordPage, meta: {layout: 'forget'}},
+    {path: '/chat', title: '聊天', component: ChatPage, meta: {layout: 'chat'}}
 ]
 export default routes;

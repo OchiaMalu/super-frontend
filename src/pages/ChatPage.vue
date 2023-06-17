@@ -1,411 +1,307 @@
 <template>
-    <div class="wrap">
-        <div class="title">
-            <div>
-                <van-icon
-                        name="arrow-left"
-                        size="20"
-                        style="margin-left: 10px"
-                        @click="onClickLeft"
-                />
-            </div>
-            <div>{
-
-                {
-
-                userName }}
-            </div>
-            <div>
-                <van-icon
-                        name="ellipsis"
-                        size="22"
-                        style="margin-right: 10px"
-                        @click="onClickRight"
-                />
-            </div>
+    <van-sticky>
+        <van-nav-bar
+            title="聊天"
+            left-arrow
+            @click-left="onClickLeft"
+        >
+        </van-nav-bar>
+    </van-sticky>
+    <div class="chat-container">
+        <div v-if="route.path==='/public_chat'" style="width: 100%;position: fixed;top: 44px;">
         </div>
-        <div class="content_box" id="box" ref="scrollBox">
-            <div class="timer">2022-08-02 11:08:07</div>
-            <div
-                    :class="item.position == 'left' ? 'userbox2' : 'userbox'"
-                    v-for="(item, index) in chatList"
-                    :key="index"
-            >
-                <div :class="item.position == 'left' ? 'nameInfo2' : 'nameInfo'">
-                    <div style="font-size: 14px">
-                        { {item.username }}
-                    </div>
-                    <div
-                            :class="item.position == 'left' ? 'contentText2' : 'contentText'"
-                    >
-                        {
-
-                        {
-
-                        item.content }}
-                    </div>
-                </div>
-                <div>
-                    <van-image round width="50px" height="50px" :src="item.url"/>
-                </div>
-            </div>
+        <div style="margin-top: 10px;" v-if="route.path==='/public_chat'">
         </div>
-        <div class="bottom">
+        <div v-else class="heard">
+            <p v-if="stats.chatType===stats.chatEnum.PRIVATE_CHAT">{{ stats.chatUser.username.slice(0, 14) }}</p>
+            <p v-if="stats.chatType===stats.chatEnum.TEAM_CHAT">{{ stats.team.teamName.slice(0, 14) }}</p>
+        </div>
+        <div class="content" ref="chatRoom" v-html="stats.content"></div>
+        <div class="send">
             <van-field
-                    v-model="inputValue"
-                    center
-                    type="textarea"
-                    :autosize="{ maxHeight: 100, minHeight: 25 }"
-                    placeholder="请输入内容"
-                    rows="1"
+                v-model="stats.text"
+                center
+                clearable
+                placeholder="聊点什么吧...."
+                style="padding-left: 16px"
             >
                 <template #button>
-                    <van-button size="small" type="primary" @click="sendOut">发送</van-button>
+                    <van-button size="small" type="primary" @click="send">发送</van-button>
                 </template>
             </van-field>
         </div>
     </div>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            //聊天数据
-            chatList: [
-                {
+<script setup>
+import {nextTick, onMounted, ref} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import {showFailToast} from "vant";
+import {getCurrentUser} from "../services/user.ts";
+import myAxios from "../plugins/my-axios.js";
 
-
-                    url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-                    username: "张三",
-                    content: "模拟数据123模拟数据123模拟数据123模拟数据123",
-                    position: "left",
-                },
-                {
-
-
-                    url: "https://img01.yzcdn.cn/vant/cat.jpeg",
-                    username: "李四",
-                    content: "模拟数据123模拟数据123模拟数据123模拟数据123模拟数据123",
-                    position: "right",
-                },
-                {
-
-
-                    url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-                    username: "张三",
-                    content: "模拟数据123",
-                    position: "left",
-                },
-                {
-
-
-                    url: "https://img01.yzcdn.cn/vant/cat.jpeg",
-                    username: "李四",
-                    content: "模拟数据123模拟数据",
-                    position: "right",
-                },
-                {
-
-
-                    url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-                    username: "张三",
-                    content: "模拟数据123",
-                    position: "left",
-                },
-                {
-
-
-                    url: "https://img01.yzcdn.cn/vant/cat.jpeg",
-                    username: "李四",
-                    content: "模拟数据123模拟数据",
-                    position: "right",
-                },
-                {
-
-
-                    url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-                    username: "张三",
-                    content: "模拟数据123",
-                    position: "left",
-                },
-                {
-
-
-                    url: "https://img01.yzcdn.cn/vant/cat.jpeg",
-                    username: "李四",
-                    content: "模拟数据123模拟数据",
-                    position: "right",
-                },
-                {
-
-
-                    url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-                    username: "张三",
-                    content: "模拟数据123",
-                    position: "left",
-                },
-                {
-
-
-                    url: "https://img01.yzcdn.cn/vant/cat.jpeg",
-                    username: "李四",
-                    content: "模拟数据123模拟数据",
-                    position: "right",
-                },
-                {
-
-
-                    url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-                    username: "张三",
-                    content: "模拟数据123",
-                    position: "left",
-                },
-                {
-
-
-                    url: "https://img01.yzcdn.cn/vant/cat.jpeg",
-                    username: "李四",
-                    content: "模拟数据123模拟数据",
-                    position: "right",
-                },
-                {
-
-
-                    url: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
-                    username: "张三",
-                    content: "模拟数据123",
-                    position: "left",
-                },
-                {
-
-
-                    url: "https://img01.yzcdn.cn/vant/cat.jpeg",
-                    username: "李四",
-                    content: "模拟数据123模拟数据",
-                    position: "right",
-                },
-            ],
-            //用户名
-            userName: "张三",
-            //输入内容
-            inputValue: "",
-            //滚动条距离顶部距离
-            scrollTop: 0
-        };
-    },
-    mounted() {
-
-
-        this.setPageScrollTo()
-        //创建监听内容部分滚动条滚动
-        this.$refs.scrollBox.addEventListener('scroll', this.srTop)
-    },
-    methods: {
-
-
-        //返回
-        onClickLeft() {
-
-
-            console.log("返回");
-        },
-        //更多
-        onClickRight() {
-
-
-            console.log("按钮");
-        },
-        //滚动条默认滚动到最底部
-        setPageScrollTo(s, c) {
-
-
-            //获取中间内容盒子的可见区域高度
-            this.scrollTop = document.querySelector("#box").offsetHeight;
-            setTimeout((res) => {
-
-
-                //加个定时器，防止上面高度没获取到，再获取一遍。
-                if (this.scrollTop != this.$refs.scrollBox.offsetHeight) {
-
-
-                    this.scrollTop = document.querySelector("#box").offsetHeight;
-                }
-            }, 100);
-            //scrollTop：滚动条距离顶部的距离。
-            //把上面获取到的高度座位距离，把滚动条顶到最底部
-            this.$refs.scrollBox.scrollTop = this.scrollTop;
-        },
-        //滚动条到达顶部
-        srTop() {
-
-
-            //判断：当滚动条距离顶部为0时代表滚动到顶部了
-            if (this.$refs.scrollBox.scrollTop == 0) {
-
-
-                //逻辑简介：
-                //到顶部后请求后端的方法，获取第二页的聊天记录，然后插入到现在的聊天数据前面。
-                //如何插入前面：可以先把获取的数据保存在 A 变量内，然后 this.chatList=A.concat(this.chatList)把数组合并进来就可以了
-
-                //拿聊天记录逻辑:
-                //第一次调用一个请求拉历史聊天记录，发请求时参数带上页数 1 传过去，拿到的就是第一页的聊天记录，比如一次拿20条。你显示出来
-                //然后向上滚动到顶部时，触发新的请求，在请求中把分页数先 +1 然后再请求，这就拿到了第二页数据，然后通过concat合并数组插入进前面，依次类推，功能完成！
-                console.log('到顶了，滚动条位置 :', this.$refs.scrollBox.scrollTop);
-            }
-        },
-        sendOut() {
-
-
-            console.log('发送成功');
-        }
-    },
+const onClickLeft = () => {
+    router.push("/")
 };
+const route = useRoute()
+const router = useRouter()
+
+const stats = ref({
+    user: {
+        id: 0,
+        username: "",
+        userAvatarUrl: ''
+    },
+    isCollapse: false,
+    users: [],
+    chatUser: {
+        id: 0,
+        username: ''
+    },
+    chatEnum: {
+        // 私聊
+        PRIVATE_CHAT: 1,
+        // 队伍聊天
+        TEAM_CHAT: 2,
+        // 大厅
+        HALL_CHAT: 3
+    },
+    chatType: null,
+    team: {
+        teamId: 0,
+        teamName: ''
+    },
+    text: "",
+    messages: [],
+    content: ''
+})
+
+let socket = null;
+const heartbeatInterval = 30 * 1000; // 30秒
+let heartbeatTimer = null;
+const chatRoom = ref(null)
+const startHeartbeat = () => {
+    heartbeatTimer = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send("PING");
+        }
+    }, heartbeatInterval);
+}
+
+const stopHeartbeat = () => {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+}
+const init = () => {
+    let uid = stats.value.user?.id;
+    if (typeof (WebSocket) == "undefined") {
+        showFailToast("您的浏览器不支持WebSocket")
+    } else {
+        let socketUrl = `ws://localhost:8080/api/websocket/${uid}/${stats.value.team.teamId}`
+        if (socket != null) {
+            socket.close();
+            socket = null;
+        }
+        // 开启一个websocket服务
+        socket = new WebSocket(socketUrl);
+        //打开事件
+        socket.onopen = function () {
+            startHeartbeat();
+        };
+        //  浏览器端收消息，获得从服务端发送过来的文本消息
+        socket.onmessage = function (msg) {
+            if (msg.data === "pong") {
+                return;
+            }
+            // 对收到的json数据进行解析，
+            let data = JSON.parse(msg.data)
+            if (data.error) {
+                showFailToast(data.error)
+                return
+            }
+            // 获取在线人员信息
+            if (data.users) {
+                stats.value.users = data.users.filter(user => {
+                    return user.id !== uid
+                })
+                // 获取当前连接的所有用户信息，并且排除自身，自己不会出现在自己的聊天列表里
+            } else {
+                // 如果服务器端发送过来的json数据 不包含 users 这个key，那么发送过来的就是聊天文本json数据
+                let flag;
+                if (stats.value.chatType === data.chatType) {
+                    // 单聊
+                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.formUser?.id)
+                }
+                if ((stats.value.chatType === data.chatType)) {
+                    // 大厅
+                    flag = (data.formUser?.id !== uid)
+                }
+                // 队伍
+                if (stats.value.chatType === data.chatType && data.teamId && stats.value.team.teamId === data.teamId) {
+                    flag = (data.formUser?.id !== uid)
+                }
+                if (flag) {
+                    stats.value.messages.push(data)
+                    // 构建消息内容
+                    createContent(data.formUser, null, data.text, data.isAdmin, data.createTime)
+                    nextTick(() => {
+                        const lastElement = chatRoom.value.lastElementChild
+                        lastElement.scrollIntoView()
+                    })
+                }
+                flag = null;
+            }
+        };
+        //关闭事件
+        socket.onclose = function () {
+            stopHeartbeat();
+            setTimeout(init, 5000); // 5秒后重连
+        };
+        //发生了错误事件
+        socket.onerror = function () {
+            showFailToast("错误")
+        }
+    }
+}
+onMounted(async () => {
+    let {id, username, userType, teamId, teamName, teamType} = route.query
+    stats.value.chatUser.id = Number.parseInt(id)
+    stats.value.team.teamId = Number.parseInt(teamId)
+    stats.value.chatUser.username = username
+    stats.value.team.teamName = teamName
+    if (userType && Number.parseInt(userType) === stats.value.chatEnum.PRIVATE_CHAT) {
+        stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT
+    } else if (teamType && Number.parseInt(teamType) === stats.value.chatEnum.TEAM_CHAT) {
+        stats.value.chatType = stats.value.chatEnum.TEAM_CHAT
+    } else {
+        stats.value.chatType = stats.value.chatEnum.HALL_CHAT
+    }
+    stats.value.user = await getCurrentUser()
+
+
+    // 私聊
+    if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
+        const privateMessage = await myAxios.post("/chat/privateChat",
+            {
+                toId: stats.value.chatUser.id,
+            })
+        privateMessage.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.formUser, chat.text)
+            } else {
+                createContent(chat.toUser, null, chat.text, null, chat.createTime)
+            }
+        })
+    }
+    if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
+        const hallMessage = await myAxios.get("/chat/hallChat")
+        hallMessage.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.formUser, chat.text)
+            } else {
+                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
+            }
+        })
+    }
+    if (stats.value.chatType === stats.value.chatEnum.TEAM_CHAT) {
+        const teamMessage = await myAxios.post("/chat/teamChat",
+            {
+                teamId: stats.value.team.teamId
+            })
+        teamMessage.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.formUser, chat.text)
+            } else {
+                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
+            }
+        })
+    }
+    init()
+    // 内容始终显示最下方
+    await nextTick()
+    const lastElement = chatRoom.value.lastElementChild
+    lastElement.scrollIntoView()
+})
+const send = () => {
+    if (stats.value.chatUser.id === 0) {
+        return;
+    }
+    if (stats.value.chatUser.id === stats.value.user.id) {
+        showFailToast("不能给自己发信息")
+        return;
+    }
+    if (!stats.value.text.trim()) {
+        showFailToast("请输入内容")
+    } else {
+        if (typeof (WebSocket) == "undefined") {
+            showFailToast("您的浏览器不支持WebSocket")
+        } else {
+            let message = {
+                fromId: stats.value.user.id,
+                toId: stats.value.chatUser.id,
+                text: stats.value.text,
+                chatType: stats.value.chatType,
+                teamId: stats.value.team.teamId,
+            }
+            socket.send(JSON.stringify(message));
+            stats.value.messages.push({user: stats.value.user.id, text: stats.value.text})
+            createContent(null, stats.value.user, stats.value.text)
+            stats.value.text = '';
+            nextTick(() => {
+                const lastElement = chatRoom.value.lastElementChild
+                lastElement.scrollIntoView()
+            })
+        }
+    }
+}
+
+const showUser = (id) => {
+    router.push({
+        name: 'userShow',
+        params: {
+            userId: id
+        }
+    })
+}
+const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
+    // 当前用户消息
+    let html;
+    if (nowUser) {
+        // nowUser 表示是否显示当前用户发送的聊天消息，绿色气泡
+        html = `
+    <div class="message self">
+    <div class="myInfo info">
+      <img :alt=${nowUser.username} class="avatar" onclick="showUser(${nowUser.id})" src=${nowUser.userAvatarUrl ?? defaultPicture}>
+    </div>
+      <p class="text">${text}</p>
+    </div>
+`
+    } else if (remoteUser) {
+        // remoteUser表示远程用户聊天消息，灰色的气泡
+        html = `
+     <div class="message other">
+      <img :alt=${remoteUser.username} class="avatar" onclick="showUser(${remoteUser.id})" src=${remoteUser.userAvatarUrl ?? defaultPicture}>
+    <div class="info">
+      <span class="username">${remoteUser.username.length < 10 ? remoteUser.username : remoteUser.username.slice(0, 10)}&nbsp;&nbsp;&nbsp;${createTime}</span>
+      <p class="${isAdmin ? 'admin text' : 'text'}" >${text}</p>
+    </div>
+    </div>
+`
+    }
+    stats.value.content += html;
+}
+
+window.showUser = (id) => {
+    showUser(id)
+}
 </script>
 
 <style scoped>
-* {
-    padding: 0;
-    margin: 0;
-}
-
-.wrap {
-
-
-    height: 100%;
+.send {
     width: 100%;
-    position: relative;
-}
-
-.title {
-
-
-    height: 40px;
-    width: 100%;
-    background-color: #eaeaea;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.bottom {
-
-
-    min-height: 50px;
-    width: 100%;
-    border-top: 1px solid #eaeaea;
     position: fixed;
-    bottom: 0;
-}
-
-.content_box {
-
-
-    /*
-    中间栏计算高度，110是包含了上下固定的两个元素高度90
-    这里padding：10px造成的上下够加了10，把盒子撑大了，所以一共是20要减掉
-    然后不知道是边框还是组件的原因，导致多出了一些，这里再减去5px刚好。不然会出现滚动条到顶或者底部的时候再滚动的话就会报一个错，或者出现滚动条变长一下的bug
-    */
-    height: calc(100% - 115px);
-    overflow: auto;
-    padding: 10px;
-}
-
-.timer {
-
-
-    text-align: center;
-    color: #c2c2c2;
-}
-
-/* 发送的信息样式 */
-/*
-右边消息思路解释：首先大盒子userbox内放两个盒子，一个放头像，一个放用户名和发送的内容，我们先用flex让他横向排列。
-然后把写文字的大盒子设置flex：1。这个属性的意思就是让这个元素撑满父盒子剩余位置。然后我们再把文字盒子设置flex，并把他对齐方式设置为尾部对齐就完成了基本的结构，然后微调一下就可以了
-*/
-.userbox {
-
-
-    width: 100%;
+    bottom: 5px;
     display: flex;
-    margin-bottom: 10px;
-}
-
-.nameInfo {
-
-
-    /* 用flex：1把盒子撑开 */
-    flex: 1;
-    margin-right: 10px;
-    /* 用align-items把元素靠右对齐 */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.contentText {
-
-
-    background-color: #9eea6a;
-    /* 把内容部分改为行内块元素，因为盒子flex：1把盒子撑大了，所以用行内块元素让内容宽度不根据父盒子来 */
-    display: inline-block;
-    /* 这四句是圆角 */
-    border-top-left-radius: 10px;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    /* 最大宽度限定内容输入到百分61换行 */
-    max-width: 61%;
-    padding: 5px 10px;
-    /* 忽略多余的空白，只保留一个空白 */
-    white-space: normal;
-    /* 换行显示全部字符 */
-    word-break: break-all;
-    margin-top: 3px;
-    font-size: 14px;
-}
-
-/* 接收的信息样式 */
-/*
-左边消息思路解释：跟上面一样，就是换一下位置，首先通过把最外层大盒子的排列方式通过flex-direction: row-reverse;属性翻转，也就是头像和文字盒子换位置
-然后删除掉尾部对齐方式，因为不写这个默认是左对齐的。我们写的左边就没必要再写了。
-*/
-.userbox2 {
-
-
-    width: 100%;
-    display: flex;
-    flex-direction: row-reverse;
-    margin-bottom: 10px;
-}
-
-.nameInfo2 {
-
-
-    /* 用flex：1把盒子撑开 */
-    flex: 1;
-    margin-left: 10px;
-}
-
-.contentText2 {
-
-
-    background-color: #9eea6a;
-    /* 把内容部分改为行内块元素，因为盒子flex：1把盒子撑大了，所以用行内块元素让内容宽度不根据父盒子来 */
-    display: inline-block;
-    /* 这四句是圆角 */
-    border-top-left-radius: 0px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    /* 最大宽度限定内容输入到百分61换行 */
-    max-width: 61%;
-    padding: 5px 10px;
-    /* 忽略多余的空白，只保留一个空白 */
-    white-space: normal;
-    /* 换行显示全部字符 */
-    word-break: break-all;
-    margin-top: 3px;
-    font-size: 14px;
+    align-items: center;
 }
 </style>
