@@ -44,6 +44,8 @@ onMounted(async () => {
                 }
             })
             teamMemberList.value = res_.data.data
+        } else {
+            showFailToast("获取队伍成员失败")
         }
     } else {
         showFailToast("队伍查询失败")

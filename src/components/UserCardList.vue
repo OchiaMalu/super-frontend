@@ -1,16 +1,19 @@
 <template>
     <van-card v-for="user in userList"
-              :desc="user.profile"
               :title="user.username"
-              :thumb="user.avatarUrl"
+              :desc="user.profile"
     >
+        <template #thumb>
+            <van-image :src="user?.avatarUrl" width="88" height="88" @click="showUserDetail(user?.id)"/>
+        </template>
         <template #tags>
-            <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px">
+            <van-tag v-for="tag in user?.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px"
+                     @click="showUserDetail(user?.id)">
                 {{ tag }}
             </van-tag>
         </template>
         <template #num>
-            <van-button v-if="user.isFollow" size="mini" plain type="primary"
+            <van-button v-if="user?.isFollow" size="mini" plain type="primary"
                         style="width: 48px;height: 28px;margin-top: 10px"
                         color="#c1c1c1" @click="followUser(user)">
                 已关注
@@ -26,6 +29,7 @@
 <script setup lang="ts">
 import {UserType} from "../models/user.js";
 import myAxios from "../plugins/my-axios.js";
+import {useRouter} from "vue-router";
 
 interface UserCardListProps {
     userList: UserType[]
@@ -41,6 +45,15 @@ const followUser = async (user) => {
             user.isFollow = res_.data.data.isFollow
         }
     }
+}
+let router = useRouter();
+const showUserDetail = (id) => {
+    router.push({
+        path: "/user/detail",
+        query: {
+            id: id
+        }
+    })
 }
 </script>
 

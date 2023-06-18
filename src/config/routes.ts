@@ -20,6 +20,7 @@ import UserTagPage from "../pages/UserTagPage.vue";
 import ForgetPasswordPage from "../pages/ForgetPasswordPage.vue";
 import AfterSignUp from "../pages/AfterSignUp.vue";
 import ChatPage from "../pages/ChatPage.vue";
+import UserDetailPage from "../pages/UserDetailPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
@@ -31,6 +32,7 @@ const routes = [
     {path: '/team/update', title: "更新队伍", component: TeamUpdatePage},
     {path: '/user', title: "个人", component: User},
     {path: '/user/tag', title: "标签", component: UserTagPage},
+    {path: '/user/detail', title: '用户详情', component: UserDetailPage},
     {path: '/user/signup', component: SignUpPage},
     {path: '/after', title: '标签', component: AfterSignUp, meta: {layout: 'after'}},
     {path: '/user/login', title: "用户登录", component: UserLogin},
