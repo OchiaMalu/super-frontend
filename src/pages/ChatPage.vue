@@ -1,12 +1,4 @@
 <template>
-    <van-sticky>
-        <van-nav-bar
-            title="聊天"
-            left-arrow
-            @click-left="onClickLeft"
-        >
-        </van-nav-bar>
-    </van-sticky>
     <div class="chat-container">
         <div v-if="route.path==='/public_chat'" style="width: 100%;position: fixed;top: 44px;">
         </div>
@@ -18,17 +10,11 @@
         </div>
         <div class="content" ref="chatRoom" v-html="stats.content"></div>
         <div class="send">
-            <van-field
-                v-model="stats.text"
-                center
-                clearable
-                placeholder="聊点什么吧...."
-                style="padding-left: 16px"
-            >
-                <template #button>
-                    <van-button size="small" type="primary" @click="send">发送</van-button>
-                </template>
-            </van-field>
+            <textarea placeholder="聊点什么吧...." v-model="stats.text" @keyup.enter="send"
+                      class="input-text"></textarea>
+            <button class="input-send-button" @click="send">
+                发送
+            </button>
         </div>
     </div>
 </template>
@@ -164,7 +150,12 @@ const init = () => {
     }
 }
 onMounted(async () => {
-    let {id, username, userType, teamId, teamName, teamType} = route.query
+    let id = 36;
+    let username = "dingzhen";
+    let userType = 1
+    let teamId = "";
+    let teamName = "";
+    let teamType = ""
     stats.value.chatUser.id = Number.parseInt(id)
     stats.value.team.teamId = Number.parseInt(teamId)
     stats.value.chatUser.username = username
@@ -185,13 +176,13 @@ onMounted(async () => {
             {
                 toId: stats.value.chatUser.id,
             })
-        privateMessage.forEach(chat => {
-            if (chat.isMy === true) {
-                createContent(null, chat.formUser, chat.text)
-            } else {
-                createContent(chat.toUser, null, chat.text, null, chat.createTime)
-            }
-        })
+        // privateMessage.forEach(chat => {
+        //     if (chat.isMy === true) {
+        //         createContent(null, chat.formUser, chat.text)
+        //     } else {
+        //         createContent(chat.toUser, null, chat.text, null, chat.createTime)
+        //     }
+        // })
     }
     if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
         const hallMessage = await myAxios.get("/chat/hallChat")
@@ -291,9 +282,9 @@ const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
     stats.value.content += html;
 }
 
-window.showUser = (id) => {
-    showUser(id)
-}
+// window.showUser = (id) => {
+//     showUser(id)
+// }
 </script>
 
 <style scoped>
