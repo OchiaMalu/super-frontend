@@ -1,42 +1,46 @@
 <template>
+    <van-sticky>
+        <van-nav-bar
+            title="聊天"
+            left-arrow
+            @click-left="onClickLeft"
+        >
+        </van-nav-bar>
+    </van-sticky>
     <div class="chat-container">
-        <div v-if="route.path==='/public_chat'" style="width: 100%;position: fixed;top: 44px;">
-        </div>
-        <div style="margin-top: 10px;" v-if="route.path==='/public_chat'">
-        </div>
-        <div v-else class="heard">
-            <p v-if="stats.chatType===stats.chatEnum.PRIVATE_CHAT">{{ stats.chatUser.username.slice(0, 14) }}</p>
-            <p v-if="stats.chatType===stats.chatEnum.TEAM_CHAT">{{ stats.team.teamName.slice(0, 14) }}</p>
-        </div>
         <div class="content" ref="chatRoom" v-html="stats.content"></div>
-        <div class="send">
-            <textarea placeholder="聊点什么吧...." v-model="stats.text" @keyup.enter="send"
-                      class="input-text"></textarea>
-            <button class="input-send-button" @click="send">
-                发送
-            </button>
-        </div>
+        <van-cell-group inset style="position: fixed;bottom: 0;width: 100%">
+            <van-field
+                v-model="stats.text"
+                center
+                clearable
+                placeholder="聊点什么吧...."
+            >
+                <template #button>
+                    <van-button size="small" type="primary" @click="send" style="margin-right: 16px">发送</van-button>
+                </template>
+            </van-field>
+        </van-cell-group>
     </div>
 </template>
-
 <script setup>
 import {nextTick, onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {showFailToast} from "vant";
+
 import {getCurrentUser} from "../services/user.ts";
 import myAxios from "../plugins/my-axios.js";
 
+const route = useRoute()
+const router = useRouter()
 const onClickLeft = () => {
     router.push("/")
 };
-const route = useRoute()
-const router = useRouter()
-
 const stats = ref({
     user: {
         id: 0,
         username: "",
-        userAvatarUrl: ''
+        avatarUrl: ''
     },
     isCollapse: false,
     users: [],
@@ -65,7 +69,7 @@ const stats = ref({
 let socket = null;
 const heartbeatInterval = 30 * 1000; // 30秒
 let heartbeatTimer = null;
-const chatRoom = ref(null)
+
 const startHeartbeat = () => {
     heartbeatTimer = setInterval(() => {
         if (socket.readyState === WebSocket.OPEN) {
@@ -78,11 +82,75 @@ const stopHeartbeat = () => {
     clearInterval(heartbeatTimer);
     heartbeatTimer = null;
 }
+
+const chatRoom = ref(null)
+
+onMounted(async () => {
+    let {id, username, userType, teamId, teamName, teamType} = route.query
+    stats.value.chatUser.id = Number.parseInt(id)
+    stats.value.team.teamId = Number.parseInt(teamId)
+    stats.value.chatUser.username = username
+    stats.value.team.teamName = teamName
+    if (userType && Number.parseInt(userType) === stats.value.chatEnum.PRIVATE_CHAT) {
+        stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT
+    } else if (teamType && Number.parseInt(teamType) === stats.value.chatEnum.TEAM_CHAT) {
+        stats.value.chatType = stats.value.chatEnum.TEAM_CHAT
+    } else {
+        stats.value.chatType = stats.value.chatEnum.HALL_CHAT
+    }
+    stats.value.user = await getCurrentUser()
+
+
+    // 私聊
+    if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
+        const privateMessage = await myAxios.post("/chat/privateChat",
+            {
+                toId: stats.value.chatUser.id,
+            })
+        privateMessage.data.data.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.formUser, chat.text)
+            } else {
+                createContent(chat.toUser, null, chat.text, null, chat.createTime)
+            }
+        })
+    }
+    if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
+        const hallMessage = await myAxios.get("/chat/hallChat")
+        hallMessage.data.data.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.formUser, chat.text)
+            } else {
+                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
+            }
+        })
+    }
+    if (stats.value.chatType === stats.value.chatEnum.TEAM_CHAT) {
+        const teamMessage = await myAxios.post("/chat/teamChat",
+            {
+                teamId: stats.value.team.teamId
+            })
+        teamMessage.data.data.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.formUser, chat.text)
+            } else {
+                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
+            }
+        })
+    }
+    init()
+    // 内容始终显示最下方
+    await nextTick()
+    const lastElement = chatRoom.value.lastElementChild
+    lastElement.scrollIntoView()
+})
+
 const init = () => {
     let uid = stats.value.user?.id;
     if (typeof (WebSocket) == "undefined") {
         showFailToast("您的浏览器不支持WebSocket")
     } else {
+        // 区分线上和开发环境
         let socketUrl = `ws://localhost:8080/api/websocket/${uid}/${stats.value.team.teamId}`
         if (socket != null) {
             socket.close();
@@ -93,6 +161,7 @@ const init = () => {
         //打开事件
         socket.onopen = function () {
             startHeartbeat();
+            console.log("websocket已打开");
         };
         //  浏览器端收消息，获得从服务端发送过来的文本消息
         socket.onmessage = function (msg) {
@@ -124,95 +193,33 @@ const init = () => {
                 }
                 // 队伍
                 if (stats.value.chatType === data.chatType && data.teamId && stats.value.team.teamId === data.teamId) {
-                    flag = (data.formUser?.id !== uid)
+                    flag = (data.formUser?.id != uid)
                 }
                 if (flag) {
                     stats.value.messages.push(data)
                     // 构建消息内容
                     createContent(data.formUser, null, data.text, data.isAdmin, data.createTime)
-                    nextTick(() => {
-                        const lastElement = chatRoom.value.lastElementChild
-                        lastElement.scrollIntoView()
-                    })
                 }
+                nextTick(() => {
+                    const lastElement = chatRoom.value.lastElementChild
+                    lastElement.scrollIntoView()
+                })
                 flag = null;
             }
         };
         //关闭事件
         socket.onclose = function () {
+            console.log("websocket已关闭");
             stopHeartbeat();
             setTimeout(init, 5000); // 5秒后重连
         };
         //发生了错误事件
         socket.onerror = function () {
-            showFailToast("错误")
+            console.log("websocket发生了错误");
         }
     }
 }
-onMounted(async () => {
-    let id = 36;
-    let username = "dingzhen";
-    let userType = 1
-    let teamId = "";
-    let teamName = "";
-    let teamType = ""
-    stats.value.chatUser.id = Number.parseInt(id)
-    stats.value.team.teamId = Number.parseInt(teamId)
-    stats.value.chatUser.username = username
-    stats.value.team.teamName = teamName
-    if (userType && Number.parseInt(userType) === stats.value.chatEnum.PRIVATE_CHAT) {
-        stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT
-    } else if (teamType && Number.parseInt(teamType) === stats.value.chatEnum.TEAM_CHAT) {
-        stats.value.chatType = stats.value.chatEnum.TEAM_CHAT
-    } else {
-        stats.value.chatType = stats.value.chatEnum.HALL_CHAT
-    }
-    stats.value.user = await getCurrentUser()
 
-
-    // 私聊
-    if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
-        const privateMessage = await myAxios.post("/chat/privateChat",
-            {
-                toId: stats.value.chatUser.id,
-            })
-        // privateMessage.forEach(chat => {
-        //     if (chat.isMy === true) {
-        //         createContent(null, chat.formUser, chat.text)
-        //     } else {
-        //         createContent(chat.toUser, null, chat.text, null, chat.createTime)
-        //     }
-        // })
-    }
-    if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
-        const hallMessage = await myAxios.get("/chat/hallChat")
-        hallMessage.forEach(chat => {
-            if (chat.isMy === true) {
-                createContent(null, chat.formUser, chat.text)
-            } else {
-                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
-            }
-        })
-    }
-    if (stats.value.chatType === stats.value.chatEnum.TEAM_CHAT) {
-        const teamMessage = await myAxios.post("/chat/teamChat",
-            {
-                teamId: stats.value.team.teamId
-            })
-        teamMessage.forEach(chat => {
-            if (chat.isMy === true) {
-                createContent(null, chat.formUser, chat.text)
-            } else {
-                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
-            }
-        })
-    }
-    init()
-    // 内容始终显示最下方
-    await nextTick()
-    const lastElement = chatRoom.value.lastElementChild
-    lastElement.scrollIntoView()
-})
 const send = () => {
     if (stats.value.chatUser.id === 0) {
         return;
@@ -227,6 +234,7 @@ const send = () => {
         if (typeof (WebSocket) == "undefined") {
             showFailToast("您的浏览器不支持WebSocket")
         } else {
+            console.log("您的浏览器支持WebSocket");
             let message = {
                 fromId: stats.value.user.id,
                 toId: stats.value.chatUser.id,
@@ -248,12 +256,16 @@ const send = () => {
 
 const showUser = (id) => {
     router.push({
-        name: 'userShow',
+        path: '/user/detail',
         params: {
-            userId: id
+            id: id
         }
     })
 }
+
+/**
+ * 这个方法是用来将 json的聊天消息数据转换成 html的。
+ */
 const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
     // 当前用户消息
     let html;
@@ -262,7 +274,7 @@ const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
         html = `
     <div class="message self">
     <div class="myInfo info">
-      <img :alt=${nowUser.username} class="avatar" onclick="showUser(${nowUser.id})" src=${nowUser.userAvatarUrl ?? defaultPicture}>
+      <img :alt=${nowUser.username} class="avatar" onclick="showUser(${nowUser.id})" src=${nowUser.avatarUrl}>
     </div>
       <p class="text">${text}</p>
     </div>
@@ -271,9 +283,9 @@ const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
         // remoteUser表示远程用户聊天消息，灰色的气泡
         html = `
      <div class="message other">
-      <img :alt=${remoteUser.username} class="avatar" onclick="showUser(${remoteUser.id})" src=${remoteUser.userAvatarUrl ?? defaultPicture}>
+      <img :alt=${remoteUser.username} class="avatar" onclick="showUser(${remoteUser.id})" src=${remoteUser.avatarUrl}>
     <div class="info">
-      <span class="username">${remoteUser.username.length < 10 ? remoteUser.username : remoteUser.username.slice(0, 10)}&nbsp;&nbsp;&nbsp;${createTime}</span>
+      <span class="username">${remoteUser.username.length < 10 ? remoteUser.username : remoteUser.username}&nbsp;&nbsp;&nbsp;${createTime}</span>
       <p class="${isAdmin ? 'admin text' : 'text'}" >${text}</p>
     </div>
     </div>
@@ -281,18 +293,47 @@ const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
     }
     stats.value.content += html;
 }
-
-// window.showUser = (id) => {
-//     showUser(id)
-// }
-</script>
-
-<style scoped>
-.send {
-    width: 100%;
-    position: fixed;
-    bottom: 5px;
-    display: flex;
-    align-items: center;
+/**
+ * 模板字符串事件
+ * @param id
+ */
+window.showUser = (id) => {
+    showUser(id)
 }
+
+</script>
+<style>
+@import "../assets/css/chat.css";
+
+.emoji-item {
+    width: 0;
+    height: 0;
+    margin-top: -45px;
+}
+
+.pollup {
+    width: 290px;
+    height: 280px;
+    position: absolute;
+    right: 0;
+    margin-left: 10px;
+    bottom: 50px;
+    z-index: 5;
+    transition: all ease .5s;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pollup .emoji-container-item {
+    padding: 1px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.emoji-container-open-btn {
+    font-size: 28px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
 </style>

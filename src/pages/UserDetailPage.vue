@@ -27,16 +27,29 @@
         <van-cell title="电话" :value="user?.phone"/>
         <van-cell title="邮箱" :value="user?.email || '该用户暂未填写邮箱'"/>
     </van-cell-group>
-    <div style="margin: 16px">
-        <van-button style="width: 100%" plain type="primary">添加好友</van-button>
-    </div>
+    <!--    <div style="margin: 16px">-->
+    <!--        <van-button style="width: 100%" plain type="primary" @click="addUserApply=true">添加好友</van-button>-->
+    <!--    </div>-->
+    <!--    <van-dialog v-model:show="addUserApply" :title="'添加好友：'+user?.username.slice(0,10)" show-cancel-button-->
+    <!--                @confirm="toAddUserApply(user?.id)">-->
+    <!--        <div style="padding-top:8px"></div>-->
+    <!--        <van-field v-model="addUserApplyText"-->
+    <!--                   type="text"-->
+    <!--                   placeholder="我是...."-->
+    <!--                   style="text-align: center;width: 150px;margin-left: 75px;"-->
+    <!--        />-->
+    <!--        <div style="padding-top:8px "></div>-->
+    <!--    </van-dialog>-->
 </template>
 
 <script setup>
 import {useRoute} from "vue-router";
 import {onMounted, ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
+import {showSuccessToast} from "vant";
 
+const addUserApply = ref(false)
+const addUserApplyText = ref("")
 let route = useRoute();
 const user = ref()
 onMounted(async () => {
@@ -48,6 +61,15 @@ onMounted(async () => {
         user.value = res.data.data
     }
 })
+const toAddUserApply = async (id) => {
+    const status = await myAxios.post("/friends/add", {
+        "receiveId": id,
+        "remark": addUserApplyText.value
+    })
+    if (status) {
+        showSuccessToast("申请成功")
+    }
+}
 </script>
 
 <style scoped>
