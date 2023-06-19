@@ -1,25 +1,63 @@
 <template>
     <message-default-grid/>
-    <message-list/>
+    <van-cell-group v-for="team in teamList">
+        <van-cell :title="`${team.name}`+'聊天室'" :label="team.description" @click="toChatRoom(team.id,team.name)">
+            <template #icon>
+                <div class="icon_area">
+                    <van-icon name="volume" color="#2a2e31" class="icon" size="20px"/>
+                </div>
+            </template>
+        </van-cell>
+    </van-cell-group>
 </template>
 
 <script setup>
-import MessageList from "../components/MessageList.vue";
 import MessageDefaultGrid from "../components/MessageDefalutGrid.vue"
-import {onMounted} from "vue";
-import {showDialog} from "vant";
+import {onMounted, ref} from "vue";
+import myAxios from "../plugins/my-axios.js";
+import {useRouter} from "vue-router";
 
-onMounted(() => {
-    showDialog({
-        title: '消息中心功能尚未实现',
-        message: '生命远不止连轴转和忙到极限，人类的体验远比这辽阔、丰富得多。',
-    }).then(() => {
-        // on close
-    });
+const teamList = ref()
+onMounted(async () => {
+    let res = await myAxios.get("/team/list/my/join/all");
+    if (res?.data.code === 0) {
+        teamList.value = res.data.data
+    }
+
 })
+let router = useRouter();
+const toChatRoom = (id, name) => {
+    router.push({
+        path: "/chat",
+        query: {
+            teamId: id,
+            teamName: name,
+            teamType: 2
+        }
+    })
+}
 </script>
 
 <style>
+.icon_area {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ededed;
+    position: relative;
+    margin-right: 5px;
+    margin-left: 10px;
+}
+
+.van-cell {
+    padding-left: 5px;
+}
+
+.icon {
+    position: absolute;
+    left: 14px;
+    top: 14px
+}
 
 .van-divider {
     margin: 2px;

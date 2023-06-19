@@ -21,6 +21,7 @@ import ForgetPasswordPage from "../pages/ForgetPasswordPage.vue";
 import AfterSignUp from "../pages/AfterSignUp.vue";
 import ChatPage from "../pages/ChatPage.vue";
 import UserDetailPage from "../pages/UserDetailPage.vue";
+import UserFollowPage from "../pages/UserFollowPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
@@ -45,6 +46,7 @@ const routes = [
     {path: '/user/blog', title: '我写的博文', component: UserBlogPage},
     {path: '/message', title: '消息中心', component: MessagePage},
     {path: '/forget', title: '找回密码', component: ForgetPasswordPage, meta: {layout: 'forget'}},
-    {path: '/chat', title: '聊天', component: ChatPage, meta: {layout: 'chat'}}
+    {path: '/chat', title: '聊天', component: ChatPage, meta: {layout: 'chat'}},
+    {path: '/user/follow', title: '我关注的用户', component: UserFollowPage}
 ]
 export default routes;
