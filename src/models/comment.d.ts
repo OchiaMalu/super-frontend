@@ -1,4 +1,5 @@
 import {UserType} from "./user";
+import {BlogType} from "./blog";
 
 export type CommentType = {
     id: number,
@@ -11,6 +12,7 @@ export type CommentType = {
     content: string,
     likedNum: number,
     status: number,
+    blog: BlogType,
     createTime: Date,
     updateTime: Date
 }

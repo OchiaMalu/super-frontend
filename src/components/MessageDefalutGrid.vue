@@ -1,6 +1,6 @@
 <template>
     <van-grid :border="false">
-        <van-grid-item icon="comment" icon-color="#767ffe" text="所有评论"/>
+        <van-grid-item icon="comment" icon-color="#767ffe" text="所有评论" to="/user/comment"/>
         <van-grid-item icon="good-job" icon-color="#639efc" text="赞"/>
         <van-grid-item icon="friends" icon-color="#a778fc" text="关注" to="/user/follow"/>
         <van-grid-item>
