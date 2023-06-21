@@ -257,7 +257,7 @@ const send = () => {
 const showUser = (id) => {
     router.push({
         path: '/user/detail',
-        params: {
+        query: {
             id: id
         }
     })
