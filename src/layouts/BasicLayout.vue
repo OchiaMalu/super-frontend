@@ -54,12 +54,14 @@ router.beforeEach(async (to) => {
     })
     document.title = "速配SUPER"
     title.value = route?.title ?? DEFAULT_TITLE
-    let res = await myAxios.get("/message/num");
-    if (res?.data.code === 0) {
-        if (res.data.data > 0) {
-            hasMessage.value = true
-        } else {
-            hasMessage.value = false
+    if (to.path !== '/user/login') {
+        let res = await myAxios.get("/message/num");
+        if (res?.data.code === 0) {
+            if (res.data.data > 0) {
+                hasMessage.value = true
+            } else {
+                hasMessage.value = false
+            }
         }
     }
 })
