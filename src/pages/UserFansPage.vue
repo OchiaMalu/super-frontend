@@ -1,9 +1,9 @@
 <template>
     <van-empty
-            v-if="(!commentList || commentList.length===0) && loading===false"
+            v-if="(!userList || userList.length===0) && loading===false"
             image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
             image-size="80"
-            description="您没有写过评论"
+            description="您暂无粉丝"
     />
     <van-loading vertical v-if="loading">
         <template #icon>
@@ -11,21 +11,25 @@
         </template>
         加载中...
     </van-loading>
-    <user-comment-list :comment-list="commentList"/>
+    <user-card-list :user-list="userList"/>
 </template>
 
 <script setup>
-
+import UserCardList from "../components/UserCardList.vue";
 import {onMounted, ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
-import UserCommentList from "../components/UserCommentList.vue";
 
 const loading = ref(true)
-const commentList = ref()
+const userList = ref([])
 onMounted(async () => {
-    let res = await myAxios.get("/comments/list/my");
+    let res = await myAxios.get("/follow/fans");
     if (res?.data.code === 0) {
-        commentList.value = res.data.data
+        res.data.data.forEach((user) => {
+            if (user.tags) {
+                user.tags = JSON.parse(user.tags)
+            }
+        })
+        userList.value = res.data.data
     }
     loading.value = false
 })

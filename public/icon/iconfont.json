@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "15077415",
+      "name": "我的粉丝",
+      "font_class": "wodefensi",
+      "unicode": "e634",
+      "unicode_decimal": 58932
+    },
+    {
       "icon_id": "5582182",
       "name": "32*32 举报",
       "font_class": "jubao",
