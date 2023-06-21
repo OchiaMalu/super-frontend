@@ -14,7 +14,7 @@
     <div class="content">
         <router-view/>
     </div>
-    <van-tabbar route @change="onChange" v-model="active">
+    <van-tabbar route v-model="active">
         <van-tabbar-item to="/" icon="home-o" name="index">主页</van-tabbar-item>
         <van-tabbar-item to="/team" icon="flag-o" name="team">队伍</van-tabbar-item>
         <van-tabbar-item replace class="van-tabbar-addBlog" @click="checkLogin('/blog/edit',2)">
@@ -24,7 +24,12 @@
                 </div>
             </div>
         </van-tabbar-item>
-        <van-tabbar-item icon="smile-comment-o" name="message" class="message" @click="checkLogin('/message',3)">消息
+        <van-tabbar-item v-if="hasMessage" icon="smile-comment-o" name="message" class="message"
+                         @click="checkLogin('/message',3)" dot>
+            消息
+        </van-tabbar-item>
+        <van-tabbar-item v-else icon="smile-comment-o" name="message" class="message" @click="checkLogin('/message',3)">
+            消息
         </van-tabbar-item>
         <van-tabbar-item to="/user" icon="user-o" name="user">个人</van-tabbar-item>
     </van-tabbar>
@@ -35,18 +40,28 @@ import {useRouter} from "vue-router";
 import routes from "../config/routes.ts";
 import {ref} from "vue";
 import {getCurrentUser} from "../services/user.ts";
+import myAxios from "../plugins/my-axios.js";
 
+const hasMessage = ref(false)
 let router = useRouter();
 const DEFAULT_TITLE = "速配SUPER"
 const title = ref(DEFAULT_TITLE)
 const active = ref(0)
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
     const toPath = to.path
     const route = routes.find((routes) => {
         return routes.path === toPath
     })
     document.title = "速配SUPER"
     title.value = route?.title ?? DEFAULT_TITLE
+    let res = await myAxios.get("/message/num");
+    if (res?.data.code === 0) {
+        if (res.data.data > 0) {
+            hasMessage.value = true
+        } else {
+            hasMessage.value = false
+        }
+    }
 })
 const onClickLeft = () => {
     router.back()

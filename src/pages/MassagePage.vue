@@ -1,5 +1,19 @@
 <template>
-    <message-default-grid/>
+    <van-grid :border="false">
+        <van-grid-item icon="comment" icon-color="#767ffe" text="所有评论" to="/user/comment"/>
+        <van-grid-item v-if="likeNum==0" icon="good-job" icon-color="#639efc" text="赞" to="/user/like"/>
+        <van-grid-item v-else icon="good-job" icon-color="#639efc" text="赞" :badge="likeNum" to="/user/like"/>
+        <van-grid-item icon="friends" icon-color="#a778fc" text="关注" to="/user/follow"/>
+        <van-grid-item to="/fans">
+            <template #icon>
+                <van-icon class-prefix="my-icon" name="wodefensi" color="#65cdf2" size="28"/>
+            </template>
+            <template #text>
+                <span style="margin-top: 8px;font-size: 14px">粉丝</span>
+            </template>
+        </van-grid-item>
+    </van-grid>
+    <van-divider/>
     <van-cell title="公共聊天室" label="SUPER速配官方聊天室" @click="toHallChat">
         <template #icon>
             <div class="icon_area">
@@ -23,18 +37,21 @@
 </template>
 
 <script setup>
-import MessageDefaultGrid from "../components/MessageDefalutGrid.vue"
 import {onMounted, ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
 import {useRouter} from "vue-router";
 
 const teamList = ref()
+const likeNum = ref(0)
 onMounted(async () => {
     let res = await myAxios.get("/team/list/my/join/all");
     if (res?.data.code === 0) {
         teamList.value = res.data.data
     }
-
+    let res2 = await myAxios.get("/message/like/num");
+    if (res2.data.code === 0) {
+        likeNum.value = res2.data.data
+    }
 })
 let router = useRouter();
 const toChatRoom = (id, name) => {

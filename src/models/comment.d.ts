@@ -5,7 +5,7 @@ export type CommentType = {
     id: number,
     userId: number,
     commentUser: UserType,
-    blog_id: number,
+    blogId: number,
     parentId?: number,
     answerId?: number,
     isLiked: boolean,

@@ -293,13 +293,6 @@ const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
     }
     stats.value.content += html;
 }
-/**
- * 模板字符串事件
- * @param id
- */
-window.showUser = (id) => {
-    showUser(id)
-}
 
 </script>
 <style>
