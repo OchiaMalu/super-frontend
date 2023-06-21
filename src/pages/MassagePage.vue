@@ -1,5 +1,16 @@
 <template>
     <message-default-grid/>
+    <van-cell title="公共聊天室" label="SUPER速配官方聊天室" @click="toHallChat">
+        <template #icon>
+            <div class="icon_area">
+                <van-image src="../../public/favicon.ico" width="25" height="25" round
+                           style="margin-left: 12px;margin-top: 10px"/>
+            </div>
+        </template>
+        <template #value>
+            <van-tag color="#ffe1e1" text-color="#ad0000">官方</van-tag>
+        </template>
+    </van-cell>
     <van-cell-group v-for="team in teamList">
         <van-cell :title="`${team.name}`+'聊天室'" :label="team.description" @click="toChatRoom(team.id,team.name)">
             <template #icon>
@@ -35,6 +46,9 @@ const toChatRoom = (id, name) => {
             teamType: 2
         }
     })
+}
+const toHallChat = () => {
+    router.push("/chat")
 }
 </script>
 

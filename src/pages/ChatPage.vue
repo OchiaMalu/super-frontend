@@ -189,7 +189,7 @@ const init = () => {
                 }
                 if ((stats.value.chatType === data.chatType)) {
                     // 大厅
-                    flag = (data.formUser?.id !== uid)
+                    flag = (data.formUser?.id != uid)
                 }
                 // 队伍
                 if (stats.value.chatType === data.chatType && data.teamId && stats.value.team.teamId === data.teamId) {
