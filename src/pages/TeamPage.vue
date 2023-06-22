@@ -43,7 +43,8 @@ import {useRouter} from "vue-router";
 import TeamCardList from "../components/TeamCardList.vue";
 import {ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
-import {showFailToast} from "vant";
+import {showConfirmDialog, showFailToast} from "vant";
+import {getCurrentUser} from "../services/user.ts";
 
 const active = ref('public')
 let router = useRouter();
@@ -63,8 +64,22 @@ const tabChange = (name) => {
         listTeams(currentPage.value, searchText.value, 2)
     }
 }
-const toCreateTeam = () => {
-    router.push("/team/add")
+const toCreateTeam = async () => {
+    let user = await getCurrentUser();
+    if (!user) {
+        showConfirmDialog({
+            message:
+                "该功能需要登陆后使用,是否登录",
+            confirmButtonText: "去登录"
+        })
+            .then(() => {
+                router.replace("/user/login")
+            })
+            .catch(() => {
+            });
+    } else {
+        await router.push("/team/add")
+    }
 }
 const listTeams = async (currentPage, val = '', status = 0) => {
     listLoading.value = true

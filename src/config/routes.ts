@@ -25,6 +25,7 @@ import UserFollowPage from "../pages/UserFollowPage.vue";
 import UserBlogCommentPage from "../pages/UserBlogCommentPage.vue";
 import UserFansPage from "../pages/UserFansPage.vue";
 import UserLikePage from "../pages/UserLikePage.vue";
+import UserFollowedBlogPage from "../pages/UserFollowedBlogPage.vue";
 
 const routes = [
     {path: '/', title: "速配SUPER", component: Index},
@@ -53,6 +54,7 @@ const routes = [
     {path: '/user/follow', title: '我关注的用户', component: UserFollowPage},
     {path: '/user/comment', title: '我评论的', component: UserBlogCommentPage},
     {path: '/fans', title: '我的粉丝', component: UserFansPage},
-    {path: '/user/like', title: '赞', component: UserLikePage}
+    {path: '/user/like', title: '赞', component: UserLikePage},
+    {path: '/user/follow/blog', title: '关注', component: UserFollowedBlogPage}
 ]
 export default routes;
