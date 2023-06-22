@@ -24,18 +24,20 @@
 
     <van-cell-group inset>
         <van-cell :title="blog.title" title-style="font-size:18px"/>
-        <van-cell center :title="author.username" style="padding-right: 6px">
+        <van-cell center style="padding-right: 6px">
+            <template #title>
+                <span @click="toAuthor(author.id)">{{ author.username }}</span>
+            </template>
             <template #icon>
-                <van-image :src="author.avatarUrl" width="40" height="40" round style="margin-right: 10px"/>
+                <van-image :src="author.avatarUrl" width="40" height="40" round style="margin-right: 10px"
+                           @click="toAuthor(author.id)"/>
             </template>
             <template #right-icon>
-                <div v-if="author.id !== blog.userId">
-                    <van-button v-if="author.isFollow" type="primary" size="small" color="#c1c1c1"
-                                @click="followUser(author)">已关注
-                    </van-button>
-                    <van-button v-else icon="plus" type="primary" size="small" @click="followUser(author)">关注
-                    </van-button>
-                </div>
+                <van-button v-if="author.isFollow" type="primary" size="small" color="#c1c1c1"
+                            @click="followUser(author)">已关注
+                </van-button>
+                <van-button v-else icon="plus" type="primary" size="small" @click="followUser(author)">关注
+                </van-button>
             </template>
         </van-cell>
         <van-cell :title="blog.content"/>
@@ -54,7 +56,8 @@
 
 
     <van-cell-group :border="false">
-        <van-field v-model="comment" :autosize="{minHeight: 32}" type="textarea" rows="1" placeholder="评论" :border="false"
+        <van-field v-model="comment" :autosize="{minHeight: 32}" type="textarea" rows="1" placeholder="评论"
+                   :border="false"
                    style="position: fixed;bottom: 0;padding-left: 16px;border-top: 1px solid #C1C1C1;padding-right: 10px">
             <template #right-icon>
                 <van-icon class-prefix="my-icon" name="shangchuan" size="30" color="#4387f6" @click="addComment"/>
@@ -155,6 +158,14 @@ import {getCurrentUser} from "../services/user.ts";
 const showBottom = ref(false)
 let router = useRouter();
 const comment = ref("")
+const toAuthor = (id) => {
+    router.push({
+        path: "/user/detail",
+        query: {
+            id: id
+        }
+    })
+}
 const onClickLeft = () => {
     router.push("/")
 };
@@ -280,8 +291,8 @@ const followUser = async (author) => {
         }
     }
 }
-const refresh=()=>{
-  location.reload();
+const refresh = () => {
+    location.reload();
 }
 </script>
 
