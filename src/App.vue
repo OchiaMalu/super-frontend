@@ -1,10 +1,11 @@
 <script setup>
 import {computed} from "vue";
 import {useRoute} from "vue-router";
+
 let route = useRoute();
-const default_layout="default"
-const isRouterAlive=true
-const layout=computed(()=>{
+const default_layout = "default"
+const isRouterAlive = true
+const layout = computed(() => {
     return (route.meta.layout || default_layout) + '-layout'
 })
 </script>
@@ -17,4 +18,12 @@ const layout=computed(()=>{
 </template>
 
 <style>
+@font-face {
+    font-family: 'pingfang';
+    src: url('/public/font/PingFang.woff2') format('woff2');
+}
+
+#app {
+    font-family: pingfang;
+}
 </style>

@@ -16,7 +16,7 @@
     <van-divider/>
     <van-cell v-if="blogNum===0" to="/user/follow/blog">
         <template #title>
-            <span class="cell-span">关注</span>
+            <span class="cell-span">我的关注</span>
         </template>
         <template #icon>
             <div class="icon_area">
@@ -27,7 +27,7 @@
     </van-cell>
     <van-cell v-else to="/user/follow/blog">
         <template #title>
-            <span class="cell-span">关注</span>
+            <span class="cell-span">我的关注</span>
         </template>
         <template #icon>
             <van-badge :content="blogNum">
