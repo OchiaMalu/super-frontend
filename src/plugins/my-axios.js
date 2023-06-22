@@ -1,13 +1,17 @@
 import axios from "axios";
-import {useRouter} from "vue-router";
 import {showFailToast} from "vant";
 
 let myAxios = axios.create({
     baseURL: 'http://localhost:8080/api'
 });
 myAxios.defaults.withCredentials = true
+
+let token = sessionStorage.getItem("token");
 // 添加请求拦截器
 myAxios.interceptors.request.use(function (config) {
+    if (token) {
+        config.headers['authorization'] = token
+    }
     return config;
 }, function (error) {
     return Promise.reject(error);

@@ -56,6 +56,7 @@ const onSubmit = async () => {
         "userPassword": password.value
     })
     if (response.data.code === 0 && response.data.data) {
+        sessionStorage.setItem("token", response.data.data)
         showSuccessToast("登录成功")
         window.location.href = <string>route.query.redirectUrl ?? '/'
     } else {
