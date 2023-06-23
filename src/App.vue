@@ -18,12 +18,12 @@ const layout = computed(() => {
 </template>
 
 <style>
-@font-face {
-    font-family: 'pingfang';
-    src: url('/public/font/PingFang.woff2') format('woff2');
-}
+/*@font-face {*/
+/*    font-family: 'pingfang';*/
+/*    src: url('/public/font/PingFang.woff2') format('woff2');*/
+/*}*/
 
 #app {
-    font-family: pingfang;
+    font-family: "PingFang SC", sans-serif;
 }
 </style>
