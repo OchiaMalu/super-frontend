@@ -46,7 +46,7 @@
     <van-divider/>
     <van-cell-group inset>
         <!--        todo 排序-->
-        <van-cell :title="`评论 ${blog.commentsNum}`" value="热门"/>
+        <van-cell :title="`评论 ${blog.commentsNum}`"/>
     </van-cell-group>
     <div class="line"></div>
 
@@ -320,7 +320,7 @@ const refresh = () => {
 }
 
 .grid-font {
-    font-size: 8px;
+    font-size: 13px;
     color: #949494;
     margin-top: 5px
 }

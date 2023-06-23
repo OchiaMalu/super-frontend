@@ -14,22 +14,24 @@
             <van-cell title="个性签名" is-link
                       @click="toEdit('profile','个性签名',user.profile)">
                 <template #value>
-                    <van-text-ellipsis :content="user.profile" />
+                    <van-text-ellipsis :content="user.profile || '还没有填写个性签名'"/>
                 </template>
             </van-cell>
             <van-cell title="性别" is-link @click="()=>showPicker=true">
                 <span v-if="user.gender===1">男</span>
                 <span v-if="user.gender===0">女</span>
                 <span v-if="user.gender===2">保密</span>
+                <span v-if="!user.gender">{{ "还没有填写性别" }}</span>
             </van-cell>
             <van-cell title="电话" is-link :value="user.phone" @click="toEdit('phone','电话',user.phone)"/>
-            <van-cell title="邮箱" is-link :value="user.email" @click="toEdit('email','邮箱',user.email)"/>
+            <van-cell title="邮箱" is-link :value="user.email || '还没有填写邮箱'"
+                      @click="toEdit('email','邮箱',user.email)"/>
             <van-popup v-model:show="showPicker" round position="bottom">
                 <van-picker
-                        title="性别"
-                        :columns="genders"
-                        @confirm="onConfirmGender"
-                        @cancel="()=>showPicker=false"
+                    title="性别"
+                    :columns="genders"
+                    @confirm="onConfirmGender"
+                    @cancel="()=>showPicker=false"
                 />
             </van-popup>
         </div>
