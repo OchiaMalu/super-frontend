@@ -33,11 +33,13 @@
                            @click="toAuthor(author.id)"/>
             </template>
             <template #right-icon>
-                <van-button v-if="author.isFollow" type="primary" size="small" color="#c1c1c1"
-                            @click="followUser(author)">已关注
-                </van-button>
-                <van-button v-else icon="plus" type="primary" size="small" @click="followUser(author)">关注
-                </van-button>
+                <div v-if="author.id!==currentUser.id">
+                    <van-button v-if="author.isFollow" type="primary" size="small" color="#c1c1c1"
+                                @click="followUser(author)">已关注
+                    </van-button>
+                    <van-button v-else icon="plus" type="primary" size="small" @click="followUser(author)">关注
+                    </van-button>
+                </div>
             </template>
         </van-cell>
         <van-cell :title="blog.content"/>

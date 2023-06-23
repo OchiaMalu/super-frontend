@@ -34,17 +34,17 @@
                                description="暂无用户"/>
                 </van-pull-refresh>
             </van-tab>
-            <van-tab title="热门贴文">
+            <van-tab title="热门博文">
                 <van-pull-refresh
-                    v-model="refreshLoading"
-                    success-text="刷新成功"
-                    @refresh="blogRefresh">
+                        v-model="refreshLoading"
+                        success-text="刷新成功"
+                        @refresh="blogRefresh">
                     <van-list
-                        v-model:loading="listLoading"
-                        :finished="blogListFinished"
-                        offset="0"
-                        finished-text="没有更多了"
-                        @load="blogLoad"
+                            v-model:loading="listLoading"
+                            :finished="blogListFinished"
+                            offset="0"
+                            finished-text="没有更多了"
+                            @load="blogLoad"
                         style="margin: 15px"
                     >
                         <blog-card-list :blog-list="blogList"/>

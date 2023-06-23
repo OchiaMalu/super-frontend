@@ -26,6 +26,7 @@
             <van-cell title="电话" is-link :value="user.phone" @click="toEdit('phone','电话',user.phone)"/>
             <van-cell title="邮箱" is-link :value="user.email || '还没有填写邮箱'"
                       @click="toEdit('email','邮箱',user.email)"/>
+            <van-cell title="修改密码" is-link to="/update/password"/>
             <van-popup v-model:show="showPicker" round position="bottom">
                 <van-picker
                     title="性别"

@@ -130,7 +130,8 @@ onMounted(async () => {
     if (route.query.images) {
         route.query.images.forEach((item) => {
             const image = {
-                url: item
+                url: item,
+                isImage: true
             }
             fileList.value.push(image)
         })

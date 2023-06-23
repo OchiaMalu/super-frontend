@@ -8,10 +8,10 @@
         <van-cell v-if="currentUser?.role==1 || currentUser?.id==team?.userId" title="修改封面" icon="brush-o">
             <template #value>
                 <van-uploader :max-count="1" :after-read="upload" v-model="fileList" :preview-image="false">
-                    <van-button v-if="loading===false" icon="plus" type="primary" size="small">上传图片</van-button>
+                    <van-button v-if="uploading===false" icon="plus" type="primary" size="small">上传图片</van-button>
                 </van-uploader>
-                <van-button v-if="loading===true" icon="plus" type="primary" size="small" loading
-                            loading-text="上传中...">
+                <van-button v-if="uploading===true" icon="plus" type="primary" size="small" uploading
+                            uploading-text="上传中...">
                     上传图片
                 </van-button>
             </template>
@@ -30,6 +30,12 @@
         队伍成员
     </van-divider>
     <user-card-list :user-list="teamMemberList"/>
+    <van-empty
+        v-if="(!teamMemberList || teamMemberList.length===0) && loading===false"
+        image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
+        image-size="80"
+        description="暂时还没有队员"
+    />
 </template>
 
 <script setup lang="ts">
@@ -42,9 +48,10 @@ import {teamStatusEnum} from "../constants/team.ts";
 import UserCardList from "../components/UserCardList.vue";
 import {getCurrentUser} from "../services/user.ts";
 
+const loading = ref(true)
 const fileList = ref([])
 const teamMemberList = ref()
-const loading = ref(false)
+const uploading = ref(false)
 let route = useRoute();
 const team = ref({})
 const currentUser = ref()
@@ -67,6 +74,7 @@ onMounted(async () => {
     } else {
         showFailToast("队伍查询失败")
     }
+    loading.value = false
 })
 let router = useRouter();
 const toChat = () => {
@@ -80,7 +88,7 @@ const toChat = () => {
     })
 }
 const upload = async (file) => {
-    loading.value = true
+    uploading.value = true
     let formData = new FormData();
     formData.append("file", file.file)
     formData.append("id", team.value.id)
@@ -89,7 +97,7 @@ const upload = async (file) => {
             'Content-Type': 'multipart/form-data'
         }
     })
-    loading.value = false
+    uploading.value = false
     location.reload()
 }
 </script>

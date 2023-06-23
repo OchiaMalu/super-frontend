@@ -23,7 +23,7 @@
                 </template>
             </van-field>
             <van-field
-                    v-if="codeTime"
+                    v-if="!lock"
                     v-model="code"
                     required
                     label="验证码"
@@ -67,6 +67,7 @@ import {ref} from "vue";
 import {showFailToast, showNotify, showSuccessToast} from "vant";
 import myAxios from "../plugins/my-axios.js";
 import {useRouter} from "vue-router";
+import 'vant/es/notify/style'
 
 const reg_tel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
 const username = ref('');
@@ -75,7 +76,7 @@ const phone = ref('');
 const code = ref('')
 const confirmPassword = ref('')
 const codeTime = ref(0)
-
+const lock = ref(true)
 let router = useRouter();
 const validator = () => {
     return password.value === confirmPassword.value;
@@ -93,6 +94,7 @@ const sendMessage = async () => {
                 const res = await myAxios.get("/user/message?phone=" + phone.value)
                 if (res?.data.code === 0) {
                     showSuccessToast("短信发送成功，15分钟内有效")
+                    lock.value = false
                 } else {
                     showFailToast("短信发送失败," + res?.data.description ?? '')
                 }
@@ -117,6 +119,18 @@ const countDown = () => {
     }
 }
 const onSubmit = async () => {
+    if (phone.value === '') {
+        showFailToast("请填写手机号")
+        return
+    }
+    if (code.value === '') {
+        showFailToast("请发送验证码")
+        return
+    }
+    if (password.value === '' || confirmPassword.value === '') {
+        showFailToast("请填写密码")
+        return
+    }
     const res = await myAxios.post("/user/register", {
         phone: phone.value,
         code: code.value,

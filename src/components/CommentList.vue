@@ -17,7 +17,8 @@
                 <van-icon v-else name="good-job-o" color="red" size="15" @click="likeComment(comment)">
                     {{ comment.likedNum }}
                 </van-icon>
-              <van-icon v-if="String(currentUser.id)===comment.commentUser.id || currentUser.role===1" name="delete-o" size="15" style="margin-left: 10px" @click="deleteComment(comment.id)"/>
+              <van-icon v-if="String(currentUser.id)==comment.commentUser.id || currentUser.role===1" name="delete-o"
+                        size="15" style="margin-left: 10px" @click="deleteComment(comment.id)"/>
             </template>
         </van-cell>
         <div style="display: block;width: 80%;word-wrap: break-word;margin-left: 55px">
@@ -33,6 +34,7 @@ import myAxios from "../plugins/my-axios.js";
 import {onMounted, ref} from "vue";
 import {getCurrentUser} from "../services/user";
 import {showConfirmDialog, showFailToast} from "vant";
+
 let emits = defineEmits(['refresh']);
 interface BlogCommentsProps {
     commentList: CommentType[]

@@ -22,7 +22,7 @@
         </van-field>
 
         <van-field
-                v-if="codeTime"
+                v-if="!lock"
                 v-model="code"
                 required
                 label="验证码"
@@ -68,7 +68,7 @@ const onSubmit = async () => {
         showFailToast("修改失败" + (response.data.description ? `,${response.data.description}` : ''))
     }
 };
-
+const lock = ref(true)
 const sendMessage = async () => {
     let phone = editUser.value.currentValue;
     if (phone === '') {
@@ -80,6 +80,7 @@ const sendMessage = async () => {
             let flag = countDown();
             if (flag) {
                 const res = await myAxios.get("/user/message/update/phone?phone=" + phone)
+                lock.value = false
                 if (res?.data.code === 0) {
                     showSuccessToast("短信发送成功，15分钟内有效")
                 } else {
@@ -97,6 +98,7 @@ const sendEmailMessage = async () => {
         let flag = countDown();
         if (flag) {
             let res = await myAxios.get("/user/message/update/email?email=" + email);
+            lock.value = false
             if (res?.data.code === 0) {
                 showSuccessToast("邮件发送成功，15分钟内有效")
             } else {

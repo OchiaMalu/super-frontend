@@ -13,6 +13,7 @@ import BlogPage from "./pages/BlogPage.vue";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage.vue";
 import AfterSignUp from "./pages/AfterSignUp.vue";
 import ChatPage from "./pages/ChatPage.vue";
+import UpdatePasswordPage from "./pages/UpdatePasswordPage.vue";
 
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
@@ -25,6 +26,7 @@ app.component('blog-layout', BlogPage)
 app.component("forget-layout", ForgetPasswordPage)
 app.component("after-layout", AfterSignUp)
 app.component("chat-layout", ChatPage)
+app.component("password-layout", UpdatePasswordPage)
 app.use(Button);
 app.use(NavBar);
 app.use(Icon);

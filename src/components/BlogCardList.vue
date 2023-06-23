@@ -8,7 +8,7 @@
                 <van-image v-if="blog.coverImage" :src="blog.coverImage" width="88px" height="88px"/>
             </template>
             <template #title>
-                <span style="margin-left: 20px">{{ blog.title }}</span>
+                <van-text-ellipsis style="margin-left: 20px" :content="blog.title" rows="1"/>
             </template>
             <template #value>
                 <div style="margin-top: 60px;margin-right: 10px">
