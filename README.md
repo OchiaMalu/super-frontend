@@ -5,7 +5,7 @@
    SUPER速配-伙伴匹配系统
 </p>
 <p align="center">
-<a target="_blank" href="https://gitee.com/ochiamaluo/super-fronted">
+<a target="_blank" href="https://gitee.com/ochiamaluo/super-frontend">
     	<img src="https://img.shields.io/hexpm/l/plug.svg" ></img>
 		<img src="https://img.shields.io/badge/JDK-1.8-green.svg" ></img>
         <img src="https://img.shields.io/badge/nodejs-18.16.0-green" ></img>
