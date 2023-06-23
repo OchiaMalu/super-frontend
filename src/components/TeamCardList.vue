@@ -2,7 +2,7 @@
     <van-card
         v-for="team in props.teamList"
         :desc="team.description"
-        :thumb="defaultImg"
+        :thumb="team?.coverImage ||　defaultImg"
         @click-thumb="getTeamDetail(team.id)"
     >
         <template #title>

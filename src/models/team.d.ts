@@ -3,7 +3,8 @@ import {UserType} from "./user";
 export type TeamType = {
     id: number;
     name: string;
-    description: string
+    description: string,
+    coverImage: string,
     expireTime?: Date;
     maxNum: number;
     password?: string;

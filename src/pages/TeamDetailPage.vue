@@ -2,9 +2,20 @@
     <van-image
         width="100%"
         height="120"
-        :src="defaultImg"
+        :src="team?.coverImage ||　defaultImg"
     />
     <van-cell-group inset>
+        <van-cell v-if="currentUser?.role==1 || currentUser?.id==team?.userId" title="修改封面" icon="brush-o">
+            <template #value>
+                <van-uploader :max-count="1" :after-read="upload" v-model="fileList" :preview-image="false">
+                    <van-button v-if="loading===false" icon="plus" type="primary" size="small">上传图片</van-button>
+                </van-uploader>
+                <van-button v-if="loading===true" icon="plus" type="primary" size="small" loading
+                            loading-text="上传中...">
+                    上传图片
+                </van-button>
+            </template>
+        </van-cell>
         <van-cell title="队伍名" icon="flag-o" :value="team.name"/>
         <van-cell title="队伍描述" icon="label-o" :value="team.description"/>
         <van-cell title="队长" icon="manager-o" :value="team.leaderName"/>
@@ -29,12 +40,16 @@ import myAxios from "../plugins/my-axios.js";
 import {showFailToast} from "vant";
 import {teamStatusEnum} from "../constants/team.ts";
 import UserCardList from "../components/UserCardList.vue";
+import {getCurrentUser} from "../services/user.ts";
 
+const fileList = ref([])
 const teamMemberList = ref()
+const loading = ref(false)
 let route = useRoute();
 const team = ref({})
-
+const currentUser = ref()
 onMounted(async () => {
+    currentUser.value = await getCurrentUser();
     let res = await myAxios.get("/team/" + route.query.id);
     if (res?.data.code === 0) {
         team.value = res.data.data
@@ -63,6 +78,19 @@ const toChat = () => {
             teamType: 2
         }
     })
+}
+const upload = async (file) => {
+    loading.value = true
+    let formData = new FormData();
+    formData.append("file", file.file)
+    formData.append("id", team.value.id)
+    await myAxios.put("/team/cover", formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+    loading.value = false
+    location.reload()
 }
 </script>
 
