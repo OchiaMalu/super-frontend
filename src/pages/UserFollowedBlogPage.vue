@@ -11,7 +11,7 @@
         </template>
         加载中...
     </van-loading>
-    <blog-card-list :blog-list="blogList"/>
+    <blog-card-list v-if="blogList.length>0" :blog-list="blogList"/>
 </template>
 
 <script setup>

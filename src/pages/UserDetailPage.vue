@@ -24,7 +24,7 @@
             <span v-if="user?.gender===2">保密</span>
             <span v-else>该用户暂未填写性别</span>
         </van-cell>
-        <van-cell title="电话" :value="user?.phone"/>
+<!--        <van-cell title="电话" :value="user?.phone"/>-->
         <van-cell title="邮箱" :value="user?.email || '该用户暂未填写邮箱'"/>
     </van-cell-group>
     <!--    <div style="margin: 16px">-->
