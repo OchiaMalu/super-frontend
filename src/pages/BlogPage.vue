@@ -267,6 +267,9 @@ const deleteBlog = async () => {
             let res = await myAxios.delete("/blog/" + blog.value.id);
             if (res?.data.code === 0) {
                 await router.replace("/")
+                showSuccessToast("删除成功")
+            } else {
+                showFailToast("删除失败")
             }
         })
         .catch(() => {
