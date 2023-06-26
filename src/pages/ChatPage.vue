@@ -101,20 +101,20 @@ onMounted(async () => {
     stats.value.user = await getCurrentUser()
 
 
-    // 私聊
-    if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
-        const privateMessage = await myAxios.post("/chat/privateChat",
-            {
-                toId: stats.value.chatUser.id,
-            })
-        privateMessage.data.data.forEach(chat => {
-            if (chat.isMy === true) {
-                createContent(null, chat.formUser, chat.text)
-            } else {
-                createContent(chat.toUser, null, chat.text, null, chat.createTime)
-            }
-        })
-    }
+    // // 私聊
+    // if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
+    //     const privateMessage = await myAxios.post("/chat/privateChat",
+    //         {
+    //             toId: stats.value.chatUser.id,
+    //         })
+    //     privateMessage.data.data.forEach(chat => {
+    //         if (chat.isMy === true) {
+    //             createContent(null, chat.formUser, chat.text)
+    //         } else {
+    //             createContent(chat.toUser, null, chat.text, null, chat.createTime)
+    //         }
+    //     })
+    // }
     if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
         const hallMessage = await myAxios.get("/chat/hallChat")
         hallMessage.data.data.forEach(chat => {
@@ -139,7 +139,6 @@ onMounted(async () => {
         })
     }
     init()
-    // 内容始终显示最下方
     await nextTick()
     const lastElement = chatRoom.value.lastElementChild
     lastElement.scrollIntoView()
@@ -150,7 +149,6 @@ const init = () => {
     if (typeof (WebSocket) == "undefined") {
         showFailToast("您的浏览器不支持WebSocket")
     } else {
-        // 区分线上和开发环境
         let socketUrl = `ws://localhost:8080/api/websocket/${uid}/${stats.value.team.teamId}`
         if (socket != null) {
             socket.close();
@@ -180,12 +178,11 @@ const init = () => {
                 })
                 // 获取当前连接的所有用户信息，并且排除自身，自己不会出现在自己的聊天列表里
             } else {
-                // 如果服务器端发送过来的json数据 不包含 users 这个key，那么发送过来的就是聊天文本json数据
                 let flag;
-                if (stats.value.chatType === data.chatType) {
-                    // 单聊
-                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.formUser?.id)
-                }
+                // if (stats.value.chatType === data.chatType) {
+                //     // 单聊
+                //     flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.formUser?.id)
+                // }
                 if ((stats.value.chatType === data.chatType)) {
                     // 大厅
                     flag = (data.formUser?.id != uid)
