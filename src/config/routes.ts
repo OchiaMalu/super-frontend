@@ -51,7 +51,7 @@ const routes = [
     {path: '/user/blog', title: '我写的博文', component: UserBlogPage},
     {path: '/message', title: '消息中心', component: MessagePage},
     {path: '/forget', title: '找回密码', component: ForgetPasswordPage, meta: {layout: 'forget'}},
-    {path: '/chat', title: '聊天', component: ChatPage, meta: {layout: 'chat'}},
+    {path: '/chat', component: ChatPage, meta: {layout: 'chat'}},
     {path: '/user/follow', title: '我关注的用户', component: UserFollowPage},
     {path: '/user/comment', title: '我评论的', component: UserBlogCommentPage},
     {path: '/fans', title: '我的粉丝', component: UserFansPage},

@@ -1,7 +1,7 @@
 <template>
     <van-sticky>
         <van-nav-bar
-            title="聊天"
+            :title="title"
             left-arrow
             @click-left="onClickLeft"
         >
@@ -84,7 +84,8 @@ const stopHeartbeat = () => {
 }
 
 const chatRoom = ref(null)
-
+const DEFAULT_TITLE = "聊天"
+const title = ref(DEFAULT_TITLE)
 onMounted(async () => {
     let {id, username, userType, teamId, teamName, teamType} = route.query
     stats.value.chatUser.id = Number.parseInt(id)
@@ -93,28 +94,31 @@ onMounted(async () => {
     stats.value.team.teamName = teamName
     if (userType && Number.parseInt(userType) === stats.value.chatEnum.PRIVATE_CHAT) {
         stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT
+        title.value = stats.value.chatUser.username
     } else if (teamType && Number.parseInt(teamType) === stats.value.chatEnum.TEAM_CHAT) {
         stats.value.chatType = stats.value.chatEnum.TEAM_CHAT
+        title.value = stats.value.team.teamName
     } else {
         stats.value.chatType = stats.value.chatEnum.HALL_CHAT
+        title.value = "公共聊天室"
     }
     stats.value.user = await getCurrentUser()
 
 
-    // // 私聊
-    // if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
-    //     const privateMessage = await myAxios.post("/chat/privateChat",
-    //         {
-    //             toId: stats.value.chatUser.id,
-    //         })
-    //     privateMessage.data.data.forEach(chat => {
-    //         if (chat.isMy === true) {
-    //             createContent(null, chat.formUser, chat.text)
-    //         } else {
-    //             createContent(chat.toUser, null, chat.text, null, chat.createTime)
-    //         }
-    //     })
-    // }
+    // 私聊
+    if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
+        const privateMessage = await myAxios.post("/chat/privateChat",
+            {
+                toId: stats.value.chatUser.id,
+            })
+        privateMessage.data.data.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.formUser, chat.text)
+            } else {
+                createContent(chat.toUser, null, chat.text, null, chat.createTime)
+            }
+        })
+    }
     if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
         const hallMessage = await myAxios.get("/chat/hallChat")
         hallMessage.data.data.forEach(chat => {
@@ -179,10 +183,10 @@ const init = () => {
                 // 获取当前连接的所有用户信息，并且排除自身，自己不会出现在自己的聊天列表里
             } else {
                 let flag;
-                // if (stats.value.chatType === data.chatType) {
-                //     // 单聊
-                //     flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.formUser?.id)
-                // }
+                if (stats.value.chatType === data.chatType) {
+                    // 单聊
+                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.formUser?.id)
+                }
                 if ((stats.value.chatType === data.chatType)) {
                     // 大厅
                     flag = (data.formUser?.id != uid)
