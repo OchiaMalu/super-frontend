@@ -29,7 +29,7 @@
     >
         队伍成员
     </van-divider>
-    <user-card-list :user-list="teamMemberList"/>
+    <team-member-card-list :login-user="currentUser" :user-list="teamMemberList" :team="team" @refresh="onRefresh"/>
     <van-empty
         v-if="(!teamMemberList || teamMemberList.length===0) && loading===false"
         image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
@@ -45,8 +45,8 @@ import {onMounted, ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
 import {showFailToast} from "vant";
 import {teamStatusEnum} from "../constants/team.ts";
-import UserCardList from "../components/UserCardList.vue";
 import {getCurrentUser} from "../services/user.ts";
+import TeamMemberCardList from "../components/TeamMemberCardList.vue";
 
 const loading = ref(true)
 const fileList = ref([])
@@ -98,6 +98,9 @@ const upload = async (file) => {
         }
     })
     uploading.value = false
+    location.reload()
+}
+const onRefresh = () => {
     location.reload()
 }
 </script>

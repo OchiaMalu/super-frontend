@@ -1,12 +1,15 @@
 <template>
+    <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="info-o">
+        若不设置过期时间则永久有效
+    </van-notice-bar>
     <van-form @submit="onSubmit">
         <van-cell-group inset>
             <van-field
-                    v-model="updateTeamData.name"
-                    name="name"
-                    label="名称"
-                    placeholder="请输入队伍名称"
-                    :rules="[{ required: true, message: '请输入队伍名称' }]"
+                v-model="updateTeamData.name"
+                name="name"
+                label="名称"
+                placeholder="请输入队伍名称"
+                :rules="[{ required: true, message: '请输入队伍名称' }]"
             />
             <van-field
                     v-model="updateTeamData.description"

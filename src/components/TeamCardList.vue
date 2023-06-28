@@ -25,12 +25,13 @@
             <van-button v-if="!team.hasJoin" size="small" plain type="primary" @click="doJoinTeam(team)">
                 加入队伍
             </van-button>
-            <van-button v-if="team.userId===currentUser?.id" size="small" plain @click="doUpdateTeam(team.id)">
-                更新队伍
-            </van-button>
             <van-button v-if="team.hasJoin && team.userId!==currentUser?.id" size="small" plain
                         @click="doQuitTeam(team.id)">
                 退出队伍
+            </van-button>
+            <van-button v-if="team.userId===currentUser?.id || currentUser?.role===1" size="small" plain
+                        @click="doUpdateTeam(team.id)">
+                更新队伍
             </van-button>
             <van-button v-if="team.userId===currentUser?.id || currentUser?.role===1" size="small" plain type="danger"
                         @click="doDeleteTeam(team.id)">
@@ -50,7 +51,7 @@ import {TeamType} from "../models/team";
 import {teamStatusEnum} from "../constants/team.ts";
 import defaultImg from "../../public/defalutTeamImg.jpg"
 import myAxios from "../plugins/my-axios.js";
-import {showFailToast, showSuccessToast} from "vant";
+import {showConfirmDialog, showFailToast, showSuccessToast} from "vant";
 import {getCurrentUser} from "../services/user.ts";
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
@@ -116,15 +117,24 @@ const doQuitTeam = async (id: number) => {
 }
 
 const doDeleteTeam = async (id: number) => {
-    const res = await myAxios.post("/team/delete", {
-        id
+    showConfirmDialog({
+        title: '确定要解散队伍吗',
+        message:
+            '此操作无法撤回',
     })
-    if (res?.data.code === 0) {
-        showSuccessToast("解散队伍成功")
-        onRefresh()
-    } else {
-        showFailToast("解散队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
-    }
+        .then(async () => {
+            const res = await myAxios.post("/team/delete", {
+                id
+            })
+            if (res?.data.code === 0) {
+                showSuccessToast("解散队伍成功")
+                onRefresh()
+            } else {
+                showFailToast("解散队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
+            }
+        })
+        .catch(() => {
+        });
 }
 
 const onRefresh = () => {

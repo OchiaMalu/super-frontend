@@ -65,9 +65,8 @@
                 <span class="cell-span">{{ team.description }}</span>
             </template>
             <template #icon>
-                <div class="icon_area">
-                    <van-icon name="volume" color="#2a2e31" class="icon" size="20px"/>
-                </div>
+                <van-image :src="team.coverImage || defaultImg" round width="50" height="50" style="margin-left: 10px"/>
+                <!--                    <van-icon name="volume" color="#2a2e31" class="icon" size="20px"/>-->
             </template>
         </van-cell>
     </van-cell-group>
@@ -77,6 +76,7 @@
 import {onMounted, ref} from "vue";
 import myAxios from "../plugins/my-axios.js";
 import {useRouter} from "vue-router";
+import defaultImg from "../../public/defalutTeamImg.jpg";
 
 const teamList = ref()
 const likeNum = ref(0)

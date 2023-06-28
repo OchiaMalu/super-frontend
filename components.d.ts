@@ -16,6 +16,7 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TeamCardList: typeof import('./src/components/TeamCardList.vue')['default']
+    TeamMemberCardList: typeof import('./src/components/TeamMemberCardList.vue')['default']
     UserCardList: typeof import('./src/components/UserCardList.vue')['default']
     UserCommentList: typeof import('./src/components/UserCommentList.vue')['default']
     UserLikeList: typeof import('./src/components/UserLikeList.vue')['default']
