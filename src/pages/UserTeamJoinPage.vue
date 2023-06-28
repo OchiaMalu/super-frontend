@@ -27,7 +27,7 @@
                     </template>
                 </van-skeleton>
             </template>
-            <TeamCardList :team-list="teamList"/>
+            <TeamCardList :team-list="teamList" @refresh="onRefresh"/>
         </van-list>
     </van-pull-refresh>
     <van-empty v-if="teamList?.length<1 && !listLoading" description="数据为空"/>
