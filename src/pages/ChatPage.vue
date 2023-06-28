@@ -291,40 +291,79 @@ const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
     }
     stats.value.content += html;
 }
-
+window.showUser = showUser
 </script>
 <style>
-@import "../assets/css/chat.css";
-
-.emoji-item {
-    width: 0;
-    height: 0;
-    margin-top: -45px;
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
 }
 
-.pollup {
-    width: 290px;
-    height: 280px;
-    position: absolute;
-    right: 0;
+.message {
+    display: flex;
+    align-items: center;
+    margin: 10px 10px;
+}
+
+.content {
+    padding-top: 22px;
+    padding-bottom: 57px;
+    display: flex;
+    flex-direction: column
+}
+
+.self {
+    align-self: flex-end;
+}
+
+.avatar {
+    align-self: flex-start;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 10px;
     margin-left: 10px;
-    bottom: 50px;
-    z-index: 5;
-    transition: all ease .5s;
-    border-radius: 10px;
-    overflow: hidden;
 }
 
-.pollup .emoji-container-item {
-    padding: 1px;
+.username {
+    align-self: flex-start;
     text-align: center;
-    cursor: pointer;
+    max-width: 200px;
+    font-size: 12px;
+    color: #999;
+    padding-bottom: 4px;
+    white-space: nowrap;
+    overflow: visible;
+    background-color: #fff;
 }
 
-.emoji-container-open-btn {
-    font-size: 28px;
-    cursor: pointer;
-    margin-left: 5px;
+.info {
+    display: flex;
+    flex-direction: column;
+    order: 2;
 }
 
+.myInfo {
+    align-self: flex-start;
+}
+
+.text {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #eee;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+.other .text {
+    align-self: flex-start;
+}
+
+.self .text {
+    background-color: #0084ff;
+    color: #fff;
+}
 </style>
