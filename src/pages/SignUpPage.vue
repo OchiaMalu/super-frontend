@@ -6,6 +6,9 @@
                 style="background-position:center"
         />
     </van-row>
+  <van-notice-bar v-if="notice" color="#1989fa" background="#ecf9ff" left-icon="info-o">
+    {{ notice_text }}
+  </van-notice-bar>
     <van-form @submit="onSubmit">
         <van-cell-group inset>
             <van-field
@@ -70,6 +73,7 @@ import {useRouter} from "vue-router";
 import 'vant/es/notify/style'
 
 const reg_tel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
+const reg_username = /^[a-zA-Z][a-zA-Z0-9_]{4,15}$/;
 const username = ref('');
 const password = ref('');
 const phone = ref('');
@@ -78,6 +82,8 @@ const confirmPassword = ref('')
 const codeTime = ref(0)
 const lock = ref(true)
 let router = useRouter();
+const notice = ref(false);
+const notice_text = ref('')
 const validator = () => {
     return password.value === confirmPassword.value;
 }
@@ -131,6 +137,13 @@ const onSubmit = async () => {
         showFailToast("请填写密码")
         return
     }
+  if (!reg_username.test(username)) {
+    showFailToast("用户名不能包含特殊字符");
+    notice.value = true;
+    notice_text.value = '字母开头，允许5-16字节，允许字母数字下划线'
+    username.value = ''
+    return
+  }
     const res = await myAxios.post("/user/register", {
         phone: phone.value,
         code: code.value,
