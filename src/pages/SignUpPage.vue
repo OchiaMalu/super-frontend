@@ -137,7 +137,7 @@ const onSubmit = async () => {
         showFailToast("请填写密码")
         return
     }
-  if (!reg_username.test(username)) {
+  if (!reg_username.test(username.value)) {
     showFailToast("用户名不能包含特殊字符");
     notice.value = true;
     notice_text.value = '字母开头，允许5-16字节，允许字母数字下划线'
