@@ -57,7 +57,7 @@
                 退出
             </van-button>
         </div>
-        <van-dialog v-model:show="showCustomerService" title="请加客服微信">
+      <van-dialog v-model:show="showCustomerService" title="联系管理员">
             <van-image
                 src="../../public/customer-service.jpg"
             />
