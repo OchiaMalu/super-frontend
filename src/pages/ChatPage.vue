@@ -29,7 +29,7 @@ import {useRoute, useRouter} from "vue-router";
 import {showFailToast} from "vant";
 
 import {getCurrentUser} from "../services/user.ts";
-import myAxios from "../plugins/my-axios.js";
+import myAxios, {URL} from "../plugins/my-axios.js";
 
 const route = useRoute()
 const router = useRouter()
@@ -153,7 +153,7 @@ const init = () => {
     if (typeof (WebSocket) == "undefined") {
         showFailToast("您的浏览器不支持WebSocket")
     } else {
-        let socketUrl = `ws://localhost:8080/api/websocket/${uid}/${stats.value.team.teamId}`
+      let socketUrl = 'ws://' + URL + '/websocket/' + uid + '/' + stats.value.team.teamId;
         if (socket != null) {
             socket.close();
             socket = null;
