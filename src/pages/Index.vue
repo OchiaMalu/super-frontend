@@ -127,7 +127,7 @@ async function getUserList(currentPage) {
     })
     if (userListData?.data.code === 0) {
     } else {
-        showFailToast("加载失败")
+      showFailToast("加载失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
     if (userListData?.data.data.records.length === 0) {
         listFinished.value = true

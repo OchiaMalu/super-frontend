@@ -94,7 +94,7 @@ const afterRead = async () => {
         showSuccessToast("头像更新成功")
         imgSrc.value = res?.data.data
     } else {
-        showFailToast("头像更新失败")
+      showFailToast("头像更新失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
     fileList.value = []
 }
@@ -105,7 +105,7 @@ const onConfirmGender = async ({selectedValues}) => {
     if (res?.data.code === 0) {
         showSuccessToast("修改成功")
     } else {
-        showFailToast("修改失败")
+      showFailToast("修改失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
     showPicker.value = false
     await refresh()

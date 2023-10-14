@@ -49,7 +49,7 @@ async function getSearchResult(currentPage) {
         .then(function (resp) {
             return resp.data?.data
         }).catch(function () {
-            showFailToast("搜索失败")
+          showFailToast("搜索失败" + (res.data.description ? `,${res.data.description}` : ''))
         })
     if (res.records.length !== 0) {
         res.records.forEach(user => {

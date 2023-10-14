@@ -69,10 +69,10 @@ onMounted(async () => {
             })
             teamMemberList.value = res_.data.data
         } else {
-            showFailToast("获取队伍成员失败")
+          showFailToast("获取队伍成员失败" + (res.data.description ? `,${res.data.description}` : ''))
         }
     } else {
-        showFailToast("队伍查询失败")
+      showFailToast("队伍查询失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
     loading.value = false
 })

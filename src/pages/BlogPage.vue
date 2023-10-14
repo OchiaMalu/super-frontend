@@ -197,8 +197,11 @@ onMounted(async () => {
                 images.value.push(imgstr)
             })
         }
+      await listComments()
+    } else {
+      showFailToast("加载失败" + (res.data.description ? `,${res.data.description}` : ''))
     }
-    await listComments()
+
 })
 const likeBlog = async (blog) => {
     let res = await myAxios.put("/blog/like/" + blog.id);
@@ -269,7 +272,7 @@ const deleteBlog = async () => {
                 await router.replace("/")
                 showSuccessToast("删除成功")
             } else {
-                showFailToast("删除失败")
+              showFailToast("删除失败" + (res.data.description ? `,${res.data.description}` : ''))
             }
         })
         .catch(() => {
