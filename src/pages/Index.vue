@@ -67,10 +67,7 @@
                 加载中...
             </van-loading>
         </van-tabs>
-
     </div>
-
-
 </template>
 <script setup>
 import {onMounted, ref} from "vue";
