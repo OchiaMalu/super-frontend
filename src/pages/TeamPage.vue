@@ -132,8 +132,8 @@ const onRefresh = async () => {
 </script>
 
 <style scoped>
-#teamPage {
-
+:deep(.van-card) {
+  margin: 10px;
+  border-radius: 10px;
 }
-
 </style>
