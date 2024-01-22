@@ -1,18 +1,25 @@
-# Vue 3 + TypeScript + Vite
+## 速配管理后台
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+<img src="/doc/1.jpg" alt="1" style="zoom: 50%;margin:0 auto" />
 
-## Recommended IDE Setup
+## 项目介绍
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+本项目使用 **Vite+Vue3+Element-Plus** ，作为 **速配（SUPER）** 用户匹配系统的后台管理系统。
 
-## Type Support For `.vue` Imports in TS
+本项目非必须，主要功能在 `super-backend` 及 `super-frontend-web` 中已经实现。
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+仅管理员账号可以登录本系统，管理员可以将普通用户升级为管理员，但 **第一个** 管理员只能进入数据库修改，将需要成为管理员的用户  `role` 改为 `1` 即可，如下图所示。
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+<img src="/doc/2.jpg" alt="3" style="zoom:80%;margin:0 auto" />
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+<u>在启动本项目前应先启动项目本体的后端。</u>
+
+## 项目功能
+
+在使用管理员账号登录后跳转至首页。
+
+<img src="/doc/3.jpg" alt="3" style="zoom: 50%;margin:0 auto" />
+
+在用户管理页可查看所有用户的信息，也可以执行新增用户、封禁用户等操作。
+
+<img src="/doc/4.jpg" alt="4" style="zoom:50%;margin:0 auto" />

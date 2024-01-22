@@ -21,7 +21,7 @@
 
 ## 项目介绍
 
-​ 速配(SUPER)，一个前后端分离的用户匹配系统，前端使用**Vite + Vue3 + Vant4**，后端使用**SpringBoot** + **Mybatis-plus**，使用
+ 速配(SUPER)，一个前后端分离的用户匹配系统，前端使用**Vite + Vue3 + Vant4**，后端使用**SpringBoot** + **Mybatis-plus**，使用
 **WebSocket**实现实时通信，并结合**阿里云SDK + 七牛云SDK**完成短信发送和图片上传。本项目使用Apache License Version
 2.0开源协议。
 
@@ -33,11 +33,15 @@ https://gitee.com/ochiamaluo/super-frontend
 
 https://gitee.com/ochiamaluo/super-backend
 
+#### 后台管理系统及介绍请见：
+
+https://gitee.com/ochiamaluo/super-frontend/tree/master/super-admin
+
 ## 在线体验
 
-​ 演示地址: http://ochiamalu.xyz
+ 演示地址: http://ochiamalu.xyz
 
-​ 账号可以自行注册，一切聊天、评论需遵守中华人民共和国有关法律规定。
+ 账号可以自行注册，一切聊天、评论需遵守中华人民共和国有关法律规定。
 
 仅支持中国大陆手机号，若没有符合要求的手机号或本网站短信功能无法使用，请使用以下账号直接登录：
 
@@ -48,7 +52,7 @@ https://gitee.com/ochiamaluo/super-backend
 
 ## 项目背景
 
-​
+
 许多热爱编程比赛的用户在参加比赛时常常面临没有队友的问题，这使得他们很难发挥自己的实力，也很难取得好成绩。同时，许多用户在寻找队友时也面临一些困难，比如无法找到合适的人选，或者无法与潜在的队友进行充分的交流和沟通。因此，我们希望通过该网站，为这些用户提供一个交流平台，帮助他们找到理想的队友，组建强大的编程团队，参加各种编程比赛，并最终实现自己的编程梦想。
 
 ## 核心功能
