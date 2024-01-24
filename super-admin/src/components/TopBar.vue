@@ -7,7 +7,11 @@ import myAxios from "../plugins/my-axios.ts";
 const activeP = ref("")
 onMounted(async ()=>{
   activeP.value = String(sessionStorage.getItem('activePath'))
-  const res =await myAxios.get("/user/current");
+  const res =await myAxios.get("/user/admin/current");
+  if (res.data.code !== 0) {
+    ElMessage.error(res.data.description)
+    sessionStorage.clear()
+  }
   avatarUrl.value=res.data.data.avatarUrl
 
 })

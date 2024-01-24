@@ -1,26 +1,30 @@
 <script setup lang="ts">
 import * as echarts from 'echarts';
-import {ArrowRight, Calendar, CaretBottom, CaretTop, Warning} from "@element-plus/icons-vue";
+import {Calendar, CaretBottom, CaretTop, Warning} from "@element-plus/icons-vue";
 import {onMounted, ref} from 'vue'
 import myAxios from "../../plugins/my-axios.ts";
 import {dayjs} from "element-plus";
-
+import {ElMessage} from 'element-plus'
 
 const avatarUrl = ref('')
 const username = ref('')
 onMounted(async () => {
-  const res = await myAxios.get("/user/current");
+  const res = await myAxios.get("/user/admin/current");
+  if (res.data.code !== 0) {
+    ElMessage.error(res.data.description)
+    sessionStorage.clear()
+  }
   avatarUrl.value = res.data.data.avatarUrl
   username.value = res.data.data.username
   const pieChart = echarts.init(document.getElementById('pie'));
   pieChart.setOption(pieOption);
-  const barChart=echarts.init(document.getElementById('weeklyUser'))
+  const barChart = echarts.init(document.getElementById('weeklyUser'))
   barChart.setOption(weeklyUserOption)
-  const lineChart=echarts.init(document.getElementById('estimateUser'))
+  const lineChart = echarts.init(document.getElementById('estimateUser'))
   lineChart.setOption(lineOptions)
 });
 const timeValue = ref(dayjs().add(1, 'month').startOf('month'))
-const weeklyUserOption={
+const weeklyUserOption = {
   title: {
     text: '每周用户活跃量',
     left: 'center'
@@ -113,7 +117,7 @@ const pieOption = {
     }
   ]
 };
-const lineOptions={
+const lineOptions = {
   title: {
     text: '月度用户量统计',
     left: 'center'
