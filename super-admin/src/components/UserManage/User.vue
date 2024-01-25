@@ -39,7 +39,7 @@ const handleCurrentChange = async (val: number) => {
   let res = await myAxios.get(url);
   if (res?.data.code === 0) {
     res.data.data.records.forEach(user => {
-      user.status = "正常"
+      user.status = user.status == 0 ? '正常' : '封禁'
       user.role = user.role == 1 ? '管理员' : '普通用户'
       if (user.gender == 1) {
         user.gender = '男'
