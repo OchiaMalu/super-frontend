@@ -19,9 +19,9 @@
             </van-cell>
             <van-cell title="性别" is-link @click="()=>showPicker=true">
                 <span v-if="user.gender===1">男</span>
-                <span v-if="user.gender===0">女</span>
-                <span v-if="user.gender===2">保密</span>
-                <span v-if="!user.gender">{{ "还没有填写性别" }}</span>
+                <span v-else-if="user.gender===0">女</span>
+                <span v-else-if="user.gender===2">保密</span>
+                <span v-else>{{ "还没有填写性别" }}</span>
             </van-cell>
             <van-cell title="电话" is-link :value="user.phone" @click="toEdit('phone','电话',user.phone)"/>
             <van-cell title="邮箱" is-link :value="user.email || '还没有填写邮箱'"
