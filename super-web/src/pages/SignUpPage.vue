@@ -138,7 +138,7 @@ const onSubmit = async () => {
         return
     }
   if (!reg_username.test(username.value)) {
-    showFailToast("用户名不能包含特殊字符");
+    showFailToast("账号非法");
     notice.value = true;
     notice_text.value = '字母开头，允许5-16字节，允许字母数字下划线'
     username.value = ''
