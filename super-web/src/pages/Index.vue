@@ -14,7 +14,7 @@
             </van-swipe-item>
         </van-swipe>
         <van-tabs v-model:active="active">
-            <van-tab title="匹配用户">
+            <van-tab title="👑 匹配用户">
                 <van-pull-refresh
                         v-model="refreshLoading"
                         success-text="刷新成功"
@@ -37,7 +37,7 @@
                                description="暂无用户"/>
                 </van-pull-refresh>
             </van-tab>
-            <van-tab title="热门博文">
+            <van-tab title="📚 热门博文">
                 <van-pull-refresh
                         v-model="refreshLoading"
                         success-text="刷新成功"
