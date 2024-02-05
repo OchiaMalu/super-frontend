@@ -14,11 +14,16 @@
             </van-tag>
         </template>
         <template #bottom>
-            <div style="margin-top: 20px" @click="getTeamDetail(team.id)">
-                {{ '队伍人数：' + team.hasJoinNum + "/" + team.maxNum }}
+            <div class="row avatar-group">
+                <div class="avatar" v-for="avatar in team.joinedUserAvatars">
+                    <img :src="avatar" alt="">
+                </div>
+                <div v-if="team.hasJoinNum > 3" class="avatar" style="background-color:#497BC8;">
+                    <span>{{ "+" + (team.hasJoinNum - 3) }}</span>
+                </div>
             </div>
             <div v-if="team.expireTime">
-                {{ '过期时间：' + team.expireTime }}
+                {{ "过期时间：" + team.expireTime }}
             </div>
         </template>
         <template #footer>
@@ -42,116 +47,116 @@
     <van-dialog v-model:show="showPasswordDialog" title="请输入密码" show-cancel-button
                 @confirm="joinTeam(joinTeamId,teamPassword)"
                 @cancel="doClear">
-        <van-field v-model="teamPassword" placeholder="请输入密码"/>
+        <van-field v-model="teamPassword" placeholder="请输入密码" />
     </van-dialog>
 </template>
 
 <script setup lang="ts">
-import {TeamType} from "../models/team";
-import {teamStatusEnum} from "../constants/team.ts";
-import defaultImg from "../../public/defalutTeamImg.jpg"
+import { TeamType } from "../models/team";
+import { teamStatusEnum } from "../constants/team.ts";
+import defaultImg from "../../public/defalutTeamImg.jpg";
 import myAxios from "../plugins/my-axios.js";
-import {showConfirmDialog, showFailToast, showSuccessToast} from "vant";
-import {getCurrentUser} from "../services/user.ts";
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
+import { showConfirmDialog, showFailToast, showSuccessToast } from "vant";
+import { getCurrentUser } from "../services/user.ts";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
 
-const showPasswordDialog = ref(false)
-const teamPassword = ref('')
-let currentUser = ref()
-const joinTeamId = ref()
-let emits = defineEmits(['refresh']);
+const showPasswordDialog = ref(false);
+const teamPassword = ref("");
+let currentUser = ref();
+const joinTeamId = ref();
+let emits = defineEmits(["refresh"]);
 
 interface TeamCardListProps {
-    teamList: TeamType[]
+    teamList: TeamType[];
 }
 
-const props = withDefaults(defineProps<TeamCardListProps>(), {})
+const props = withDefaults(defineProps<TeamCardListProps>(), {});
 
 onMounted(async () => {
-    currentUser.value = await getCurrentUser()
-})
-const router = useRouter()
+    currentUser.value = await getCurrentUser();
+});
+const router = useRouter();
 
-const joinTeam = async (teamId, password = '') => {
+const joinTeam = async (teamId, password = "") => {
     const res = await myAxios.post("/team/join", {
         teamId,
-        password
-    })
+        password,
+    });
     if (res?.data.code === 0) {
-        showSuccessToast("加入队伍成功")
-        onRefresh()
+        showSuccessToast("加入队伍成功");
+        onRefresh();
     } else {
-        showFailToast("加入队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
+        showFailToast("加入队伍失败" + (res.data.description ? `,${res.data.description}` : ""));
     }
-    doClear()
-}
+    doClear();
+};
 const doJoinTeam = async (team: TeamType) => {
-    joinTeamId.value = team.id
+    joinTeamId.value = team.id;
     if (team.status === 2) {
-        showPasswordDialog.value = true
+        showPasswordDialog.value = true;
     } else {
-        await joinTeam(team.id)
+        await joinTeam(team.id);
     }
-}
+};
 const doUpdateTeam = (id: number) => {
     router.push({
         path: "/team/update",
         query: {
-            id
-        }
-    })
-}
+            id,
+        },
+    });
+};
 
 const doQuitTeam = async (id: number) => {
     const res = await myAxios.post("/team/quit", {
-        teamId: id
-    })
+        teamId: id,
+    });
     if (res?.data.code === 0) {
-        showSuccessToast("退出队伍成功")
-        onRefresh()
+        showSuccessToast("退出队伍成功");
+        onRefresh();
     } else {
-        showFailToast("退出队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
+        showFailToast("退出队伍失败" + (res.data.description ? `,${res.data.description}` : ""));
     }
-}
+};
 
 const doDeleteTeam = async (id: number) => {
     showConfirmDialog({
-        title: '确定要解散队伍吗',
+        title: "确定要解散队伍吗",
         message:
-            '此操作无法撤回',
+            "此操作无法撤回",
     })
         .then(async () => {
             const res = await myAxios.post("/team/delete", {
-                id
-            })
+                id,
+            });
             if (res?.data.code === 0) {
-                showSuccessToast("解散队伍成功")
-                onRefresh()
+                showSuccessToast("解散队伍成功");
+                onRefresh();
             } else {
-                showFailToast("解散队伍失败" + (res.data.description ? `,${res.data.description}` : ''))
+                showFailToast("解散队伍失败" + (res.data.description ? `,${res.data.description}` : ""));
             }
         })
         .catch(() => {
         });
-}
+};
 
 const onRefresh = () => {
-    emits("refresh")
-}
+    emits("refresh");
+};
 const doClear = () => {
-    joinTeamId.value = ''
-    teamPassword.value = ''
-}
+    joinTeamId.value = "";
+    teamPassword.value = "";
+};
 const getTeamDetail = (id) => {
     router.push({
         path: "/team/detail",
         query: {
-            id
-        }
-    })
-}
+            id,
+        },
+    });
+};
 </script>
 
 <style scoped>
@@ -177,4 +182,73 @@ const getTeamDetail = (id) => {
     -webkit-line-clamp: 2;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
+:deep(.van-icon__image) {
+    border-radius: 50%;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+}
+
+.avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    position: relative;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.avatar-group .avatar {
+    border: 2px solid #fff;
+    margin-left: calc(-0.3em);
+    box-shadow: unset;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    margin-left: 12px;
+    margin-top: 30px;
+}
+
+.avatar {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar span {
+    color: #fff;
+    font-size: 0.5em;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    object-fit: cover;
+}
+
+.avatar-group .avatar {
+    border: 2px solid #fff;
+    margin-left: calc(-0.8em);
+    box-shadow: unset;
+}
+
 </style>

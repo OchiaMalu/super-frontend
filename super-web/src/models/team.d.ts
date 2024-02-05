@@ -1,4 +1,4 @@
-import {UserType} from "./user";
+import { UserType } from "./user";
 
 export type TeamType = {
     id: number;
@@ -16,4 +16,5 @@ export type TeamType = {
     createTime: Date;
     updateTime: Date;
     createUser?: UserType;
+    joinedUserAvatars?: string[];
 }
