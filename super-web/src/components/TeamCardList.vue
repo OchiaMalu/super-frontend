@@ -12,6 +12,10 @@
             <van-tag plain type="danger" style="margin-right: 8px;margin-top: 8px" @click="getTeamDetail(team.id)">
                 {{ teamStatusEnum[team.status] }}
             </van-tag>
+            <van-tag v-if="team.hasJoinNum==team.maxNum" plain type="danger" style="margin-right: 8px;margin-top: 8px"
+                     @click="getTeamDetail(team.id)">
+                已满
+            </van-tag>
         </template>
         <template #bottom>
             <div class="row avatar-group">
