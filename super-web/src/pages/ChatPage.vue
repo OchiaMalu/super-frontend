@@ -34,7 +34,7 @@ import myAxios, {URL} from "../plugins/my-axios.js";
 const route = useRoute()
 const router = useRouter()
 const onClickLeft = () => {
-    router.push("/")
+    router.push("/message")
 };
 const stats = ref({
     user: {
@@ -113,7 +113,7 @@ onMounted(async () => {
             })
         privateMessage.data.data.forEach(chat => {
             if (chat.isMy === true) {
-                createContent(null, chat.formUser, chat.text)
+                createContent(null, chat.fromUser, chat.text)
             } else {
                 createContent(chat.toUser, null, chat.text, null, chat.createTime)
             }
@@ -123,9 +123,9 @@ onMounted(async () => {
         const hallMessage = await myAxios.get("/chat/hallChat")
         hallMessage.data.data.forEach(chat => {
             if (chat.isMy === true) {
-                createContent(null, chat.formUser, chat.text)
+                createContent(null, chat.fromUser, chat.text)
             } else {
-                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
+                createContent(chat.fromUser, null, chat.text, chat.isAdmin, chat.createTime)
             }
         })
     }
@@ -136,9 +136,9 @@ onMounted(async () => {
             })
         teamMessage.data.data.forEach(chat => {
             if (chat.isMy === true) {
-                createContent(null, chat.formUser, chat.text)
+                createContent(null, chat.fromUser, chat.text)
             } else {
-                createContent(chat.formUser, null, chat.text, chat.isAdmin, chat.createTime)
+                createContent(chat.fromUser, null, chat.text, chat.isAdmin, chat.createTime)
             }
         })
     }
@@ -185,20 +185,20 @@ const init = () => {
                 let flag;
                 if (stats.value.chatType === data.chatType) {
                     // 单聊
-                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.formUser?.id)
+                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.fromUser?.id)
                 }
                 if ((stats.value.chatType === data.chatType)) {
                     // 大厅
-                    flag = (data.formUser?.id != uid)
+                    flag = (data.fromUser?.id != uid)
                 }
                 // 队伍
                 if (stats.value.chatType === data.chatType && data.teamId && stats.value.team.teamId === data.teamId) {
-                    flag = (data.formUser?.id != uid)
+                    flag = (data.fromUser?.id != uid)
                 }
                 if (flag) {
                     stats.value.messages.push(data)
                     // 构建消息内容
-                    createContent(data.formUser, null, data.text, data.isAdmin, data.createTime)
+                    createContent(data.fromUser, null, data.text, data.isAdmin, data.createTime)
                 }
                 nextTick(() => {
                     const lastElement = chatRoom.value.lastElementChild
