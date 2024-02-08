@@ -2,13 +2,13 @@
   <van-pull-refresh
       v-model="refreshLoading"
       success-text="刷新成功"
-      @refresh="fansReload">
+      @refresh="followReload">
     <!--    todo 用户搜索-->
     <van-list
         v-model:loading="listLoading"
         :finished="listFinished"
         offset="0"
-        @load="fansLoad"
+        @load="followLoad"
         style="margin: 15px;height: 100%"
     >
       <template #finished>
@@ -29,15 +29,15 @@
         v-if="(!userList || userList.length===0) && listLoading===false"
         image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
         image-size="80"
-        description="您暂无粉丝"
+        description="您暂无关注的用户"
     />
   </van-pull-refresh>
 </template>
 
 <script setup>
-import UserCardList from "../components/UserCardList.vue";
+import UserCardList from "../../components/UserCardList.vue";
 import {ref} from "vue";
-import myAxios from "../plugins/my-axios.js";
+import myAxios from "../../plugins/my-axios.js";
 
 const loading = ref(true)
 const userList = ref([])
@@ -45,10 +45,10 @@ const userList = ref([])
 const refreshLoading = ref(false)
 const listLoading = ref(false)
 const listFinished = ref(false)
-const userFansCurrentPage = ref(0)
+const userFollowCurrentPage = ref(0)
 
-const getUserFans = async (currentPage) => {
-  let res = await myAxios.get("/follow/fans", {
+const getUserFollow = async (currentPage) => {
+  let res = await myAxios.get("/follow/my", {
     params: {
       currentPage: currentPage
     }
@@ -67,15 +67,15 @@ const getUserFans = async (currentPage) => {
     listLoading.value = false
   }
 }
-const fansLoad = async () => {
-  userFansCurrentPage.value++
-  await getUserFans(userFansCurrentPage.value)
+const followLoad = async () => {
+  userFollowCurrentPage.value++
+  await getUserFollow(userFollowCurrentPage.value)
 }
-const fansReload = async () => {
-  userFansCurrentPage.value = 1
+const followReload = async () => {
+  userFollowCurrentPage.value = 1
   userList.value = []
   listFinished.value = false
-  await getUserFans(userFansCurrentPage.value)
+  await getUserFollow(userFollowCurrentPage.value)
   refreshLoading.value = false
   listLoading.value = false
 }

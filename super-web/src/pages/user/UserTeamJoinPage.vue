@@ -1,16 +1,16 @@
 <template>
     <van-search v-model="searchText" placeholder="搜索队伍" @search="onSearch"/>
     <van-pull-refresh
-            v-model="refreshLoading"
-            success-text="刷新成功"
-            @refresh="onRefresh"
+        v-model="refreshLoading"
+        success-text="刷新成功"
+        @refresh="onRefresh"
     >
         <van-list
-                v-model:loading="listLoading"
-                :finished="listFinished"
-                offset="0"
-                finished-text="没有更多了"
-                @load="onLoad"
+            v-model:loading="listLoading"
+            :finished="listFinished"
+            offset="0"
+            finished-text="没有更多了"
+            @load="onLoad"
         >
             <template #loading>
                 <van-skeleton>
@@ -35,9 +35,9 @@
 
 <script setup lang="ts">
 import {useRouter} from "vue-router";
-import TeamCardList from "../components/TeamCardList.vue";
+import TeamCardList from "../../components/TeamCardList.vue";
 import {ref} from "vue";
-import myAxios from "../plugins/my-axios.js";
+import myAxios from "../../plugins/my-axios.js";
 import {showFailToast} from "vant";
 
 let router = useRouter();
@@ -66,7 +66,7 @@ const onSearch = async (val) => {
 
 async function listTeams(currentPage, val = '') {
     listLoading.value = true
-    const res = await myAxios.get("/team/list/my/create?currentPage=" + currentPage + "&searchText=" + val)
+    const res = await myAxios.get("/team/list/my/join?currentPage=" + currentPage + "&searchText=" + val)
     if (res?.data.code === 0) {
         if (res.data.data.records.length === 0) {
             listFinished.value = true

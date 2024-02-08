@@ -48,8 +48,8 @@
 import {onMounted, ref} from "vue";
 import {showFailToast, showSuccessToast} from "vant";
 import {useRoute, useRouter} from "vue-router";
-import {getCurrentUser} from "../services/user.ts";
-import myAxios from "../plugins/my-axios.js";
+import {getCurrentUser} from "../../services/user.ts";
+import myAxios from "../../plugins/my-axios.js";
 
 const addingOverlay = ref(false)
 const fileList = ref([])

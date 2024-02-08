@@ -44,8 +44,8 @@
 import {useRouter} from "vue-router";
 import {onMounted, ref} from "vue";
 import {showFailToast, showSuccessToast} from "vant";
-import {getCurrentUser} from "../services/user.ts";
-import myAxios from "../plugins/my-axios.js";
+import {getCurrentUser} from "../../services/user.ts";
+import myAxios from "../../plugins/my-axios.js";
 
 let router = useRouter();
 const fileList = ref([]);

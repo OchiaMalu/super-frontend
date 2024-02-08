@@ -1,5 +1,5 @@
 <template>
-    <form action="/">
+    <form action="/super-web/public">
         <van-search
             v-model="searchText"
             placeholder="请输入要搜索的标签"
@@ -40,7 +40,7 @@
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {showFailToast} from "vant";
-import myAxios from "../plugins/my-axios.js";
+import myAxios from "../../plugins/my-axios.js";
 
 const userDefinedTag = ref("")
 const addUserDefinedTag = () => {

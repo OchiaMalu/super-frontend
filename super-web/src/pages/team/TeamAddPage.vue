@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { ref } from "vue";
-import myAxios from "../plugins/my-axios.js";
+import myAxios from "../../plugins/my-axios.js";
 import { showFailToast, showSuccessToast } from "vant";
 
 let router = useRouter();

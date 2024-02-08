@@ -1,31 +1,31 @@
 import Index from "../pages/Index.vue";
-import Team from "../pages/TeamPage.vue";
-import User from "../pages/UserPage.vue";
+import Team from "../pages/team/TeamPage.vue";
+import User from "../pages/user/UserPage.vue";
 import Search from "../pages/SearchPage.vue";
-import EditUser from "../pages/UserEditPage.vue";
+import EditUser from "../pages/user/UserEditPage.vue";
 import SearchResult from "../pages/SearchResultPage.vue";
 import UserLogin from "../pages/UserLoginPage.vue";
-import TeamAddPage from "../pages/TeamAddPage.vue";
-import TeamUpdatePage from "../pages/TeamUpdatePage.vue";
-import UserUpdatePage from "../pages/UserUpdatePage.vue";
-import UserTeamJoinPage from "../pages/UserTeamJoinPage.vue";
-import UserTeamCreatePage from "../pages/UserTeamCreatePage.vue";
+import TeamAddPage from "../pages/team/TeamAddPage.vue";
+import TeamUpdatePage from "../pages/team/TeamUpdatePage.vue";
+import UserUpdatePage from "../pages/user/UserUpdatePage.vue";
+import UserTeamJoinPage from "../pages/user/UserTeamJoinPage.vue";
+import UserTeamCreatePage from "../pages/user/UserTeamCreatePage.vue";
 import SignUpPage from "../pages/SignUpPage.vue";
-import BlogEditPage from "../pages/BlogEditPage.vue";
-import MessagePage from "../pages/MassagePage.vue";
-import UserBlogPage from "../pages/UserBlogPage.vue";
-import TeamDetailPage from "../pages/TeamDetailPage.vue";
-import BlogPage from "../pages/BlogPage.vue";
-import UserTagPage from "../pages/UserTagPage.vue";
+import BlogEditPage from "../pages/blog/BlogEditPage.vue";
+import MessagePage from "../pages/message/MassagePage.vue";
+import UserBlogPage from "../pages/user/UserBlogPage.vue";
+import TeamDetailPage from "../pages/team/TeamDetailPage.vue";
+import BlogPage from "../pages/blog/BlogPage.vue";
+import UserTagPage from "../pages/user/UserTagPage.vue";
 import ForgetPasswordPage from "../pages/ForgetPasswordPage.vue";
 import AfterSignUp from "../pages/AfterSignUp.vue";
 import ChatPage from "../pages/ChatPage.vue";
-import UserDetailPage from "../pages/UserDetailPage.vue";
-import UserFollowPage from "../pages/UserFollowPage.vue";
-import UserBlogCommentPage from "../pages/UserBlogCommentPage.vue";
-import UserFansPage from "../pages/UserFansPage.vue";
-import UserLikePage from "../pages/UserLikePage.vue";
-import UserFollowedBlogPage from "../pages/UserFollowedBlogPage.vue";
+import UserDetailPage from "../pages/user/UserDetailPage.vue";
+import UserFollowPage from "../pages/message/UserFollowPage.vue";
+import UserBlogCommentPage from "../pages/message/UserBlogCommentPage.vue";
+import UserFansPage from "../pages/message/UserFansPage.vue";
+import UserLikePage from "../pages/message/UserLikePage.vue";
+import UserFollowedUserPage from "../pages/message/UserFollowedUserPage.vue";
 import UpdatePasswordPage from "../pages/UpdatePasswordPage.vue";
 
 const routes = [
@@ -56,7 +56,7 @@ const routes = [
     {path: '/user/comment', title: '我评论的', component: UserBlogCommentPage},
     {path: '/fans', title: '我的粉丝', component: UserFansPage},
     {path: '/user/like', title: '赞', component: UserLikePage},
-    {path: '/user/follow/blog', title: '关注', component: UserFollowedBlogPage},
+    {path: '/user/follow/blog', title: '关注', component: UserFollowedUserPage},
     {path: '/update/password', title: '修改密码', component: UpdatePasswordPage, meta: {layout: 'password'}}
 ]
 export default routes;
