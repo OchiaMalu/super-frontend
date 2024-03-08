@@ -26,7 +26,7 @@
                     <span>{{ "+" + (team.hasJoinNum - 3) }}</span>
                 </div>
             </div>
-            <div v-if="team.expireTime">
+            <div v-if="team.expireTime" style="margin-bottom: 10px">
                 {{ "过期时间：" + team.expireTime }}
             </div>
         </template>
@@ -225,6 +225,7 @@ const getTeamDetail = (id) => {
     align-items: center;
     margin-left: 12px;
     margin-top: 30px;
+    margin-bottom: 10px;
 }
 
 .avatar {
