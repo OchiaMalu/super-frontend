@@ -2,7 +2,7 @@
 <img src="doc/images/main.png" alt="image-20230623213937364" style="zoom:50%;" align="center" />
 </p>
 <p align=center>
-   SUPER速配-伙伴匹配系统
+   SUPER速配-用户匹配系统
 </p>
 <p align="center">
 <a target="_blank" href="https://gitee.com/ochiamaluo/super-frontend">
@@ -39,7 +39,7 @@ https://gitee.com/ochiamaluo/super-frontend/tree/master/super-admin
 
 ## 在线体验
 
- 演示地址: http://ochiamalu.xyz
+ 演示地址: https://ochiamalu.top
 
  账号可以自行注册，一切聊天、评论需遵守中华人民共和国有关法律规定。
 
@@ -49,6 +49,9 @@ https://gitee.com/ochiamaluo/super-frontend/tree/master/super-admin
 
 密码：12345678
 
+## 项目文档
+
+文档地址: http://doc.ochiamalu.top
 
 ## 项目背景
 
