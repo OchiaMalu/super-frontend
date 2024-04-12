@@ -4,31 +4,57 @@ import { ArrowRight } from "@element-plus/icons-vue";
 import { onMounted, ref } from "vue";
 import myAxios from "../../plugins/my-axios.ts";
 import { UploadInstance, UploadProps } from "element-plus";
+import { ElMessage } from "element-plus";
 
 const noticeText = ref("");
 const input = ref("");
 const fileList = ref([]);
 const imgs = ref([]);
-
+const isDisplay = ref(true);
 
 onMounted(async () => {
+    await getNotice();
+    await getSwiper();
+    checkSuccessImage();
+});
+
+const checkSuccessImage = () => {
+    if (fileList.value.length === 0) {
+        isDisplay.value = true;
+    }
+    fileList.value.forEach((item) => {
+        if (item.status === "success") {
+            isDisplay.value = false;
+        }
+    });
+};
+
+const handleChange = () => {
+    checkSuccessImage();
+};
+const getNotice = async () => {
     let res = await myAxios.get("/config/notice");
     if (res?.data.code === 0) {
         noticeText.value = res.data.data;
     }
-    let res2 = await myAxios.get("/config/swiper");
-    if (res2.data.code === 0) {
-        let index = 1;
-        res2.data.data.forEach((item) => {
-            const temp = { "name": index, "url": item };
-            fileList.value.push(temp);
-            index = index + 1;
-        });
+};
+
+const getSwiper = async () => {
+    let res = await myAxios.get("/config/swiper");
+    if (res.data.code === 0) {
+        if (res.data.data !== null) {
+            let index = 1;
+            res.data.data.forEach((item) => {
+                const temp = { "name": index, "url": item };
+                fileList.value.push(temp);
+                index = index + 1;
+            });
+            fileList.value.forEach((item) => {
+                imgs.value.push(item.url);
+            });
+        }
     }
-    fileList.value.forEach((item)=>{
-        imgs.value.push(item.url)
-    })
-});
+};
 const updateNotice = async () => {
     let res = await myAxios.post("/config/notice", input.value, {
         headers: {
@@ -36,21 +62,63 @@ const updateNotice = async () => {
         },
     });
     if (res?.data.code === 0) {
-        location.reload();
+        ElMessage({
+            message: "更新成功",
+            type: "success",
+        });
+        await getNotice();
+        input.value = "";
+    } else {
+        ElMessage.error(res.data.description);
     }
 };
-const uploadRef = ref<UploadInstance>()
+const uploadRef = ref<UploadInstance>();
 
 const submitUpload = () => {
-    uploadRef.value!.submit()
-}
-const handleRemove: UploadProps['onRemove'] = async (file) => {
-    await myAxios.post("/config/remove",file.url,{
+    uploadRef.value!.submit();
+};
+const handleRemove: UploadProps["onRemove"] = async (file) => {
+    let res = await myAxios.post("/config/remove", file.url, {
         headers: {
             "Content-Type": "application/json",
         },
     });
-}
+    if (res.data.code === 0) {
+        ElMessage({
+            message: "更新成功",
+            type: "success",
+        });
+        imgs.value=[]
+        fileList.value = [];
+        await getSwiper();
+    } else {
+        ElMessage.error(res.data.description);
+    }
+    checkSuccessImage();
+};
+
+const handleUpload = async (param) => {
+    let fileObj = param.file; // 相当于input里取得的files
+    let fd = new FormData();// FormData 对象
+    fd.append("file", fileObj);// 文件对象
+    let res = await myAxios.post("/config/upload", fd, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    if (res.data.code === 0) {
+        ElMessage({
+            message: "更新成功",
+            type: "success",
+        });
+        imgs.value=[]
+        fileList.value = [];
+        await getSwiper();
+    } else {
+        ElMessage.error(res.data.description);
+    }
+    checkSuccessImage();
+};
 </script>
 
 <template>
@@ -73,26 +141,28 @@ const handleRemove: UploadProps['onRemove'] = async (file) => {
                 </el-row>
             </el-tab-pane>
             <el-tab-pane label="轮播图">
-                <el-carousel :interval="4000" type="card" height="200px" trigger="click">
+                <el-carousel v-if="!isDisplay" :interval="4000" type="card" height="200px" trigger="click">
                     <el-carousel-item v-for="item in imgs" :key="item">
                         <img :src="item" height="300px" width="100%">
                     </el-carousel-item>
                 </el-carousel>
+                <el-empty v-if="isDisplay" description="暂无自定义及待上传图片" />
                 <el-divider></el-divider>
                 <el-upload
                     ref="uploadRef"
                     v-model:file-list="fileList"
                     class="upload-demo"
-                    action="http://localhost:8080/api/config/upload"
+                    :http-request="handleUpload"
                     :on-remove="handleRemove"
+                    :on-change="handleChange"
                     :auto-upload="false"
                 >
                     <template #trigger>
-                        <el-button type="primary">select file</el-button>
+                        <el-button type="primary">选择文件</el-button>
                     </template>
 
-                    <el-button class="ml-3" type="success" @click="submitUpload">
-                        upload to server
+                    <el-button style="margin-left: 5px" type="success" @click="submitUpload">
+                        上传
                     </el-button>
 
                     <template #tip>
