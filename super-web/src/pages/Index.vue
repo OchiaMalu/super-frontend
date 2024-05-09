@@ -13,7 +13,7 @@
                 <img :src="image" style="width: 100%;height: 150px" />
             </van-swipe-item>
         </van-swipe>
-        <van-tabs v-model:active="active">
+        <van-tabs v-model:active="active" @change="tabsChange">
             <van-tab title="👑 匹配用户">
                 <van-pull-refresh
                     v-model="refreshLoading"
@@ -100,7 +100,13 @@ const images = ref([
 onMounted(async () => {
     await getNotice();
     await getSwiper();
+    if (sessionStorage.getItem("tabIndex") === "1") {
+        active.value = 1;
+    }
 });
+const tabsChange = (index) => {
+    sessionStorage.setItem("tabIndex", index);
+};
 const getNotice = async () => {
     let res = await myAxios.get("/config/notice");
     if (res.data.data !== null) {
