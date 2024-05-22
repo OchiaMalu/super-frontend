@@ -27,6 +27,7 @@ import UserFansPage from "../pages/message/UserFansPage.vue";
 import UserLikePage from "../pages/message/UserLikePage.vue";
 import UserFollowedUserPage from "../pages/message/UserFollowedUserPage.vue";
 import UpdatePasswordPage from "../pages/UpdatePasswordPage.vue";
+import PrivateChatPage from "../pages/message/PrivateChatPage.vue";
 
 const routes = [
     { path: "/", title: "速配SUPER", component: Index },
@@ -53,10 +54,11 @@ const routes = [
     { path: "/forget", title: "找回密码", component: ForgetPasswordPage, meta: { layout: "forget" } },
     { path: "/chat", component: ChatPage, meta: { layout: "chat" } },
     { path: "/user/follow", title: "我关注的用户", component: UserFollowPage },
-    { path: "/user/comment",  component: UserBlogCommentPage, meta: { layout: "comment" } },
+    { path: "/user/comment", component: UserBlogCommentPage, meta: { layout: "comment" } },
     { path: "/fans", title: "我的粉丝", component: UserFansPage },
     { path: "/user/like", title: "赞", component: UserLikePage },
     { path: "/user/follow/blog", title: "关注", component: UserFollowedUserPage },
     { path: "/update/password", title: "修改密码", component: UpdatePasswordPage, meta: { layout: "password" } },
+    { path: "/private", title: "私聊", component: PrivateChatPage },
 ];
 export default routes;
