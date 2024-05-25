@@ -14,23 +14,18 @@
         </van-grid-item>
     </van-grid>
     <van-divider />
-    <van-cell v-if="blogNum===0" to="/user/follow/blog">
+    <van-cell to="/user/follow/blog">
         <template #title>
             <span class="cell-span">我的关注</span>
         </template>
         <template #icon>
-            <div class="icon_area">
-                <van-icon color="#2a2e31" class-prefix="my-icon" name="guanzhu" size="25"
-                          style="margin-left: 12px;margin-top: 13px" />
-            </div>
-        </template>
-    </van-cell>
-    <van-cell v-else to="/user/follow/blog">
-        <template #title>
-            <span class="cell-span">我的关注</span>
-        </template>
-        <template #icon>
-            <van-badge :content="blogNum">
+            <van-badge v-if="blogNum>0" :content="blogNum" max="99">
+                <div class="icon_area">
+                    <van-icon color="#2a2e31" class-prefix="my-icon" name="guanzhu" size="25"
+                              style="margin-left: 12px;margin-top: 13px" />
+                </div>
+            </van-badge>
+            <van-badge v-else>
                 <div class="icon_area">
                     <van-icon color="#2a2e31" class-prefix="my-icon" name="guanzhu" size="25"
                               style="margin-left: 12px;margin-top: 13px" />
@@ -43,10 +38,18 @@
             <span class="cell-span">私聊</span>
         </template>
         <template #icon>
-            <div class="icon_area">
-                <van-icon name="envelop-o" size="25"
-                          style="margin-left: 12px;margin-top: 13px" />
-            </div>
+            <van-badge v-if="unReadPrivateNum>0" :content="unReadPrivateNum" max="99">
+                <div class="icon_area">
+                    <van-icon name="envelop-o" size="25"
+                              style="margin-left: 12px;margin-top: 13px" />
+                </div>
+            </van-badge>
+            <van-badge v-else>
+                <div class="icon_area">
+                    <van-icon name="envelop-o" size="25"
+                              style="margin-left: 12px;margin-top: 13px" />
+                </div>
+            </van-badge>
         </template>
     </van-cell>
     <van-cell @click="toHallChat">
@@ -92,6 +95,7 @@ import defaultImg from "../../../public/defalutTeamImg.jpg";
 const teamList = ref();
 const likeNum = ref(0);
 const blogNum = ref(0);
+const unReadPrivateNum = ref(0);
 onMounted(async () => {
     let res = await myAxios.get("/team/list/my/join/all");
     if (res?.data.code === 0) {
@@ -104,6 +108,10 @@ onMounted(async () => {
     let res3 = await myAxios.get("/message/blog/num");
     if (res3?.data.code === 0) {
         blogNum.value = Number(res3.data.data);
+    }
+    let res4 = await myAxios.get("/chat/private/num");
+    if (res4?.data.code === 0) {
+        unReadPrivateNum.value = res4.data.data;
     }
 });
 let router = useRouter();

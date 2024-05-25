@@ -13,10 +13,11 @@ onMounted(async () => {
     }
 });
 const toPrivateChat = (user) => {
+    myAxios.put("/chat/private/read?remoteId=" + user.userId);
     router.push({
         path: "/chat",
         query: {
-            id: user.id,
+            id: user.userId,
             username: user.username,
             userType: 1,
         },
@@ -30,9 +31,21 @@ const toPrivateChat = (user) => {
             <template #title>
                 <span class="cell-span">{{ user.username }}</span>
             </template>
+            <template #label>
+                <span class="cell-span">{{ user.lastMessage }}</span>
+            </template>
             <template #icon>
-                <van-image :src="user.avatarUrl || defaultImg" round width="50" height="50"
-                           style="margin-left: 10px" />
+                <van-badge v-if="user.unReadNum>0" :content="user.unReadNum" max="99">
+                    <van-image :src="user.avatarUrl || defaultImg" round width="50" height="50"
+                               style="margin-left: 10px" />
+                </van-badge>
+                <van-badge v-else>
+                    <van-image :src="user.avatarUrl || defaultImg" round width="50" height="50"
+                               style="margin-left: 10px" />
+                </van-badge>
+            </template>
+            <template #value>
+                {{ user.lastMessageDate }}
             </template>
         </van-cell>
     </van-cell-group>
