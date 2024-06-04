@@ -28,6 +28,7 @@ import UserLikePage from "../pages/message/UserLikePage.vue";
 import UserFollowedUserPage from "../pages/message/UserFollowedUserPage.vue";
 import UpdatePasswordPage from "../pages/UpdatePasswordPage.vue";
 import PrivateChatPage from "../pages/message/PrivateChatPage.vue";
+import AIPage from "../pages/AIPage.vue";
 
 const routes = [
     { path: "/", title: "速配SUPER", component: Index },
@@ -60,5 +61,6 @@ const routes = [
     { path: "/user/follow/blog", title: "关注", component: UserFollowedUserPage },
     { path: "/update/password", title: "修改密码", component: UpdatePasswordPage, meta: { layout: "password" } },
     { path: "/private", title: "私聊", component: PrivateChatPage },
+    { path: "/ai", title: "AI", component: AIPage, meta: { layout: "ai" } },
 ];
 export default routes;

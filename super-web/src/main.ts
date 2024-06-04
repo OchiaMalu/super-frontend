@@ -15,6 +15,7 @@ import AfterSignUp from "./pages/AfterSignUp.vue";
 import ChatPage from "./pages/ChatPage.vue";
 import UpdatePasswordPage from "./pages/UpdatePasswordPage.vue";
 import UserBlogCommentPage from "./pages/message/UserBlogCommentPage.vue";
+import AIPage from "./pages/AIPage.vue";
 
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
@@ -29,6 +30,7 @@ app.component("after-layout", AfterSignUp);
 app.component("chat-layout", ChatPage);
 app.component("password-layout", UpdatePasswordPage);
 app.component("comment-layout", UserBlogCommentPage);
+app.component("ai-layout", AIPage);
 app.use(Button);
 app.use(NavBar);
 app.use(Icon);

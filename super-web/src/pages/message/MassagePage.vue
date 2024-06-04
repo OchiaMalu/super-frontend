@@ -14,6 +14,17 @@
         </van-grid-item>
     </van-grid>
     <van-divider />
+    <van-cell to="/ai">
+        <template #title>
+            <span class="cell-span">AI助手</span>
+        </template>
+        <template #icon>
+            <div class="icon_area">
+                <van-icon color="#2a2e31" class-prefix="my-icon" name="wuguan" size="25"
+                          style="margin-left: 12px;margin-top: 13px"/>
+            </div>
+        </template>
+    </van-cell>
     <van-cell to="/user/follow/blog">
         <template #title>
             <span class="cell-span">我的关注</span>
