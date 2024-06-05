@@ -31,6 +31,7 @@ import { showFailToast } from "vant";
 import { getCurrentUser } from "../services/user.ts";
 import myAxios, { URL } from "../plugins/my-axios.js";
 
+const defaultMessage = "你好,我是速配SUPER的智能助手,欢迎问我任何问题。";
 const route = useRoute();
 const router = useRouter();
 const chatRoom = ref(null);
@@ -52,6 +53,7 @@ const stats = ref({
 });
 onMounted(async () => {
     stats.value.user = await getCurrentUser();
+    createContent(stats.value.ai, null, defaultMessage);
 });
 
 const send = async () => {
