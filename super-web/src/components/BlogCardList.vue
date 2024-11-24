@@ -2,6 +2,7 @@
     <van-cell-group>
         <van-cell
             v-for="blog in props.blogList"
+            :key="blog.id"
             :title="blog.title"
             @click="toBlog(blog.id)">
             <template #right-icon>
@@ -15,11 +16,12 @@
                     <van-icon name="envelop-o" size="14" style="margin-right: 5px">
                         <span style="margin-left: 2px">{{ blog.commentsNum }}</span>
                     </van-icon>
-                    <van-icon name="good-job-o" v-if="!blog.isLike" size="14">
-                        <span style="margin-left: 2px">{{ blog.likedNum }}</span>
-                    </van-icon>
-                    <van-icon name="good-job-o" v-else color="red" size="14"
-                              style="margin-right: 2px">
+                    <van-icon 
+                        :name="blog.isLike ? 'good-job' : 'good-job-o'" 
+                        :color="blog.isLike ? 'red' : undefined" 
+                        size="14"
+                        :style="blog.isLike ? 'margin-right: 2px' : ''"
+                    >
                         <span style="margin-left: 2px">{{ blog.likedNum }}</span>
                     </van-icon>
                 </div>
@@ -32,32 +34,38 @@
 </template>
 
 <script setup lang="ts">
-import {BlogType} from "../models/blog.js";
-import {useRouter} from "vue-router";
-import {getCurrentUser} from "../services/user.ts";
-import {showFailToast} from "vant";
+import { useRouter } from "vue-router";
+import { showFailToast } from "vant";
+import { getCurrentUser } from "../services/user";
+import { BlogType } from "../models/blog";
 
 interface BlogCardListProps {
-    blogList: BlogType[]
+    blogList: BlogType[];
 }
 
-let props = defineProps<BlogCardListProps>();
-let router = useRouter();
-const toBlog = async (blogId) => {
-    let currentUser = await getCurrentUser();
-    if (currentUser) {
-        await router.push({
-            path: '/blog',
-            query: {
-                id: blogId
-            }
-        })
-    } else {
-        showFailToast("未登录")
-        await router.replace("/user/login")
+const props = defineProps<BlogCardListProps>();
+const router = useRouter();
+
+// 博客导航
+const toBlog = async (blogId: number): Promise<void> => {
+    try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+            await router.push({
+                path: '/blog',
+                query: {
+                    id: blogId
+                }
+            });
+        } else {
+            showFailToast("未登录");
+            await router.replace("/user/login");
+        }
+    } catch (error) {
+        console.error('Failed to navigate to blog:', error);
+        showFailToast("导航失败，请稍后重试");
     }
-
-}
+};
 </script>
 
 <style scoped>

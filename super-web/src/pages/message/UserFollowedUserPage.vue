@@ -1,6 +1,6 @@
 <template>
     <van-empty
-        v-if="(!blogList || blogList.length===0) && loading===false"
+        v-if="(!blogList.length) && !loading"
         image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
         image-size="80"
         description="您关注的用户没有更新"
@@ -14,20 +14,41 @@
     <blog-card-list v-if="blogList.length>0" :blog-list="blogList"/>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {onMounted, ref} from "vue";
-import myAxios from "../../plugins/my-axios.js";
+import myAxios from "../../plugins/my-axios";
 import BlogCardList from "../../components/BlogCardList.vue";
 
-const loading = ref(true)
-const blogList = ref([])
+interface Blog {
+  id: number;
+  title: string;
+  content: string;
+  userId: number;
+  commentsNum: number;
+  likedNum: number;
+  isLike: boolean;
+  createTime?: string;
+  updateTime?: string;
+  // 根据实际博客对象添加其他属性
+}
+
+// 响应式状态定义
+const loading = ref<boolean>(true);
+const blogList = ref<Blog[]>([]);
+
+// 生命周期钩子
 onMounted(async () => {
-    let res = await myAxios.get("/message/blog");
+  try {
+    const res = await myAxios.get("/message/blog");
     if (res?.data.code === 0) {
-        blogList.value = res.data.data
+      blogList.value = res.data.data;
     }
-    loading.value = false
-})
+  } catch (error) {
+    console.error('Failed to fetch blog list:', error);
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <style scoped>

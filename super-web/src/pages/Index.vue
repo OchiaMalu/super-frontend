@@ -71,26 +71,41 @@
         </van-tabs>
     </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
-import myAxios from "../plugins/my-axios.js";
-import { showFailToast, showSuccessToast } from "vant";
+import myAxios from "../plugins/my-axios";
+import { showFailToast } from "vant";
 import UserCardList from "../components/UserCardList.vue";
 import BlogCardList from "../components/BlogCardList.vue";
+import type { UserType } from "../types/user";
+import type { BlogType } from "../types/blog";
 
-const searching = ref(false);
-const listLoading = ref(false);
-const listFinished = ref(false);
-const userList = ref([]);
-const refreshLoading = ref(false);
-const currentPage = ref(0);
-const userSearch = ref("");
-const active = ref(0);
-const blogList = ref([]);
-const blogListFinished = ref(false);
-const blogCurrentPage = ref(0);
-const noticeText = ref("富强、民主、文明、和谐；自由、平等、公正、法治；爱国、敬业、诚信、友善。");
-const images = ref([
+interface PageResult<T> {
+  records: T[];
+  total: number;
+  size: number;
+  current: number;
+}
+
+interface MyAxiosResponse<T> {
+  code: number;
+  data: T;
+  description?: string;
+}
+
+const searching = ref<boolean>(false);
+const listLoading = ref<boolean>(false);
+const listFinished = ref<boolean>(false);
+const userList = ref<UserType[]>([]);
+const refreshLoading = ref<boolean>(false);
+const currentPage = ref<number>(0);
+const userSearch = ref<string>("");
+const active = ref<number>(0);
+const blogList = ref<BlogType[]>([]);
+const blogListFinished = ref<boolean>(false);
+const blogCurrentPage = ref<number>(0);
+const noticeText = ref<string>("富强、民主、文明、和谐；自由、平等、公正、法治；爱国、敬业、诚信、友善。");
+const images = ref<string[]>([
     "https://img0.baidu.com/it/u=3358848204,1936258606&fm=253&fmt=auto&app=120&f=JPEG?w=1421&h=800",
     "https://img2.baidu.com/it/u=3012806272,1276873993&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500",
     "https://img0.baidu.com/it/u=741268616,1401664941&fm=253&fmt=auto&app=138&f=JPEG?w=748&h=500",
@@ -104,101 +119,136 @@ onMounted(async () => {
         active.value = 1;
     }
 });
-const tabsChange = (index) => {
-    sessionStorage.setItem("tabIndex", index);
+
+const tabsChange = (index: number): void => {
+    sessionStorage.setItem("tabIndex", index.toString());
 };
-const getNotice = async () => {
-    let res = await myAxios.get("/config/notice");
-    if (res.data.data !== null) {
-        noticeText.value = res.data.data;
+
+const getNotice = async (): Promise<void> => {
+    try {
+        const res = await myAxios.get<MyAxiosResponse<string>>("/config/notice");
+        if (res.data.data !== null) {
+            noticeText.value = res.data.data;
+        }
+    } catch (error) {
+        console.error('Failed to fetch notice:', error);
     }
 };
-const getSwiper = async () => {
-    let res = await myAxios.get("/config/swiper");
-    if (res.data.data !== null) {
-        images.value = res.data.data;
+
+const getSwiper = async (): Promise<void> => {
+    try {
+        const res = await myAxios.get<MyAxiosResponse<string[]>>("/config/swiper");
+        if (res.data.data !== null) {
+            images.value = res.data.data;
+        }
+    } catch (error) {
+        console.error('Failed to fetch swiper:', error);
     }
 };
-const blogLoad = async () => {
+
+const blogLoad = async (): Promise<void> => {
     blogCurrentPage.value++;
     await getBlogList(blogCurrentPage.value);
 };
 
-const getBlogList = async (currentPage) => {
-    let res = await myAxios.get("/blog/list", {
-        params: {
-            currentPage: currentPage,
-            title: blogSearch.value,
-        },
-    });
-    if (res?.data.code === 0) {
-        if (res.data.data.records.length > 0) {
-            res.data.data.records.forEach(item => blogList.value.push(item));
-        } else {
-            blogListFinished.value = true;
+const getBlogList = async (currentPage: number): Promise<void> => {
+    try {
+        const res = await myAxios.get<MyAxiosResponse<PageResult<BlogType>>>("/blog/list", {
+            params: {
+                currentPage,
+                title: blogSearch.value,
+            },
+        });
+
+        if (res?.data.code === 0) {
+            if (res.data.data.records.length > 0) {
+                blogList.value.push(...res.data.data.records);
+            } else {
+                blogListFinished.value = true;
+            }
+            listLoading.value = false;
         }
-        listLoading.value = false;
+    } catch (error) {
+        console.error('Failed to fetch blog list:', error);
     }
 };
 
-async function getUserList(currentPage) {
-    const userListData = await myAxios.get("/user/match", {
-        params: {
-            currentPage: currentPage,
-            username: userSearch.value,
-        },
-    });
-    if (userListData?.data.code === 0) {
-    } else {
-        showFailToast("加载失败" + (res.data.description ? `,${res.data.description}` : ""));
-    }
-    if (userListData?.data.data.records.length === 0) {
-        listFinished.value = true;
-        return;
-    }
-    if (userListData?.data.data.records) {
-        userListData.data.data.records.forEach(user => {
-            if (user.tags) {
-                user.tags = JSON.parse(user.tags);
-            }
+const getUserList = async (currentPage: number): Promise<void> => {
+    try {
+        const res = await myAxios.get<MyAxiosResponse<PageResult<UserType>>>("/user/match", {
+            params: {
+                currentPage,
+                username: userSearch.value,
+            },
         });
-        for (let i = 0; i < userListData.data.data.records.length; i++) {
-            userList.value.push(userListData.data.data.records[i]);
-        }
-    }
-}
 
-const onLoad = async () => {
+        if (res?.data.code === 0) {
+            const records = res.data.data.records;
+            if (records.length === 0) {
+                listFinished.value = true;
+                return;
+            }
+
+            records.forEach((user: UserType) => {
+                if (user.tags) {
+                    user.tags = JSON.parse(user.tags as unknown as string);
+                }
+            });
+
+            userList.value.push(...records);
+        } else {
+            showFailToast(`加载失败${res.data.description ? `,${res.data.description}` : ""}`);
+        }
+    } catch (error) {
+        console.error('Failed to fetch user list:', error);
+    }
+};
+
+const onLoad = async (): Promise<void> => {
     currentPage.value++;
     await getUserList(currentPage.value);
     listLoading.value = false;
 };
-const onRefresh = async () => {
-    currentPage.value = 1;
-    userList.value = [];
-    listFinished.value = false;
-    await getUserList(currentPage.value);
-    refreshLoading.value = false;
-    listLoading.value = false;
+
+const onRefresh = async (): Promise<void> => {
+    try {
+        currentPage.value = 1;
+        userList.value = [];
+        listFinished.value = false;
+        await getUserList(currentPage.value);
+    } catch (error) {
+        console.error('Failed to refresh:', error);
+    } finally {
+        refreshLoading.value = false;
+        listLoading.value = false;
+    }
 };
 
-const blogRefresh = async () => {
-    blogCurrentPage.value = 1;
-    blogList.value = [];
-    blogListFinished.value = false;
-    await getBlogList(blogCurrentPage.value);
-    refreshLoading.value = false;
-    listLoading.value = false;
+const blogRefresh = async (): Promise<void> => {
+    try {
+        blogCurrentPage.value = 1;
+        blogList.value = [];
+        blogListFinished.value = false;
+        await getBlogList(blogCurrentPage.value);
+    } catch (error) {
+        console.error('Failed to refresh blogs:', error);
+    } finally {
+        refreshLoading.value = false;
+        listLoading.value = false;
+    }
 };
-const searchUser = async () => {
+
+const searchUser = async (): Promise<void> => {
     searching.value = true;
     userList.value = [];
     currentPage.value = 1;
     await getUserList(currentPage.value);
     searching.value = false;
 };
-const blogSearch = ref("");
-const searchBlog = async () => {
+
+const blogSearch = ref<string>("");
+
+const searchBlog = async (): Promise<void> => {
     searching.value = true;
     blogList.value = [];
     blogCurrentPage.value = 1;

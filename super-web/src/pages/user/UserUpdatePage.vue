@@ -40,93 +40,145 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { showFailToast, showSuccessToast } from "vant";
+import { getCurrentUser } from "../../services/user";
+import myAxios from "../../plugins/my-axios";
 
-import {useRouter} from "vue-router";
-import {onMounted, ref} from "vue";
-import {showFailToast, showSuccessToast} from "vant";
-import {getCurrentUser} from "../../services/user.ts";
-import myAxios from "../../plugins/my-axios.js";
+interface User {
+  id: number;
+  userAccount: string;
+  username: string;
+  profile?: string;
+  gender?: number;
+  phone?: string;
+  email?: string;
+  avatarUrl: string;
+}
 
-let router = useRouter();
-const fileList = ref([]);
-const user = ref()
-const imgSrc = ref('')
-const showPicker = ref(false);
+interface FileListItem {
+  file: File;
+}
+
+interface SelectedValues {
+  selectedValues: string[];
+}
+
+// 响应式状态定义
+const router = useRouter();
+const fileList = ref<FileListItem[]>([]);
+const user = ref<User | null>(null);
+const imgSrc = ref<string>('');
+const showPicker = ref<boolean>(false);
+
 const genders = [
-    {text: '男', value: '1'},
-    {text: '女', value: '0'},
-    {text: '保密', value: '2'}
+  { text: '男', value: '1' },
+  { text: '女', value: '0' },
+  { text: '保密', value: '2' }
 ];
 
-async function getUser() {
-    let currentUser = await getCurrentUser();
+// 获取用户信息
+const getUser = async (): Promise<void> => {
+  try {
+    const currentUser = await getCurrentUser();
     if (currentUser) {
-        user.value = currentUser
-        imgSrc.value = currentUser.avatarUrl
+      user.value = currentUser;
+      imgSrc.value = currentUser.avatarUrl || '';
     } else {
-        showFailToast("未登录")
-        await router.replace("/user/login")
+      showFailToast("未登录");
+      await router.replace("/user/login");
     }
-}
-
-onMounted(async () => {
-    await getUser();
-})
-const toEdit = (editKey: string, editName: string, editValue: string) => {
-    router.push({
-        path: '/user/edit',
-        query: {
-            editKey,
-            editName,
-            editValue
-        }
-    })
-}
-const afterRead = async () => {
-    let formData = new FormData();
-    formData.append("file", fileList.value[0].file)
-    const res = await myAxios.post("/common/upload", formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    })
-    if (res?.data.code === 0) {
-        showSuccessToast("头像更新成功")
-        imgSrc.value = res?.data.data
-    } else {
-      showFailToast("头像更新失败" + (res.data.description ? `,${res.data.description}` : ''))
-    }
-    fileList.value = []
-}
-const onConfirmGender = async ({selectedValues}) => {
-    const res = await myAxios.put("/user/update", {
-        gender: selectedValues[0]
-    })
-    if (res?.data.code === 0) {
-        showSuccessToast("修改成功")
-    } else {
-      showFailToast("修改失败" + (res.data.description ? `,${res.data.description}` : ''))
-    }
-    showPicker.value = false
-    await refresh()
+  } catch (error) {
+    console.error('Failed to get user:', error);
+    showFailToast("获取用户信息失败");
+  }
 };
 
-const refresh = async () => {
-    await getUser()
-}
+// 导航方法
+const toEdit = (editKey: string, editName: string, editValue: string): void => {
+  router.push({
+    path: '/user/edit',
+    query: {
+      editKey,
+      editName,
+      editValue
+    }
+  });
+};
+
+// 文件上传处理
+const afterRead = async (): Promise<void> => {
+  try {
+    if (!fileList.value[0]?.file) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileList.value[0].file);
+    
+    const res = await myAxios.post("/common/upload", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    if (res?.data.code === 0) {
+      showSuccessToast("头像更新成功");
+      imgSrc.value = res.data.data;
+    } else {
+      showFailToast(`头像更新失败${res.data.description ? `,${res.data.description}` : ''}`);
+    }
+  } catch (error) {
+    console.error('Failed to upload avatar:', error);
+    showFailToast("上传失败，请稍后重试");
+  } finally {
+    fileList.value = [];
+  }
+};
+
+// 性别选择处理
+const onConfirmGender = async ({ selectedValues }: SelectedValues): Promise<void> => {
+  try {
+    const res = await myAxios.put("/user/update", {
+      gender: selectedValues[0]
+    });
+
+    if (res?.data.code === 0) {
+      showSuccessToast("修改成功");
+    } else {
+      showFailToast(`修改失败${res.data.description ? `,${res.data.description}` : ''}`);
+    }
+    showPicker.value = false;
+    await refresh();
+  } catch (error) {
+    console.error('Failed to update gender:', error);
+    showFailToast("修改失败，请稍后重试");
+  }
+};
+
+// 刷新处理
+const refresh = async (): Promise<void> => {
+  await getUser();
+};
+
+// 生命周期钩子
+onMounted(async () => {
+  await getUser();
+});
 </script>
 
 <style scoped>
 :deep(.van-uploader__upload) {
-    border-radius: 50%;
+  border-radius: 50%;
 }
 
 :deep(.van-uploader__preview-image) {
-    border-radius: 50%;
+  border-radius: 50%;
 }
 
 :deep(.van-cell) {
-    padding-left: 23px;
-    padding-right: 16px;
+  padding-left: 23px;
+  padding-right: 16px;
 }
 </style>

@@ -8,8 +8,8 @@
     <div v-if="activeIds.length > 0">
       <van-divider content-position="left">已选择标签</van-divider>
       <van-row style="padding: 16px">
-        <van-col v-for="tag in activeIds">
-          <van-tag closeable size="small" type="primary" @close="close(tag)" style="margin: 5px">
+        <van-col v-for="tag in activeIds" :key="tag">
+          <van-tag closeable size="medium" type="primary" @close="close(tag)" style="margin: 5px">
             {{ tag }}
           </van-tag>
         </van-col>
@@ -36,22 +36,25 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue"
+import { useRouter } from "vue-router"
+import { showFailToast } from "vant"
+import type { TreeSelectItem } from 'vant'
 
-import {ref} from "vue";
-import {useRouter} from "vue-router";
-import {showFailToast} from "vant";
+const userDefinedTag = ref('')
+const searchText = ref('')
+const activeIds = ref<string[]>([])
+const activeIndex = ref(0)
+const router = useRouter()
 
-const userDefinedTag = ref("")
-const addUserDefinedTag = () => {
-  if (userDefinedTag.value !== "") {
-    activeIds.value.push(userDefinedTag.value)
-    userDefinedTag.value = ""
-  } else {
-    showFailToast("请先输入标签名")
-  }
+interface CustomTreeSelectItem extends TreeSelectItem {
+  children: Array<{
+    text: string;
+    id: string;
+  }>;
 }
-let router = useRouter();
-const originTagList = [
+
+const originTagList: CustomTreeSelectItem[] = [
   {
     text: '性别',
     children: [
@@ -161,24 +164,31 @@ const originTagList = [
     ]
   }
 ];
-let tagList = ref(originTagList);
-const searchText = ref('');
+
+const tagList = ref<CustomTreeSelectItem[]>(originTagList)
+
+const addUserDefinedTag = () => {
+  if (userDefinedTag.value !== '') {
+    activeIds.value.push(userDefinedTag.value)
+    userDefinedTag.value = ''
+  } else {
+    showFailToast("请先输入标签名")
+  }
+}
+
 const onSearch = () => {
   tagList.value = originTagList.map(parentTag => {
-    const tempChildren = [...parentTag.children];
-    const tempParentTag = {...parentTag};
+    const tempChildren = [...(parentTag.children || [])]
+    const tempParentTag = {...parentTag}
     tempParentTag.children = tempChildren.filter(item => item.text.includes(searchText.value))
-    return tempParentTag;
+    return tempParentTag
   })
-};
-const activeIds = ref([]);
-const activeIndex = ref(0);
+}
 
-const close = (tag) => {
-  activeIds.value = activeIds.value.filter((item) => {
-    return item !== tag;
-  })
-};
+const close = (tag: string) => {
+  activeIds.value = activeIds.value.filter((item) => item !== tag)
+}
+
 const searchUser = () => {
   if (activeIds.value.length === 0) {
     showFailToast("标签不能为空")

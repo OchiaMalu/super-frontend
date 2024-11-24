@@ -25,7 +25,7 @@
             style="margin: 15px;height: 100%"
         >
             <template #finished>
-                <span v-if="commentList && commentList.length!==0">没有更多了</span>
+                <span v-if="commentList.length !== 0">没有更多了</span>
             </template>
             <template #loading>
                 <van-loading vertical>
@@ -53,91 +53,124 @@
     </van-pull-refresh>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
-import myAxios from "../../plugins/my-axios.js";
 import { useRouter } from "vue-router";
+import myAxios from "../../plugins/my-axios";
 
-const active = ref(0);
-const loading = ref(true);
-const commentList = ref([]);
+interface Comment {
+  id: number;
+  content: string;
+  // 根据实际评论对象添加其他属性
+}
 
-const refreshLoading = ref(false);
-const listLoading = ref(false);
-const listFinished = ref(false);
-const commentCurrentPage = ref(0);
+// 响应式状态定义
+const active = ref<number>(0);
+const loading = ref<boolean>(true);
+const commentList = ref<Comment[]>([]);
+const refreshLoading = ref<boolean>(false);
+const listLoading = ref<boolean>(false);
+const listFinished = ref<boolean>(false);
+const commentCurrentPage = ref<number>(0);
 
-let router = useRouter();
+const router = useRouter();
 
-onMounted(async () => {
-    let res = await myAxios.get("/comments/list/commented");
-    if (res.data.code === 0) {
-        commentList.value = res.data.data;
+// 获取评论列表
+const getComments = async (currentPage: number): Promise<void> => {
+  try {
+    const res = await myAxios.get("/comments/list/my", {
+      params: { currentPage }
+    });
+
+    if (res?.data.code === 0) {
+      if (res.data.data.records.length > 0) {
+        res.data.data.records.forEach((item: Comment) => commentList.value.push(item));
+      } else {
+        listFinished.value = true;
+      }
+      listLoading.value = false;
     }
+  } catch (error) {
+    console.error('Failed to fetch comments:', error);
+    listLoading.value = false;
+  }
+};
+
+// 加载评论
+const commentLoad = async (): Promise<void> => {
+  if (active.value === 1) {
+    commentCurrentPage.value++;
+    await getComments(commentCurrentPage.value);
+  } else {
+    commentList.value = [];
+    try {
+      const res = await myAxios.get("/comments/list/commented");
+      if (res.data.code === 0) {
+        commentList.value = res.data.data;
+      }
+      listFinished.value = true;
+    } catch (error) {
+      console.error('Failed to load comments:', error);
+    }
+  }
+};
+
+// 重新加载评论
+const commentReload = async (): Promise<void> => {
+  try {
+    if (active.value === 0) {
+      commentList.value = [];
+      const res = await myAxios.get("/comments/list/commented");
+      if (res.data.code === 0) {
+        commentList.value = res.data.data;
+      }
+    } else {
+      commentCurrentPage.value = 1;
+      commentList.value = [];
+      listFinished.value = false;
+      await getComments(commentCurrentPage.value);
+    }
+  } catch (error) {
+    console.error('Failed to reload comments:', error);
+  } finally {
     refreshLoading.value = false;
     listLoading.value = false;
+  }
+};
+
+// Tab 切换处理
+const changeTab = async (index: number): Promise<void> => {
+  await commentReload();
+};
+
+// 刷新评论
+const refreshComments = async (): Promise<void> => {
+  await commentReload();
+};
+
+// 导航处理
+const onClickLeft = (): void => {
+  router.push("/message");
+};
+
+// 生命周期钩子
+onMounted(async () => {
+  try {
+    const res = await myAxios.get("/comments/list/commented");
+    if (res.data.code === 0) {
+      commentList.value = res.data.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch initial comments:', error);
+  } finally {
+    refreshLoading.value = false;
+    listLoading.value = false;
+  }
 });
-const getComments = async (currentPage) => {
-    let res = await myAxios.get("/comments/list/my", {
-        params: {
-            currentPage: currentPage,
-        },
-    });
-    if (res?.data.code === 0) {
-        if (res.data.data.records.length > 0) {
-            res.data.data.records.forEach(item => commentList.value.push(item));
-        } else {
-            listFinished.value = true;
-        }
-        listLoading.value = false;
-    }
-};
-const commentLoad = async () => {
-    if (active.value === 1) {
-        commentCurrentPage.value++;
-        await getComments(commentCurrentPage.value);
-    } else {
-        commentList.value = [];
-        let res = await myAxios.get("/comments/list/commented");
-        if (res.data.code === 0) {
-            commentList.value = res.data.data;
-        }
-        listFinished.value = true;
-    }
-};
-const commentReload = async () => {
-    if (active.value === 0) {
-        commentList.value = [];
-        let res = await myAxios.get("/comments/list/commented");
-        if (res.data.code === 0) {
-            commentList.value = res.data.data;
-        }
-        refreshLoading.value = false;
-        listLoading.value = false;
-    } else {
-        commentCurrentPage.value = 1;
-        commentList.value = [];
-        listFinished.value = false;
-        await getComments(commentCurrentPage.value);
-        refreshLoading.value = false;
-        listLoading.value = false;
-    }
-};
-const changeTab = async (index) => {
-    await commentReload();
-};
-
-const refreshComments = async () => {
-    await commentReload();
-};
-
-const onClickLeft = () => {
-    router.push("/message");
-};
 </script>
 
 <style scoped>
 :deep(.van-tab) {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 </style>

@@ -84,61 +84,91 @@
     </div>
 </template>
 
-<script setup>
-import {useRouter} from "vue-router";
-import {ref} from "vue";
-import myAxios from "../plugins/my-axios.js";
-import {showFailToast, showSuccessToast} from "vant";
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+import { ref } from "vue";
+import myAxios from "../plugins/my-axios";
+import { showFailToast, showSuccessToast } from "vant";
 
-const one = ref(true)
-const two = ref(false)
-const three = ref(false)
-const confirmPassword = ref('')
-const password = ref('');
-const code = ref('');
-const showKeyboard = ref(false);
-let router = useRouter();
-const phone = ref()
-const onClickLeft = () => {
-    router.push("/")
+interface MyAxiosResponse<T> {
+    code: number;
+    data: T;
+    description?: string;
+}
+
+interface FormData {
+  phone: string;
+  code: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const one = ref<boolean>(true);
+const two = ref<boolean>(false);
+const three = ref<boolean>(false);
+const confirmPassword = ref<string>('');
+const password = ref<string>('');
+const code = ref<string>('');
+const showKeyboard = ref<boolean>(false);
+const router = useRouter();
+const phone = ref<string>('');
+const username = ref<string>('');
+
+const onClickLeft = (): void => {
+    router.push("/");
 };
-const validator = () => {
+
+const validator = (): boolean => {
     return password.value === confirmPassword.value;
-}
-const username = ref("")
-const onSubmit = async () => {
-    let res = await myAxios.get("/user/forget?phone=" + phone.value);
+};
+
+const onSubmit = async (): Promise<void> => {
+    const res = await myAxios.get<MyAxiosResponse<string>>("/user/forget", {
+        params: { phone: phone.value }
+    });
+
     if (res?.data.code === 0) {
-        username.value = res.data.data
-        one.value = false
-        two.value = true
+        username.value = res.data.data;
+        one.value = false;
+        two.value = true;
     } else {
-        showFailToast("失败" + (res.data.description ? `,${res.data.description}` : ''))
+        showFailToast(`失败${res.data.description ? `,${res.data.description}` : ''}`);
     }
-}
-const checkCode = async () => {
-    let res = await myAxios.get("/user/check?phone=" + phone.value + "&code=" + code.value);
+};
+
+const checkCode = async (): Promise<void> => {
+    const res = await myAxios.get<MyAxiosResponse<boolean>>("/user/check", {
+        params: {
+            phone: phone.value,
+            code: code.value
+        }
+    });
+
     if (res?.data.code === 0) {
-        two.value = false
-        three.value = true
+        two.value = false;
+        three.value = true;
     } else {
-        showFailToast("失败" + (res.data.description ? `,${res.data.description}` : ''))
+        showFailToast(`失败${res.data.description ? `,${res.data.description}` : ''}`);
     }
-}
-const confirmUpdate = async () => {
-    let res = await myAxios.put("/user/forget", {
+};
+
+const confirmUpdate = async (): Promise<void> => {
+    const formData: FormData = {
         phone: phone.value,
         code: code.value,
         password: password.value,
         confirmPassword: confirmPassword.value
-    });
+    };
+
+    const res = await myAxios.put<MyAxiosResponse<boolean>>("/user/forget", formData);
+
     if (res?.data.code === 0) {
-        showSuccessToast("修改成功")
-        await router.replace("/user")
+        showSuccessToast("修改成功");
+        await router.replace("/user");
     } else {
-        showFailToast("失败" + (res.data.description ? `,${res.data.description}` : ''))
+        showFailToast(`失败${res.data.description ? `,${res.data.description}` : ''}`);
     }
-}
+};
 </script>
 
 <style scoped>

@@ -1,14 +1,15 @@
 <template>
     <van-card v-for="user in userList"
+              :key="user.id"
               :title="user.username"
               :desc="user.profile"
     >
         <template #thumb>
-            <van-image :src="user?.avatarUrl" width="88" height="88" @click="showUserDetail(user?.id)"/>
+            <van-image round width="88" height="88" style="margin-right: 10px" :src="user.avatarUrl" @click="showUserDetail(user.id)"/>
         </template>
         <template #tags>
-            <van-tag v-for="tag in user?.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px"
-                     @click="showUserDetail(user?.id)">
+            <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px"
+                     @click="showUserDetail(user.id)">
                 {{ tag }}
             </van-tag>
         </template>
@@ -17,51 +18,51 @@
                         style="width: 48px;height: 28px;margin-top: 10px" @click="kickOut(user.id)">
                 踢出
             </van-button>
-            <!--            <van-button v-if="user?.isFollow" size="mini" plain type="primary"-->
-            <!--                        style="width: 48px;height: 28px;margin-top: 10px"-->
-            <!--                        color="#c1c1c1" @click="followUser(user)">-->
-            <!--                已关注-->
-            <!--            </van-button>-->
-            <!--            <van-button v-else size="mini" plain type="primary" style="width: 48px;height: 28px;margin-top: 10px"-->
-            <!--                        @click="followUser(user)">-->
-            <!--                关注-->
-            <!--            </van-button>-->
         </template>
     </van-card>
 </template>
 
 <script setup lang="ts">
-import {UserType} from "../models/user.js";
-import myAxios from "../plugins/my-axios.js";
-import {useRouter} from "vue-router";
-import {TeamType} from "../models/team";
+import { useRouter } from "vue-router";
+import myAxios from "../plugins/my-axios";
+import type { UserType } from "../models/user";
+import type { TeamType } from "../models/team";
 
-interface UserCardListProps {
-    userList: UserType[],
-    loginUser: UserType,
-    team: TeamType
+interface Props {
+    userList: UserType[];
+    loginUser: UserType;
+    team: TeamType;
 }
 
-const props = defineProps<UserCardListProps>()
-let emits = defineEmits(['refresh']);
-let router = useRouter();
-const showUserDetail = (id) => {
+// Props 和 Emits 定义
+const props = defineProps<Props>();
+const emits = defineEmits(['refresh']);
+
+const router = useRouter();
+
+// 用户详情导航
+const showUserDetail = (id: number): void => {
     router.push({
         path: "/user/detail",
-        query: {
-            id: id
-        }
-    })
-}
-const kickOut = async (userId) => {
-    let res = await myAxios.post("/team/kick", {
-        teamId: props.team.id,
-        userId: userId
+        query: { id }
     });
-    if (res?.data.code === 0) {
-        emits("refresh")
+};
+
+// 踢出用户
+const kickOut = async (userId: number): Promise<void> => {
+    try {
+        const res = await myAxios.post("/team/kick", {
+            teamId: props.team.id,
+            userId
+        });
+        
+        if (res?.data.code === 0) {
+            emits("refresh");
+        }
+    } catch (error) {
+        console.error('Failed to kick out user:', error);
     }
-}
+};
 </script>
 
 <style scoped>

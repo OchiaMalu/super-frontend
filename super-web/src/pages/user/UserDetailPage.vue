@@ -6,10 +6,11 @@
         <van-cell title="昵称" :value="user?.username"/>
         <van-cell title="标签">
             <template #value>
-                <van-tag v-if="user?.tags.length>0" v-for="tag in user?.tags" plain type="danger"
-                         style="margin-right: 8px">
-                    {{ tag }}
-                </van-tag>
+                <template v-if="user?.tags?.length">
+                    <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px">
+                        {{ tag }}
+                    </van-tag>
+                </template>
                 <span v-else>该用户暂未填写标签</span>
             </template>
         </van-cell>
@@ -19,12 +20,11 @@
             </template>
         </van-cell>
         <van-cell title="性别">
-            <span v-if="user?.gender===1">男</span>
-            <span v-else-if="user?.gender===0">女</span>
-            <span v-else-if="user?.gender===2">保密</span>
+            <span v-if="user?.gender === 1">男</span>
+            <span v-else-if="user?.gender === 0">女</span>
+            <span v-else-if="user?.gender === 2">保密</span>
             <span v-else>该用户暂未填写性别</span>
         </van-cell>
-        <!--        <van-cell title="电话" :value="user?.phone"/>-->
         <van-cell title="邮箱" :value="user?.email || '该用户暂未填写邮箱'"/>
     </van-cell-group>
     <div style="margin: 16px">
@@ -39,60 +39,72 @@
             </van-button>
         </div>
     </div>
-    <!--    <van-dialog v-model:show="addUserApply" :title="'添加好友：'+user?.username.slice(0,10)" show-cancel-button-->
-    <!--                @confirm="toAddUserApply(user?.id)">-->
-    <!--        <div style="padding-top:8px"></div>-->
-    <!--        <van-field v-model="addUserApplyText"-->
-    <!--                   type="text"-->
-    <!--                   placeholder="我是...."-->
-    <!--                   style="text-align: center;width: 150px;margin-left: 75px;"-->
-    <!--        />-->
-    <!--        <div style="padding-top:8px "></div>-->
-    <!--    </van-dialog>-->
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {onMounted, ref} from "vue";
-import myAxios from "../../plugins/my-axios.js";
 import {showSuccessToast} from "vant";
-import {getCurrentUser} from "../../services/user.ts";
+import myAxios from "../../plugins/my-axios";
+import {getCurrentUser} from "../../services/user";
 
-const addUserApply = ref(false)
-const addUserApplyText = ref("")
-let route = useRoute();
-const user = ref()
-const currentUser = ref()
-onMounted(async () => {
-    currentUser.value = await getCurrentUser();
-    let res = await myAxios.get("/user/" + route.query.id);
-    if (res?.data.code === 0) {
-        if (res.data.data.tags) {
-            res.data.data.tags = JSON.parse(res.data.data.tags)
-        }
-        user.value = res.data.data
-    }
-})
-const toAddUserApply = async (id) => {
-    const status = await myAxios.post("/friends/add", {
-        "receiveId": id,
-        "remark": addUserApplyText.value
-    })
-    if (status) {
-        showSuccessToast("申请成功")
-    }
+interface User {
+    id: number;
+    username: string;
+    tags: string[];
+    profile?: string;
+    gender?: 0 | 1 | 2;
+    email?: string;
+    avatarUrl?: string;
+    isFollow?: boolean;
 }
-const followUser = async () => {
-    let res = await myAxios.post("/follow/" + user.value.id);
-    if (res?.data.code === 0) {
-        let res_ = await myAxios.get("/user/" + user.value.id);
-        if (res_.data.code === 0) {
-            user.value.isFollow = res_.data.data.isFollow
+
+// 响应式状态定义
+const addUserApply = ref<boolean>(false);
+const addUserApplyText = ref<string>("");
+const user = ref<User | null>(null);
+const currentUser = ref<User | null>(null);
+
+const route = useRoute();
+const router = useRouter();
+
+// 添加用户申请
+const toAddUserApply = async (id: number): Promise<void> => {
+    try {
+        const status = await myAxios.post("/friends/add", {
+            receiveId: id,
+            remark: addUserApplyText.value
+        });
+        
+        if (status) {
+            showSuccessToast("申请成功");
         }
+    } catch (error) {
+        console.error('Failed to add user:', error);
     }
-}
-let router = useRouter();
-const toChat = () => {
+};
+
+// 关注用户
+const followUser = async (): Promise<void> => {
+    try {
+        if (!user.value?.id) return;
+        
+        const res = await myAxios.post(`/follow/${user.value.id}`);
+        if (res?.data.code === 0) {
+            const res_ = await myAxios.get(`/user/${user.value.id}`);
+            if (res_.data.code === 0) {
+                user.value.isFollow = res_.data.data.isFollow;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to follow user:', error);
+    }
+};
+
+// 跳转到聊天
+const toChat = (): void => {
+    if (!user.value) return;
+    
     router.push({
         path: "/chat",
         query: {
@@ -100,8 +112,26 @@ const toChat = () => {
             username: user.value.username,
             userType: 1
         }
-    })
-}
+    });
+};
+
+// 生命周期钩子
+onMounted(async () => {
+    try {
+        currentUser.value = await getCurrentUser();
+        const res = await myAxios.get(`/user/${route.query.id}`);
+        
+        if (res?.data.code === 0) {
+            const userData = res.data.data;
+            if (userData.tags) {
+                userData.tags = JSON.parse(userData.tags);
+            }
+            user.value = userData;
+        }
+    } catch (error) {
+        console.error('Failed to fetch user details:', error);
+    }
+});
 </script>
 
 <style scoped>

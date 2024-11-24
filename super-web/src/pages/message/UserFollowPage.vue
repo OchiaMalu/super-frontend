@@ -12,7 +12,7 @@
         style="margin: 15px;height: 100%"
     >
       <template #finished>
-        <span v-if="userList && userList.length!==0">没有更多了</span>
+        <span v-if="userList.length !== 0">没有更多了</span>
       </template>
       <template #loading>
         <van-loading vertical>
@@ -34,51 +34,78 @@
   </van-pull-refresh>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref } from "vue";
+import myAxios from "../../plugins/my-axios";
 import UserCardList from "../../components/UserCardList.vue";
-import {ref} from "vue";
-import myAxios from "../../plugins/my-axios.js";
 
-const loading = ref(true)
-const userList = ref([])
+interface User {
+  id: number;
+  username: string;
+  tags?: string | string[];
+  userAccount: string;
+  gender: number;
+  phone: string;
+  email: string;
+  avatarUrl?: string;
+  isFollow?: boolean;
+  // 根据实际用户对象添加其他属性
+}
 
-const refreshLoading = ref(false)
-const listLoading = ref(false)
-const listFinished = ref(false)
-const userFollowCurrentPage = ref(0)
+// 响应式状态定义
+const loading = ref<boolean>(true);
+const userList = ref<User[]>([]);
+const refreshLoading = ref<boolean>(false);
+const listLoading = ref<boolean>(false);
+const listFinished = ref<boolean>(false);
+const userFollowCurrentPage = ref<number>(0);
 
-const getUserFollow = async (currentPage) => {
-  let res = await myAxios.get("/follow/my", {
-    params: {
-      currentPage: currentPage
+// 获取关注列表
+const getUserFollow = async (currentPage: number): Promise<void> => {
+  try {
+    const res = await myAxios.get("/follow/my", {
+      params: { currentPage }
+    });
+
+    if (res?.data.code === 0) {
+      if (res.data.data.records.length > 0) {
+        res.data.data.records.forEach((user: User) => {
+          if (user.tags && typeof user.tags === 'string') {
+            user.tags = JSON.parse(user.tags);
+          }
+        });
+        res.data.data.records.forEach((item: User) => userList.value.push(item));
+      } else {
+        listFinished.value = true;
+      }
+      listLoading.value = false;
     }
-  });
-  if (res?.data.code === 0) {
-    if (res.data.data.records.length > 0) {
-      res.data.data.records.forEach((user) => {
-        if (user.tags) {
-          user.tags = JSON.parse(user.tags)
-        }
-      })
-      res.data.data.records.forEach(item => userList.value.push(item))
-    } else {
-      listFinished.value = true
-    }
-    listLoading.value = false
+  } catch (error) {
+    console.error('Failed to fetch follow list:', error);
+    listLoading.value = false;
   }
-}
-const followLoad = async () => {
-  userFollowCurrentPage.value++
-  await getUserFollow(userFollowCurrentPage.value)
-}
-const followReload = async () => {
-  userFollowCurrentPage.value = 1
-  userList.value = []
-  listFinished.value = false
-  await getUserFollow(userFollowCurrentPage.value)
-  refreshLoading.value = false
-  listLoading.value = false
-}
+};
+
+// 加载更多关注
+const followLoad = async (): Promise<void> => {
+  userFollowCurrentPage.value++;
+  await getUserFollow(userFollowCurrentPage.value);
+};
+
+// 重新加载关注列表
+const followReload = async (): Promise<void> => {
+  try {
+    userFollowCurrentPage.value = 1;
+    userList.value = [];
+    listFinished.value = false;
+    await getUserFollow(userFollowCurrentPage.value);
+  } catch (error) {
+    console.error('Failed to reload follow list:', error);
+  } finally {
+    refreshLoading.value = false;
+    listLoading.value = false;
+  }
+};
 </script>
 
 <style scoped>

@@ -5,7 +5,7 @@
                 round
                 width="80"
                 height="80"
-                :src="user?.avatarUrl"
+                :src="user.avatarUrl"
                 @click="toUserUpdatePage"
             />
             <van-cell :title="user.username" style="width: 120px">
@@ -66,70 +66,99 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { showFailToast, showSuccessToast } from "vant";
+import myAxios from "../../plugins/my-axios";
+import { getCurrentUser } from "../../services/user";
 
-import {useRouter} from "vue-router";
-import {onMounted, ref} from "vue";
-import myAxios from "../../plugins/my-axios.js";
-import {showFailToast, showSuccessToast} from "vant";
-import {getCurrentUser} from "../../services/user.ts";
-
-let router = useRouter();
-const user = ref()
-const showCustomerService = ref(false)
-onMounted(async () => {
-    let currentUser = await getCurrentUser();
-    if (currentUser) {
-        user.value = currentUser
-        if (currentUser.tags) {
-            currentUser.tags = JSON.parse(currentUser.tags)
-        }
-    } else {
-        showFailToast("未登录")
-        await router.replace("/user/login")
-    }
-})
-const toEdit = (editKey: string, editName: string, editValue: string) => {
-    router.push({
-        path: 'user/edit',
-        query: {
-            editKey,
-            editName,
-            editValue
-        }
-    })
+interface User {
+  id: number;
+  username: string;
+  avatarUrl?: string;
+  profile?: string;
+  tags?: string | string[];
 }
-const logout = async () => {
-    let res = await myAxios.post("/user/logout");
+
+// 响应式状态定义
+const router = useRouter();
+const user = ref<User | null>(null);
+const showCustomerService = ref<boolean>(false);
+
+// 导航方法
+const toEdit = (editKey: string, editName: string, editValue: string): void => {
+  router.push({
+    path: 'user/edit',
+    query: {
+      editKey,
+      editName,
+      editValue
+    }
+  });
+};
+
+// 退出登录
+const logout = async (): Promise<void> => {
+  try {
+    const res = await myAxios.post("/user/logout");
     if (res?.data.code === 0) {
-        showSuccessToast("退出成功")
-        await router.replace("/")
+      showSuccessToast("退出成功");
+      await router.replace("/");
     } else {
-        showFailToast("内部错误," + res?.data.message)
+      showFailToast(`内部错误,${res?.data.message}`);
     }
-}
-const toEditProfile = () => {
-    router.push({
-        path: "/user/edit",
-        query: {
-            editKey: "profile",
-            editName: "个性签名",
-            editValue: user.value.profile
-        }
-    })
-}
+  } catch (error) {
+    console.error('Failed to logout:', error);
+    showFailToast("退出失败，请稍后重试");
+  }
+};
 
-const customerService = () => {
-    showCustomerService.value = true
-}
-const toUserUpdatePage = () => {
-    router.push("/user/update")
-}
+// 编辑个性签名
+const toEditProfile = (): void => {
+  if (!user.value) return;
+  
+  router.push({
+    path: "/user/edit",
+    query: {
+      editKey: "profile",
+      editName: "个性签名",
+      editValue: user.value.profile
+    }
+  });
+};
+
+// 客服对话框
+const customerService = (): void => {
+  showCustomerService.value = true;
+};
+
+// 用户更新页面
+const toUserUpdatePage = (): void => {
+  router.push("/user/update");
+};
+
+// 生命周期钩子
+onMounted(async () => {
+  try {
+    const currentUser = await getCurrentUser();
+    if (currentUser) {
+      user.value = currentUser;
+      if (typeof currentUser.tags === 'string') {
+        user.value.tags = JSON.parse(currentUser.tags);
+      }
+    } else {
+      showFailToast("未登录");
+      await router.replace("/user/login");
+    }
+  } catch (error) {
+    console.error('Failed to get current user:', error);
+    showFailToast("加载失败，请稍后重试");
+  }
+});
 </script>
 
 <style scoped>
-
 :deep(.van-grid-item__text) {
-    font-size: 12px;
+  font-size: 12px;
 }
-
 </style>

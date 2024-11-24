@@ -1,5 +1,5 @@
 <template>
-    <van-cell-group v-for="comment in props.commentList" :border="false">
+    <van-cell-group v-for="comment in props.commentList" :key="comment.id" :border="false">
         <van-cell center :border="false" :title="comment.commentUser.username"
                   :label="`${comment.createTime} 评论帖子`">
             <template #icon>
@@ -18,7 +18,7 @@
                 <van-icon v-else name="good-job-o" color="red" size="15" @click="likeComment(comment)">
                     {{ comment.likedNum }}
                 </van-icon>
-                <van-icon v-if="String(currentUser.id)===comment.commentUser.id || currentUser.role===1" name="delete-o"
+                <van-icon v-if="currentUser?.id === comment.commentUser.id || currentUser?.role === 1" name="delete-o"
                           size="15" style="margin-left: 10px" @click="deleteComment(comment.id)"/>
             </template>
         </van-cell>
@@ -40,60 +40,84 @@
 </template>
 
 <script setup lang="ts">
-import {CommentType} from "../models/comment.d.ts";
-import myAxios from "../plugins/my-axios.js";
-import {onMounted, ref} from "vue";
-import {getCurrentUser} from "../services/user";
-import {showConfirmDialog, showFailToast} from "vant";
-import {useRouter} from "vue-router";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { showConfirmDialog, showFailToast } from "vant";
+import myAxios from "../plugins/my-axios";
+import { getCurrentUser } from "../services/user";
+import type { CommentType } from "../models/comment";
 
-let emits = defineEmits(['refresh']);
-
-interface BlogCommentsProps {
-    commentList: CommentType[]
+interface User {
+  id: number;
+  role: number;
+  // 根据实际用户对象添加其他属性
 }
 
-const currentUser = ref()
-let props = defineProps<BlogCommentsProps>();
-onMounted(async () => {
-    currentUser.value = await getCurrentUser()
-})
-const likeComment = async (comment) => {
-    let res = await myAxios.put("/comments/like/" + comment.id);
+interface Props {
+  commentList: CommentType[];
+}
+
+// Props 和 Emits 定义
+const props = defineProps<Props>();
+const emits = defineEmits(['refresh']);
+
+// 响应式状态定义
+const currentUser = ref<User | null>(null);
+const router = useRouter();
+
+// 点赞评论
+const likeComment = async (comment: CommentType): Promise<void> => {
+  try {
+    const res = await myAxios.put(`/comments/like/${comment.id}`);
     if (res?.data.code === 0) {
-        let res_ = await myAxios.get("/comments/" + comment.id);
-        if (res_?.data.code === 0) {
-            comment.likedNum = res_.data.data.likedNum
-            comment.isLiked = res_.data.data.isLiked
-        }
+      const res_ = await myAxios.get(`/comments/${comment.id}`);
+      if (res_?.data.code === 0) {
+        comment.likedNum = res_.data.data.likedNum;
+        comment.isLiked = res_.data.data.isLiked;
+      }
     }
-}
-const deleteComment = async (id) => {
-    showConfirmDialog({
-        title: '确定要删除评论吗',
-        message:
-            '此操作无法撤回',
-    })
-        .then(async () => {
-            let res = await myAxios.delete("/comments/" + id);
-            if (res?.data.code === 0) {
-                emits("refresh")
-            } else {
-                showFailToast("删除失败" + (res.data.description ? `,${res.data.description}` : ''))
-            }
-        })
-        .catch(() => {
-        });
-}
-let router = useRouter();
-const toBlog = (blogId) => {
-    router.push({
-        path: "/blog",
-        query: {
-            id: blogId
-        }
-    })
-}
+  } catch (error) {
+    console.error('Failed to like comment:', error);
+    showFailToast("操作失败，请稍后重试");
+  }
+};
+
+// 删除评论
+const deleteComment = async (id: number): Promise<void> => {
+  try {
+    await showConfirmDialog({
+      title: '确定要删除评论吗',
+      message: '此操作无法撤回',
+    });
+
+    const res = await myAxios.delete(`/comments/${id}`);
+    if (res?.data.code === 0) {
+      emits("refresh");
+    } else {
+      showFailToast(`删除失败${res.data.description ? `,${res.data.description}` : ''}`);
+    }
+  } catch {
+    // 用户取消删除操作
+  }
+};
+
+// 导航到博客
+const toBlog = (blogId: number): void => {
+  router.push({
+    path: "/blog",
+    query: { id: blogId }
+  });
+};
+
+// 生命周期钩子
+onMounted(async () => {
+  try {
+    currentUser.value = await getCurrentUser();
+  } catch (error) {
+    console.error('Failed to get current user:', error);
+    showFailToast("获取用户信息失败");
+  }
+});
 </script>
 
 <style scoped>

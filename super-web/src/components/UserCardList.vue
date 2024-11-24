@@ -4,11 +4,11 @@
               :desc="user.profile"
     >
         <template #thumb>
-            <van-image :src="user?.avatarUrl" width="88" height="88" @click="showUserDetail(user?.id)"/>
+            <van-image :src="user.avatarUrl" width="88" height="88" @click="showUserDetail(user.id)"/>
         </template>
         <template #tags>
-            <van-tag v-for="tag in user?.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px"
-                     @click="showUserDetail(user?.id)">
+            <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px"
+                     @click="showUserDetail(user.id)">
                 {{ tag }}
             </van-tag>
         </template>
@@ -31,44 +31,52 @@
 </template>
 
 <script setup lang="ts">
-import {UserType} from "../models/user.js";
-import myAxios from "../plugins/my-axios.js";
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
+import myAxios from "../plugins/my-axios";
+import type { UserType } from "../models/user";
 
-interface UserCardListProps {
-    userList: UserType[]
+interface Props {
+  userList: UserType[];
 }
 
-const props = defineProps<UserCardListProps>()
+// Props 定义
+const props = defineProps<Props>();
+const router = useRouter();
 
-const followUser = async (user) => {
-    let res = await myAxios.post("/follow/" + user.id);
+// 关注用户
+const followUser = async (user: UserType): Promise<void> => {
+  try {
+    const res = await myAxios.post(`/follow/${user.id}`);
     if (res?.data.code === 0) {
-        let res_ = await myAxios.get("/user/" + user.id);
-        if (res_.data.code === 0) {
-            user.isFollow = res_.data.data.isFollow
-        }
+      const res_ = await myAxios.get(`/user/${user.id}`);
+      if (res_.data.code === 0) {
+        user.isFollow = res_.data.data.isFollow;
+      }
     }
-}
-let router = useRouter();
-const showUserDetail = (id) => {
-    router.push({
-        path: "/user/detail",
-        query: {
-            id: id
-        }
-    })
-}
-const toChat = (user) => {
-    router.push({
-        path: "/chat",
-        query: {
-            id: user.id,
-            username: user.username,
-            userType: 1
-        }
-    })
-}
+  } catch (error) {
+    console.error('Failed to follow user:', error);
+  }
+};
+
+// 用户详情导航
+const showUserDetail = (id: number): void => {
+  router.push({
+    path: "/user/detail",
+    query: { id }
+  });
+};
+
+// 聊天导航
+const toChat = (user: UserType): void => {
+  router.push({
+    path: "/chat",
+    query: {
+      id: user.id,
+      username: user.username,
+      userType: 1
+    }
+  });
+};
 </script>
 
 <style scoped>

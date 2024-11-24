@@ -67,44 +67,65 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { ref } from "vue";
-import myAxios from "../../plugins/my-axios.js";
 import { showFailToast, showSuccessToast } from "vant";
+import myAxios from "../../plugins/my-axios";
 
-let router = useRouter();
-const showCalendar = ref(false);
-const onConfirm = (date) => {
-    let month: string | number = date.getMonth() + 1;
-    month = month < 10 ? "0" + month : month;
-    let day = date.getDate();
-    day = day < 10 ? "0" + day : day;
-    addTeamData.value.expireTime = `${date.getFullYear()}-${month}-${day}`;
-    showCalendar.value = false;
+interface TeamData {
+  name: string;
+  description: string;
+  expireTime: string;
+  maxNum: number;
+  password: string;
+  status: string;
+}
+
+// 响应式状态定义
+const router = useRouter();
+const showCalendar = ref<boolean>(false);
+
+const initFormData: TeamData = {
+  name: "",
+  description: "",
+  expireTime: "",
+  maxNum: 1,
+  password: "",
+  status: "0",
 };
-const initFormData = {
-    name: "",
-    description: "",
-    expireTime: "",
-    maxNum: 1,
-    password: "",
-    status: "0",
+
+const addTeamData = ref<TeamData>({ ...initFormData });
+
+// 日期确认处理
+const onConfirm = (date: Date): void => {
+  const month = date.getMonth() + 1;
+  const formattedMonth = month < 10 ? `0${month}` : month.toString();
+  const day = date.getDate();
+  const formattedDay = day < 10 ? `0${day}` : day.toString();
+  
+  addTeamData.value.expireTime = `${date.getFullYear()}-${formattedMonth}-${formattedDay}`;
+  showCalendar.value = false;
 };
-const addTeamData = ref({ ...initFormData });
-const onSubmit = async () => {
+
+// 表单提交处理
+const onSubmit = async (): Promise<void> => {
+  try {
     const postData = {
-        ...addTeamData.value,
-        status: Number(addTeamData.value.status),
+      ...addTeamData.value,
+      status: Number(addTeamData.value.status),
     };
-    //todo 前端校验
+
     const res = await myAxios.post("/team/add", postData);
     if (res?.data.code === 0) {
-        showSuccessToast("添加成功");
-        await router.replace("/team");
+      showSuccessToast("添加成功");
+      await router.replace("/team");
     } else {
-        showFailToast(
-            "添加失败" +
-            (res.data.description ? `,${res.data.description}` : ""),
-        );
+      showFailToast(
+        `添加失败${res.data.description ? `,${res.data.description}` : ""}`
+      );
     }
+  } catch (error) {
+    console.error('Failed to add team:', error);
+    showFailToast("添加失败，请稍后重试");
+  }
 };
 </script>
 

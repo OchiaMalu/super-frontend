@@ -14,11 +14,3 @@
     </van-grid>
     <van-divider/>
 </template>
-
-<script>
-
-</script>
-
-<style scoped>
-
-</style>

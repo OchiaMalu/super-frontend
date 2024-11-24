@@ -149,159 +149,208 @@
     </van-popup>
 </template>
 
-<script setup>
-import {onMounted, ref} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import myAxios from "../../plugins/my-axios.js";
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { showConfirmDialog, showFailToast, showSuccessToast } from "vant";
+import myAxios from "../../plugins/my-axios";
 import CommentList from "../../components/CommentList.vue";
-import {showConfirmDialog, showFailToast, showSuccessToast} from "vant";
-import {getCurrentUser} from "../../services/user.ts";
+import { getCurrentUser } from "../../services/user";
 
-const showBottom = ref(false)
-let router = useRouter();
-const comment = ref("")
-const toAuthor = (id) => {
-    router.push({
-        path: "/user/detail",
-        query: {
-            id: id
-        }
-    })
+interface Author {
+  id: number;
+  username: string;
+  avatarUrl: string;
+  isFollow: boolean;
 }
-const onClickLeft = () => {
-    router.push("/")
+
+interface Blog {
+  id: number;
+  title: string;
+  content: string;
+  userId: number;
+  commentsNum: number;
+  likedNum: number;
+  isLike: boolean;
+  images?: string;
+}
+
+interface Comment {
+  id: number;
+  content: string;
+  // 根据实际评论对象添加其他属性
+}
+
+interface User {
+  id: number;
+  role: number;
+  // 根据实际用户对象添加其他属性
+}
+
+// 响应式状态定义
+const showBottom = ref<boolean>(false);
+const comment = ref<string>("");
+const images = ref<string[]>([]);
+const blog = ref<Partial<Blog>>({});
+const author = ref<Partial<Author>>({});
+const commentList = ref<Comment[]>([]);
+const currentUser = ref<Partial<User>>({});
+
+const router = useRouter();
+const route = useRoute();
+
+// 方法定义
+const toAuthor = (id: number): void => {
+  router.push({
+    path: "/user/detail",
+    query: { id }
+  });
 };
-const images = ref([])
-let route = useRoute();
-const blog = ref({});
-const author = ref({})
-const commentList = ref([])
-const currentUser = ref({})
-const listComments = async () => {
-    let id = route.query.id;
-    let commentRes = await myAxios.get("/comments?blogId=" + id);
-    if (commentRes?.data.code === 0) {
-        commentList.value = commentRes.data.data
+
+const onClickLeft = (): void => {
+  router.push("/");
+};
+
+const listComments = async (): Promise<void> => {
+  const id = route.query.id;
+  const commentRes = await myAxios.get(`/comments?blogId=${id}`);
+  if (commentRes?.data.code === 0) {
+    commentList.value = commentRes.data.data;
+  }
+};
+
+const likeBlog = async (blog: Blog): Promise<void> => {
+  const res = await myAxios.put(`/blog/like/${blog.id}`);
+  if (res?.data.code === 0) {
+    const res_ = await myAxios.get(`/blog/${blog.id}`);
+    if (res_?.data.code === 0) {
+      blog.likedNum = res_.data.data.likedNum;
+      blog.isLike = res_.data.data.isLike;
     }
-}
+  }
+};
+
+const addComment = async (): Promise<void> => {
+  if (!comment.value) {
+    showFailToast("请输入评论内容");
+    return;
+  }
+
+  try {
+    const res = await myAxios.post("/comments/add", {
+      blogId: blog.value.id,
+      content: comment.value
+    });
+
+    if (res?.data.code === 0) {
+      showSuccessToast("添加成功");
+      await listComments();
+      comment.value = "";
+
+      const id = route.query.id;
+      const newBlogRes = await myAxios.get(`/blog/${id}`);
+      if (newBlogRes?.data.code === 0) {
+        blog.value.commentsNum = newBlogRes.data.data.commentsNum;
+      }
+    } else {
+      showFailToast(`添加失败${res.data.description ? `,${res.data.description}` : ''}`);
+    }
+  } catch (error) {
+    showFailToast("评论失败，请稍后重试");
+  }
+};
+
+const copyUrl = (): void => {
+  const textArea = document.createElement('textarea');
+  document.body.appendChild(textArea);
+  textArea.readOnly = true;
+  textArea.style.opacity = '0';
+  textArea.value = document.location.href;
+  textArea.select();
+  
+  if (textArea.setSelectionRange) {
+    textArea.setSelectionRange(0, textArea.value.length);
+  }
+  
+  document.execCommand("copy");
+  document.body.removeChild(textArea);
+  
+  showSuccessToast({
+    message: "已复制到剪切板",
+    className: "copyToast"
+  });
+  showBottom.value = false;
+};
+
+const report = (): void => {
+  showFailToast("举报成功");
+  showBottom.value = false;
+};
+
+const deleteBlog = async (): Promise<void> => {
+  try {
+    await showConfirmDialog({
+      title: '确定要删除博文吗',
+      message: '此操作无法撤回',
+    });
+    
+    const res = await myAxios.delete(`/blog/${blog.value.id}`);
+    if (res?.data.code === 0) {
+      await router.replace("/");
+      showSuccessToast("删除成功");
+    } else {
+      showFailToast(`删除失败${res.data.description ? `,${res.data.description}` : ''}`);
+    }
+  } catch {
+    showBottom.value = false;
+  }
+};
+
+const updateBlog = (): void => {
+  router.push({
+    path: "/blog/edit",
+    query: {
+      id: blog.value.id,
+      images: images.value,
+      title: blog.value.title,
+      content: blog.value.content
+    }
+  });
+};
+
+const followUser = async (author: Author): Promise<void> => {
+  const res = await myAxios.post(`/follow/${author.id}`);
+  if (res?.data.code === 0) {
+    const res_ = await myAxios.get(`/user/${author.id}`);
+    if (res_.data.code === 0) {
+      author.isFollow = res_.data.data.isFollow;
+    }
+  }
+};
+
+const refresh = (): void => {
+  location.reload();
+};
+
+// 生命周期钩子
 onMounted(async () => {
-    currentUser.value = await getCurrentUser();
-    let id = route.query.id;
-    let res = await myAxios.get("/blog/" + id);
-    if (res?.data.code === 0) {
-        blog.value = res.data.data
-        author.value = res.data.data.author
-        if (res.data.data.images) {
-            let imgStrs = res.data.data.images.split(",");
-            imgStrs.forEach((imgstr) => {
-                images.value.push(imgstr)
-            })
-        }
-      await listComments()
-    } else {
-      showFailToast("加载失败" + (res.data.description ? `,${res.data.description}` : ''))
+  currentUser.value = await getCurrentUser();
+  const id = route.query.id;
+  const res = await myAxios.get(`/blog/${id}`);
+  
+  if (res?.data.code === 0) {
+    blog.value = res.data.data;
+    author.value = res.data.data.author;
+    
+    if (res.data.data.images) {
+      images.value = res.data.data.images.split(",");
     }
-
-})
-const likeBlog = async (blog) => {
-    let res = await myAxios.put("/blog/like/" + blog.id);
-    if (res?.data.code === 0) {
-        let res_ = await myAxios.get("/blog/" + blog.id);
-        if (res_?.data.code === 0) {
-            blog.likedNum = res_.data.data.likedNum
-            blog.isLike = res_.data.data.isLike
-        }
-    }
-}
-const addComment = async () => {
-    if (comment.value === "") {
-        showFailToast("请输入评论内容")
-    } else {
-        let res = await myAxios.post("/comments/add", {
-            blogId: blog.value.id,
-            content: comment.value
-        });
-        if (res?.data.code === 0) {
-            showSuccessToast("添加成功")
-        } else {
-            showFailToast("添加失败" + (res.data.description ? `,${res.data.description}` : ''))
-        }
-        await listComments()
-        comment.value = ""
-
-        let id = route.query.id;
-        let newBlogRes = await myAxios.get("/blog/" + id);
-        if (newBlogRes?.data.code === 0) {
-            blog.value.commentsNum = newBlogRes.data.data.commentsNum
-        }
-    }
-}
-const copyUrl = () => {
-    var textArea = document.createElement('textarea')
-    document.body.appendChild(textArea)
-    textArea.readOnly = 'readonly'
-    textArea.style.opacity = '0'
-    textArea.value = document.location.href
-    textArea.select()
-    if (textArea.setSelectionRange)
-        textArea.setSelectionRange(0, textArea.value.length)
-    else
-        textArea.select()
-    document.execCommand("copy")
-    document.body.removeChild(textArea)
-    //指定toast样式，使文字在一行显示
-    showSuccessToast({
-        message: "已复制到剪切板",
-        className: "copyToast"
-    })
-    showBottom.value = false
-}
-const report = () => {
-    showFailToast("举报成功")
-    showBottom.value = false
-}
-const deleteBlog = async () => {
-    showConfirmDialog({
-        title: '确定要删除博文吗',
-        message:
-            '此操作无法撤回',
-    })
-        .then(async () => {
-            let res = await myAxios.delete("/blog/" + blog.value.id);
-            if (res?.data.code === 0) {
-                await router.replace("/")
-                showSuccessToast("删除成功")
-            } else {
-              showFailToast("删除失败" + (res.data.description ? `,${res.data.description}` : ''))
-            }
-        })
-        .catch(() => {
-            showBottom.value = false
-        });
-}
-const updateBlog = () => {
-    router.push({
-        path: "/blog/edit",
-        query: {
-            id: blog.value.id,
-            images: images.value,
-            title: blog.value.title,
-            content: blog.value.content
-        }
-    })
-}
-const followUser = async (author) => {
-    let res = await myAxios.post("/follow/" + author.id);
-    if (res?.data.code === 0) {
-        let res_ = await myAxios.get("/user/" + author.id);
-        if (res_.data.code === 0) {
-            author.isFollow = res_.data.data.isFollow
-        }
-    }
-}
-const refresh = () => {
-    location.reload();
-}
+    
+    await listComments();
+  } else {
+    showFailToast(`加载失败${res.data.description ? `,${res.data.description}` : ''}`);
+  }
+});
 </script>
 
 <style>

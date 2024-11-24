@@ -12,7 +12,7 @@
         style="margin: 15px;height: 100%"
     >
       <template #finished>
-        <span v-if="likeList && likeList.length!==0">没有更多了</span>
+        <span v-if="likeList.length !== 0">没有更多了</span>
       </template>
       <template #loading>
         <van-loading vertical>
@@ -34,45 +34,68 @@
   </van-pull-refresh>
 </template>
 
-<script setup>
-import {ref} from "vue";
-import myAxios from "../../plugins/my-axios.js";
+<script setup lang="ts">
+import { ref } from "vue";
+import myAxios from "../../plugins/my-axios";
+import UserLikeList from "../../components/UserLikeList.vue";
 
-const loading = ref(true)
-const likeList = ref([])
+interface Like {
+  id: number;
+  userId: number;
+  blogId: number;
+  createTime: string;
+  // 根据实际点赞对象添加其他属性
+}
 
-const refreshLoading = ref(false)
-const listLoading = ref(false)
-const listFinished = ref(false)
-const likeCurrentPage = ref(0)
+// 响应式状态定义
+const loading = ref<boolean>(true);
+const likeList = ref<Like[]>([]);
+const refreshLoading = ref<boolean>(false);
+const listLoading = ref<boolean>(false);
+const listFinished = ref<boolean>(false);
+const likeCurrentPage = ref<number>(0);
 
-const getLikes = async (currentPage) => {
-  let res = await myAxios.get("/message/like", {
-    params: {
-      currentPage: currentPage
+// 获取点赞列表
+const getLikes = async (currentPage: number): Promise<void> => {
+  try {
+    const res = await myAxios.get("/message/like", {
+      params: { currentPage }
+    });
+
+    if (res?.data.code === 0) {
+      if (res.data.data.records.length > 0) {
+        res.data.data.records.forEach((item: Like) => likeList.value.push(item));
+      } else {
+        listFinished.value = true;
+      }
+      listLoading.value = false;
     }
-  });
-  if (res?.data.code === 0) {
-    if (res.data.data.records.length > 0) {
-      res.data.data.records.forEach(item => likeList.value.push(item))
-    } else {
-      listFinished.value = true
-    }
-    listLoading.value = false
+  } catch (error) {
+    console.error('Failed to fetch likes:', error);
+    listLoading.value = false;
   }
-}
-const likeLoad = async () => {
-  likeCurrentPage.value++
-  await getLikes(likeCurrentPage.value)
-}
-const likeReload = async () => {
-  likeCurrentPage.value = 1
-  likeList.value = []
-  listFinished.value = false
-  await getLikes(likeCurrentPage.value)
-  refreshLoading.value = false
-  listLoading.value = false
-}
+};
+
+// 加载更多点赞
+const likeLoad = async (): Promise<void> => {
+  likeCurrentPage.value++;
+  await getLikes(likeCurrentPage.value);
+};
+
+// 重新加载点赞列表
+const likeReload = async (): Promise<void> => {
+  try {
+    likeCurrentPage.value = 1;
+    likeList.value = [];
+    listFinished.value = false;
+    await getLikes(likeCurrentPage.value);
+  } catch (error) {
+    console.error('Failed to reload likes:', error);
+  } finally {
+    refreshLoading.value = false;
+    listLoading.value = false;
+  }
+};
 </script>
 
 <style scoped>

@@ -97,48 +97,73 @@
     </van-cell-group>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
-import myAxios from "../../plugins/my-axios.js";
 import { useRouter } from "vue-router";
+import myAxios from "../../plugins/my-axios";
 import defaultImg from "../../../public/defalutTeamImg.jpg";
 
-const teamList = ref();
-const likeNum = ref(0);
-const blogNum = ref(0);
-const unReadPrivateNum = ref(0);
+interface Team {
+  id: number;
+  name: string;
+  description: string;
+  coverImage?: string;
+}
+
+// 响应式状态定义
+const teamList = ref<Team[]>([]);
+const likeNum = ref<number>(0);
+const blogNum = ref<number>(0);
+const unReadPrivateNum = ref<number>(0);
+
+const router = useRouter();
+
+// 方法定义
+const toChatRoom = (id: number, name: string): void => {
+  router.push({
+    path: "/chat",
+    query: {
+      teamId: id,
+      teamName: name,
+      teamType: 2,
+    },
+  });
+};
+
+const toHallChat = (): void => {
+  router.push("/chat");
+};
+
+// 生命周期钩子
 onMounted(async () => {
-    let res = await myAxios.get("/team/list/my/join/all");
-    if (res?.data.code === 0) {
-        teamList.value = res.data.data;
+  try {
+    // 获取团队列表
+    const teamRes = await myAxios.get("/team/list/my/join/all");
+    if (teamRes?.data.code === 0) {
+      teamList.value = teamRes.data.data;
     }
-    let res2 = await myAxios.get("/message/like/num");
-    if (res2.data.code === 0) {
-        likeNum.value = Number(res2.data.data);
+
+    // 获取点赞数
+    const likeRes = await myAxios.get("/message/like/num");
+    if (likeRes?.data.code === 0) {
+      likeNum.value = Number(likeRes.data.data);
     }
-    let res3 = await myAxios.get("/message/blog/num");
-    if (res3?.data.code === 0) {
-        blogNum.value = Number(res3.data.data);
+
+    // 获取博客数
+    const blogRes = await myAxios.get("/message/blog/num");
+    if (blogRes?.data.code === 0) {
+      blogNum.value = Number(blogRes.data.data);
     }
-    let res4 = await myAxios.get("/chat/private/num");
-    if (res4?.data.code === 0) {
-        unReadPrivateNum.value = res4.data.data;
+
+    // 获取未读私信数
+    const privateRes = await myAxios.get("/chat/private/num");
+    if (privateRes?.data.code === 0) {
+      unReadPrivateNum.value = privateRes.data.data;
     }
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
 });
-let router = useRouter();
-const toChatRoom = (id, name) => {
-    router.push({
-        path: "/chat",
-        query: {
-            teamId: id,
-            teamName: name,
-            teamType: 2,
-        },
-    });
-};
-const toHallChat = () => {
-    router.push("/chat");
-};
 </script>
 
 <style>

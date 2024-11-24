@@ -44,112 +44,148 @@
     </van-overlay>
 </template>
 
-<script setup>
-import {onMounted, ref} from "vue";
-import {showFailToast, showSuccessToast} from "vant";
-import {useRoute, useRouter} from "vue-router";
-import {getCurrentUser} from "../../services/user.ts";
-import myAxios from "../../plugins/my-axios.js";
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { showFailToast, showSuccessToast } from "vant";
+import { useRoute, useRouter } from "vue-router";
+import { getCurrentUser } from "../../services/user";
+import myAxios from "../../plugins/my-axios";
 
-const addingOverlay = ref(false)
-const fileList = ref([])
-const title = ref("")
-const content = ref("")
-const router = useRouter()
-const user = ref()
-const blogId = ref()
-const onClickLeft = () => {
-    router.push("/")
-};
-const onClickRight = async () => {
-    if (title.value === '') {
-        showFailToast("请填写标题")
-    }
-    if (content.value === '') {
-        showFailToast("请填写正文")
-    }
-    addingOverlay.value = true
-    if (!blogId.value) {
-        let formData = new FormData();
-        for (let i = 0; i < fileList.value.length; i++) {
-            formData.append("images", fileList.value[i].file)
-        }
-        formData.append("title", title.value)
-        formData.append("content", content.value)
-        let res = await myAxios.post("/blog/add", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        });
-        if (res?.data.code === 0) {
-            addingOverlay.value = false
-            showSuccessToast("添加成功")
-            await router.replace("/")
-        } else {
-            addingOverlay.value = false
-            showFailToast("添加失败" + (res.data.description ? `,${res.data.description}` : ''))
-        }
-    } else {
-        let formData = new FormData();
-        formData.append("id", blogId.value)
-        const imgStr = []
-        for (let i = 0; i < fileList.value.length; i++) {
-            if (fileList.value[i].url) {
-                imgStr.push(fileList.value[i].url)
-            } else {
-                formData.append("images", fileList.value[i].file)
-            }
-        }
-        let finalImgStr = imgStr.join(",");
-        formData.append("imgStr", finalImgStr)
-        formData.append("title", title.value)
-        formData.append("content", content.value)
-        let res = await myAxios.put("/blog/update", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        });
-        if (res?.data.code === 0) {
-            addingOverlay.value = false
-            showSuccessToast("更新成功")
-            await router.replace("/blog?id=" + blogId.value)
-        } else {
-            addingOverlay.value = false
-            showFailToast("更新失败," + (res.data.description ? `,${res.data.description}` : ''))
-        }
-    }
-};
-const overSize = () => {
-    showFailToast("单个图片不能超过10M")
+interface FileItem {
+  url?: string;
+  file?: File;
+  isImage?: boolean;
 }
-let route = useRoute();
-onMounted(async () => {
-    if (route.query.id) {
-        blogId.value = route.query.id
-    }
-    if (route.query.images) {
-        route.query.images.forEach((item) => {
-            const image = {
-                url: item,
-                isImage: true
-            }
-            fileList.value.push(image)
-        })
-    }
-    if (route.query.title) {
-        title.value = route.query.title
-    }
-    if (route.query.content) {
-        content.value = route.query.content
-    }
-    let currentUser = await getCurrentUser();
-    if (currentUser) {
-        user.value = currentUser
+
+interface User {
+  id: number;
+  username: string;
+  // 根据实际用户对象添加其他属性
+}
+
+// 定义响应式变量，添加类型
+const addingOverlay = ref<boolean>(false);
+const fileList = ref<FileItem[]>([]);
+const title = ref<string>("");
+const content = ref<string>("");
+const router = useRouter();
+const route = useRoute();
+const user = ref<User | null>(null);
+const blogId = ref<string | null>(null);
+
+// 处理导航事件
+const onClickLeft = (): void => {
+  router.push("/");
+};
+
+const onClickRight = async (): Promise<void> => {
+  if (title.value === '') {
+    showFailToast("请填写标题");
+    return;
+  }
+  if (content.value === '') {
+    showFailToast("请填写正文");
+    return;
+  }
+
+  addingOverlay.value = true;
+  try {
+    const formData = new FormData();
+    
+    if (!blogId.value) {
+      // 添加新博文
+      fileList.value.forEach((item) => {
+        if (item.file) {
+          formData.append("images", item.file);
+        }
+      });
+      formData.append("title", title.value);
+      formData.append("content", content.value);
+
+      const res = await myAxios.post("/blog/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      if (res?.data.code === 0) {
+        showSuccessToast("添加成功");
+        await router.replace("/");
+      } else {
+        showFailToast(`添加失败${res.data.description ? `,${res.data.description}` : ''}`);
+      }
     } else {
-        showFailToast("未登录")
-        await router.replace("/user/login")
+      // 更新博文
+      formData.append("id", blogId.value);
+      const imgStr: string[] = [];
+      
+      fileList.value.forEach((item) => {
+        if (item.url) {
+          imgStr.push(item.url);
+        } else if (item.file) {
+          formData.append("images", item.file);
+        }
+      });
+
+      formData.append("imgStr", imgStr.join(","));
+      formData.append("title", title.value);
+      formData.append("content", content.value);
+
+      const res = await myAxios.put("/blog/update", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      if (res?.data.code === 0) {
+        showSuccessToast("更新成功");
+        await router.replace(`/blog?id=${blogId.value}`);
+      } else {
+        showFailToast(`更新失败${res.data.description ? `,${res.data.description}` : ''}`);
+      }
     }
-})
+  } catch (error) {
+    showFailToast("操作失败，请稍后重试");
+  } finally {
+    addingOverlay.value = false;
+  }
+};
+
+const overSize = (): void => {
+  showFailToast("单个图片不能超过10M");
+};
+
+// 生命周期钩子
+onMounted(async () => {
+  if (route.query.id) {
+    blogId.value = route.query.id as string;
+  }
+  
+  if (route.query.images) {
+    const images = Array.isArray(route.query.images) 
+      ? route.query.images 
+      : [route.query.images];
+      
+    images.forEach((item) => {
+      fileList.value.push({
+        url: item as string,
+        isImage: true
+      });
+    });
+  }
+
+  if (route.query.title) {
+    title.value = route.query.title as string;
+  }
+  
+  if (route.query.content) {
+    content.value = route.query.content as string;
+  }
+
+  const currentUser = await getCurrentUser();
+  if (currentUser) {
+    user.value = currentUser;
+  } else {
+    showFailToast("未登录");
+    await router.replace("/user/login");
+  }
+});
 </script>
 
 <style scoped>

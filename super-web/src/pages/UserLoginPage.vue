@@ -41,28 +41,37 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
-import myAxios from "../plugins/my-axios.js";
-import {showFailToast, showSuccessToast} from "vant";
-import {useRoute, useRouter} from "vue-router";
+import { ref } from "vue"
+import myAxios from "../plugins/my-axios"
+import { showFailToast, showSuccessToast } from "vant"
+import { useRoute, useRouter } from "vue-router"
 
-const userAccount = ref('');
-const password = ref('');
-let router = useRouter();
-let route = useRoute();
+interface LoginResponse {
+  code: number
+  data: string
+  description?: string
+}
+
+const userAccount = ref('')
+const password = ref('')
+const router = useRouter()
+const route = useRoute()
+
 const onSubmit = async () => {
-    const response = await myAxios.post("/user/login", {
-        "userAccount": userAccount.value,
-        "userPassword": password.value
+    const response = await myAxios.post<LoginResponse>("/user/login", {
+        userAccount: userAccount.value,
+        userPassword: password.value
     })
+
     if (response.data.code === 0 && response.data.data) {
         sessionStorage.setItem("token", response.data.data)
         showSuccessToast("登录成功")
-        window.location.href = <string>route.query.redirectUrl ?? '/'
+        window.location.href = (route.query.redirectUrl as string) ?? '/'
     } else {
         showFailToast("登录失败" + (response.data.description ? `,${response.data.description}` : ''))
     }
-};
+}
+
 const toForget = () => {
     router.push("/forget")
 }

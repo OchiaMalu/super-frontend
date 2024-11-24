@@ -59,45 +59,73 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {onMounted, ref} from "vue";
-import myAxios from "../../plugins/my-axios.js";
+import myAxios from "../../plugins/my-axios";
 import {showFailToast, showSuccessToast} from "vant";
 
-let router = useRouter();
-let route = useRoute();
-const updateTeamData = ref({})
-const showCalendar = ref(false);
-const onConfirm = (date) => {
-    let month: string | number = date.getMonth() + 1;
-    month = month < 10 ? '0' + month : month
-    let day = date.getDate();
-    day = day < 10 ? '0' + day : day
-    updateTeamData.value.expireTime = `${date.getFullYear()}-${month}-${day}`;
-    showCalendar.value = false;
-};
-onMounted(async () => {
-    const res = await myAxios.get("/team/" + route.query.id)
-    if (res?.data.code === 0) {
-        res.data.data.status = String(res.data.data.status)
-        updateTeamData.value = res.data.data
-    } else {
-        showFailToast("队伍查询失败" + (res.data.description ? `,${res.data.description}` : ''))
-    }
-})
-const onSubmit = async () => {
-    const postData = {
-        ...updateTeamData.value,
-        status: Number(updateTeamData.value.status),
-    }
-    //todo 前端校验
-    const res = await myAxios.post("/team/update", postData)
-    if (res?.data.code === 0) {
-        showSuccessToast("更新成功")
-        router.replace("/team")
-    } else {
-        showFailToast("更新失败" + (res.data.description ? `,${res.data.description}` : ''))
-    }
+interface TeamData {
+  id: number;
+  name: string;
+  description: string;
+  expireTime: string;
+  maxNum: number;
+  password: string;
+  status: string;
 }
 
+// 响应式状态定义
+const router = useRouter();
+const route = useRoute();
+const updateTeamData = ref<Partial<TeamData>>({});
+const showCalendar = ref<boolean>(false);
+
+// 日期确认处理
+const onConfirm = (date: Date): void => {
+  const month = date.getMonth() + 1;
+  const formattedMonth = month < 10 ? `0${month}` : month.toString();
+  const day = date.getDate();
+  const formattedDay = day < 10 ? `0${day}` : day.toString();
+  
+  updateTeamData.value.expireTime = `${date.getFullYear()}-${formattedMonth}-${formattedDay}`;
+  showCalendar.value = false;
+};
+
+// 表单提交处理
+const onSubmit = async (): Promise<void> => {
+  try {
+    const postData = {
+      ...updateTeamData.value,
+      status: Number(updateTeamData.value.status),
+    };
+
+    const res = await myAxios.post("/team/update", postData);
+    if (res?.data.code === 0) {
+      showSuccessToast("更新成功");
+      await router.replace("/team");
+    } else {
+      showFailToast(`更新失败${res.data.description ? `,${res.data.description}` : ''}`);
+    }
+  } catch (error) {
+    console.error('Failed to update team:', error);
+    showFailToast("更新失败，请稍后重试");
+  }
+};
+
+// 生命周期钩子
+onMounted(async () => {
+  try {
+    const res = await myAxios.get(`/team/${route.query.id}`);
+    if (res?.data.code === 0) {
+      const teamData = res.data.data;
+      teamData.status = String(teamData.status);
+      updateTeamData.value = teamData;
+    } else {
+      showFailToast(`队伍查询失败${res.data.description ? `,${res.data.description}` : ''}`);
+    }
+  } catch (error) {
+    console.error('Failed to fetch team:', error);
+    showFailToast("加载失败，请稍后重试");
+  }
+});
 </script>
 
 <style scoped>

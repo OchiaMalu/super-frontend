@@ -21,39 +21,55 @@
   </div>
 </template>
 
-<script setup>
-import {useRoute} from "vue-router";
-import {onMounted, ref} from "vue";
-import myAxios from "../plugins/my-axios.js";
-import {showFailToast, showSuccessToast, showToast} from "vant";
-import qs from 'qs';
-import UserCardList from "../components/UserCardList.vue";
+<script setup lang="ts">
+import { ref } from "vue"
+import { useRoute } from "vue-router"
+import myAxios from "../plugins/my-axios"
+import { showFailToast } from "vant"
+import qs from 'qs'
+import UserCardList from "../components/UserCardList.vue"
+import type { UserType, ApiResponse } from '../types/user'
 
-let route = useRoute();
-const {tags} = route.query
-const userList = ref([])
+interface SearchResponse {
+  records: UserType[]
+}
+
+interface SearchParams {
+  currentPage: number
+  tagNameList: string | string[]
+}
+
+const route = useRoute()
+const { tags } = route.query
+const userList = ref<UserType[]>([])
 const currentPage = ref(0)
 const refreshLoading = ref(false)
 const listLoading = ref(false)
 const listFinished = ref(false)
 
-async function getSearchResult(currentPage) {
-  const res = await myAxios.get("/user/search/tags?currentPage=" + currentPage, {
+async function getSearchResult(currentPage: number) {
+  const res = await myAxios.get<ApiResponse<SearchResponse>>("/user/search/tags", {
     params: {
+      currentPage,
       tagNameList: tags
-    },
-    paramsSerializer: params => {
-      return qs.stringify(params, {indices: false})
+    } as SearchParams,
+    paramsSerializer: (params: SearchParams) => {
+      return qs.stringify(params, { indices: false })
     }
   })
+
   if (res.data.code === 0) {
     if (res.data.data.records.length !== 0) {
-      res.data.data.records.forEach(user => {
-        if (user.tags) {
+      res.data.data.records.forEach((user: UserType) => {
+        if (typeof user.tags === 'string') {
           user.tags = JSON.parse(user.tags)
         }
+        user.status = user.userStatus
+        user.role = user.userRole
+        user.isFollow = false
+        user.updateTime = user.createTime
       })
-      res.data.data.records.forEach((item) => userList.value.push(item))
+      userList.value.push(...res.data.data.records)
     } else {
       listFinished.value = true
     }
@@ -66,7 +82,7 @@ async function getSearchResult(currentPage) {
 const onLoad = async () => {
   currentPage.value++
   await getSearchResult(currentPage.value)
-  listLoading.value = false;
+  listLoading.value = false
 }
 
 const onRefresh = async () => {
@@ -74,7 +90,7 @@ const onRefresh = async () => {
   userList.value = []
   await getSearchResult(currentPage.value)
   refreshLoading.value = false
-  listLoading.value = false;
+  listLoading.value = false
 }
 </script>
 

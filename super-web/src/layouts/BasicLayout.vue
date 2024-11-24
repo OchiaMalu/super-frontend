@@ -34,65 +34,82 @@
         <van-tabbar-item to="/user" icon="user-o" name="user">个人</van-tabbar-item>
     </van-tabbar>
 </template>
-<script setup>
-import {showConfirmDialog, showToast} from "vant";
-import {useRouter} from "vue-router";
-import routes from "../config/routes.ts";
-import {ref} from "vue";
-import {getCurrentUser} from "../services/user.ts";
-import myAxios from "../plugins/my-axios.js";
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { showConfirmDialog } from "vant";
+import routes from "../config/routes";
+import { getCurrentUser } from "../services/user";
+import myAxios from "../plugins/my-axios";
 
-const hasMessage = ref(false)
-let router = useRouter();
-const DEFAULT_TITLE = "速配SUPER"
-const title = ref(DEFAULT_TITLE)
-const active = ref(0)
-router.beforeEach(async (to) => {
-    const toPath = to.path
-    const route = routes.find((routes) => {
-        return routes.path === toPath
-    })
-    document.title = "速配SUPER"
-    title.value = route?.title ?? DEFAULT_TITLE
-    if (to.path !== '/user/login') {
-        let res = await myAxios.get("/message");
-        if (res?.data.code === 0) {
-            if (res.data.data) {
-                hasMessage.value = true
-            } else {
-                hasMessage.value = false
-            }
-        }
-    }
-})
-const onClickLeft = () => {
-    router.back()
-};
-const onClickRight = () => {
-    router.push("/search")
-};
-
-const checkLogin = async (to, index) => {
-    let user = await getCurrentUser();
-    if (!user) {
-        showConfirmDialog({
-            message:
-                "该功能需要登陆后使用,是否登录",
-            confirmButtonText: "去登录"
-        })
-            .then(() => {
-                router.replace("/user/login")
-            })
-            .catch(() => {
-            });
-    } else {
-        await router.push(to)
-        if (active.value === 'message') {
-            let message = document.getElementsByClassName("message")
-            message.item(0).style.color = '#1989fa'
-        }
-    }
+interface Route {
+  path: string;
+  title?: string;
 }
+
+interface MessageElement extends HTMLElement {
+  style: CSSStyleDeclaration;
+}
+
+// 响应式状态定义
+const hasMessage = ref<boolean>(false);
+const router = useRouter();
+const DEFAULT_TITLE = "速配SUPER";
+const title = ref<string>(DEFAULT_TITLE);
+const active = ref<string>('index');
+
+// 路由导航守卫
+router.beforeEach(async (to) => {
+  try {
+    const toPath = to.path;
+    const route = routes.find((route: Route) => route.path === toPath);
+    
+    document.title = "速配SUPER";
+    title.value = route?.title ?? DEFAULT_TITLE;
+    
+    if (to.path !== '/user/login') {
+      const res = await myAxios.get("/message");
+      if (res?.data.code === 0) {
+        hasMessage.value = !!res.data.data;
+      }
+    }
+  } catch (error) {
+    console.error('Navigation error:', error);
+  }
+});
+
+// 导航处理
+const onClickLeft = (): void => {
+  router.back();
+};
+
+const onClickRight = (): void => {
+  router.push("/search");
+};
+
+// 登录检查
+const checkLogin = async (to: string, index: number): Promise<void> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      await showConfirmDialog({
+        message: "该功能需要登陆后使用,是否登录",
+        confirmButtonText: "去登录"
+      });
+      router.replace("/user/login");
+    } else {
+      await router.push(to);
+      if (active.value === 'message') {
+        const messageElement = document.getElementsByClassName("message")[0] as MessageElement;
+        if (messageElement) {
+          messageElement.style.color = '#1989fa';
+        }
+      }
+    }
+  } catch {
+    // 用户取消登录对话框
+  }
+};
 </script>
 
 <style scoped>
@@ -114,7 +131,7 @@ const checkLogin = async (to, index) => {
 .bgc-wrap {
     width: 50px;
     height: 50px;
-    border-radius: 50% 50% 50% 50%;
+    border-radius: 50%;
     background-color: #3c89fc;
     position: absolute;
     left: 15px;
@@ -128,6 +145,6 @@ const checkLogin = async (to, index) => {
 }
 
 [class*=van-hairline]::after {
-    border: none !important
+    border: none !important;
 }
 </style>
