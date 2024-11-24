@@ -10,7 +10,6 @@ export interface CommentType {
     blogId: number;
     isLiked: boolean;
     likedNum: number;
-    createdTime: string;
     replyNum: number;
     parentId: number | null;
     blog?: {
@@ -23,4 +22,4 @@ export interface CommentType {
         coverImage?: string;
     };
     createTime?: string;
-} 
+}

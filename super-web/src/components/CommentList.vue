@@ -1,7 +1,7 @@
 <template>
     <van-cell-group v-for="comment in props.commentList" :border="false" style="margin-left: 5px;margin-right: 5px">
         <van-cell center :border="false" :title="comment.commentUser.username"
-                  :label="new Date(comment.createdTime).toLocaleString()">
+                  :label="comment.createTime">
             <template #icon>
                 <van-image
                     round
