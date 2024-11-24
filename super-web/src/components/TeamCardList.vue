@@ -206,12 +206,13 @@ onMounted(async () => {
     height: 16px;
     line-height: 16px;
     max-height: 32px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
     text-overflow: ellipsis;
     width: 247px;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 :deep(.van-icon__image) {
@@ -221,7 +222,38 @@ onMounted(async () => {
 .row {
     display: flex;
     align-items: center;
-    margin: 30px 0 10px 12px;
+}
+
+.avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    position: relative;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.avatar-group .avatar {
+    border: 2px solid #fff;
+    margin-left: calc(-0.3em);
+    box-shadow: unset;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    margin-left: 12px;
+    margin-top: 30px;
+    margin-bottom: 10px;
 }
 
 .avatar {
@@ -232,18 +264,18 @@ onMounted(async () => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
 
-    img {
-        width: 100%;
-        height: 100%;
-        border-radius: 25px;
-        object-fit: cover;
-    }
+.avatar span {
+    color: #fff;
+    font-size: 0.5em;
+}
 
-    span {
-        color: #fff;
-        font-size: 0.5em;
-    }
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    object-fit: cover;
 }
 
 .avatar-group .avatar {
