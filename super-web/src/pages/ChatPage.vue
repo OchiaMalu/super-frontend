@@ -23,343 +23,275 @@
         </van-cell-group>
     </div>
 </template>
-<script setup lang="ts">
-import { nextTick, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { showFailToast } from "vant";
-import { getCurrentUser } from "../services/user";
-import myAxios, { URL } from "../plugins/my-axios";
+<script setup>
+import {nextTick, onMounted, ref} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import {showFailToast} from "vant";
 
-interface ChatUser {
-  id: number;
-  username: string;
-  avatarUrl: string;
-}
+import {getCurrentUser} from "../services/user.ts";
+import myAxios, {URL} from "../plugins/my-axios.ts";
 
-interface ChatMessage {
-  fromUser?: ChatUser;
-  toUser?: ChatUser;
-  text: string;
-  isAdmin?: boolean;
-  createTime?: string;
-  isMy?: boolean;
-  teamId?: number;
-  chatType?: number;
-}
-
-interface ChatStats {
-  user: ChatUser;
-  isCollapse: boolean;
-  users: ChatUser[];
-  chatUser: {
-    id: number;
-    username: string;
-  };
-  chatEnum: {
-    PRIVATE_CHAT: number;
-    TEAM_CHAT: number;
-    HALL_CHAT: number;
-  };
-  chatType: number | null;
-  team: {
-    teamId: number;
-    teamName: string;
-  };
-  text: string;
-  messages: ChatMessage[];
-  content: string;
-}
-
-// 响应式状态定义
-const stats = ref<ChatStats>({
-  user: {
-    id: 0,
-    username: "",
-    avatarUrl: ''
-  },
-  isCollapse: false,
-  users: [],
-  chatUser: {
-    id: 0,
-    username: ''
-  },
-  chatEnum: {
-    PRIVATE_CHAT: 1,
-    TEAM_CHAT: 2,
-    HALL_CHAT: 3
-  },
-  chatType: null,
-  team: {
-    teamId: 0,
-    teamName: ''
-  },
-  text: "",
-  messages: [],
-  content: ''
-});
-
-const route = useRoute();
-const router = useRouter();
-const chatRoom = ref<HTMLElement | null>(null);
-const DEFAULT_TITLE = "聊天";
-const title = ref<string>(DEFAULT_TITLE);
-
-let socket: WebSocket | null = null;
-const heartbeatInterval = 30 * 1000; // 30秒
-let heartbeatTimer: number | null = null;
-
-// WebSocket心跳处理
-const startHeartbeat = (): void => {
-  heartbeatTimer = window.setInterval(() => {
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send("PING");
-    }
-  }, heartbeatInterval);
+const route = useRoute()
+const router = useRouter()
+const onClickLeft = () => {
+    router.push("/message")
 };
+const stats = ref({
+    user: {
+        id: 0,
+        username: "",
+        avatarUrl: ''
+    },
+    isCollapse: false,
+    users: [],
+    chatUser: {
+        id: 0,
+        username: ''
+    },
+    chatEnum: {
+        // 私聊
+        PRIVATE_CHAT: 1,
+        // 队伍聊天
+        TEAM_CHAT: 2,
+        // 大厅
+        HALL_CHAT: 3
+    },
+    chatType: null,
+    team: {
+        teamId: 0,
+        teamName: ''
+    },
+    text: "",
+    messages: [],
+    content: ''
+})
 
-const stopHeartbeat = (): void => {
-  if (heartbeatTimer) {
+let socket = null;
+const heartbeatInterval = 30 * 1000; // 30秒
+let heartbeatTimer = null;
+
+const startHeartbeat = () => {
+    heartbeatTimer = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send("PING");
+        }
+    }, heartbeatInterval);
+}
+
+const stopHeartbeat = () => {
     clearInterval(heartbeatTimer);
     heartbeatTimer = null;
-  }
-};
+}
 
-// 导航处理
-const onClickLeft = (): void => {
-  router.push("/message");
-};
-
-// 创建消息内容
-const createContent = (
-  remoteUser: ChatUser | null, 
-  nowUser: ChatUser | null, 
-  text: string, 
-  isAdmin?: boolean, 
-  createTime?: string
-): void => {
-  let html = '';
-  
-  if (nowUser) {
-    html = `
-      <div class="message self">
-        <div class="myInfo info">
-          <img alt="${nowUser.username}" class="avatar" onclick="showUser(${nowUser.id})" src="${nowUser.avatarUrl}">
-        </div>
-        <p class="text">${text}</p>
-      </div>
-    `;
-  } else if (remoteUser) {
-    html = `
-      <div class="message other">
-        <img alt="${remoteUser.username}" class="avatar" onclick="showUser(${remoteUser.id})" src="${remoteUser.avatarUrl}">
-        <div class="info">
-          <span class="username">${remoteUser.username.length < 10 ? remoteUser.username : remoteUser.username}&nbsp;&nbsp;&nbsp;${createTime || ''}</span>
-          <p class="${isAdmin ? 'admin text' : 'text'}">${text}</p>
-        </div>
-      </div>
-    `;
-  }
-  
-  stats.value.content += html;
-};
-
-// WebSocket初始化
-const init = (): void => {
-  const uid = stats.value.user?.id;
-  if (typeof WebSocket === "undefined") {
-    showFailToast("您的浏览器不支持WebSocket");
-    return;
-  }
-
-  const socketUrl = `wss://${URL}/websocket/${uid}/${stats.value.team.teamId}`;
-  
-  if (socket) {
-    socket.close();
-    socket = null;
-  }
-
-  socket = new WebSocket(socketUrl);
-
-  socket.onopen = () => {
-    startHeartbeat();
-  };
-
-  socket.onmessage = (msg) => {
-    if (msg.data === "pong") return;
-
-    try {
-      const data = JSON.parse(msg.data);
-      
-      if (data.error) {
-        showFailToast(data.error);
-        return;
-      }
-
-      if (data.users) {
-        stats.value.users = data.users.filter((user: ChatUser) => user.id !== uid);
-      } else {
-        handleChatMessage(data, uid);
-      }
-    } catch (error) {
-      console.error('Failed to process message:', error);
-    }
-  };
-
-  socket.onclose = () => {
-    stopHeartbeat();
-    setTimeout(init, 5000); // 5秒后重连
-  };
-
-  socket.onerror = () => {
-    showFailToast("发生了错误");
-  };
-};
-
-// 处理聊天消息
-const handleChatMessage = (data: ChatMessage, uid: number): void => {
-  let flag = false;
-  
-  if (stats.value.chatType === data.chatType) {
-    if (data.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
-      flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.fromUser?.id);
-    } else if (data.chatType === stats.value.chatEnum.HALL_CHAT) {
-      flag = (data.fromUser?.id !== uid);
-    } else if (data.teamId && stats.value.team.teamId === data.teamId) {
-      flag = (data.fromUser?.id !== uid);
-    }
-  }
-
-  if (flag) {
-    stats.value.messages.push(data);
-    createContent(data.fromUser, null, data.text, data.isAdmin, data.createTime);
-    
-    nextTick(() => {
-      const lastElement = chatRoom.value?.lastElementChild;
-      lastElement?.scrollIntoView();
-    });
-  }
-};
-
-// 发送消息
-const send = (): void => {
-  if (!stats.value.chatUser.id || stats.value.chatUser.id === stats.value.user.id) {
-    showFailToast("不能给自己发信息");
-    return;
-  }
-
-  if (!stats.value.text.trim()) {
-    showFailToast("请输入内容");
-    return;
-  }
-
-  if (typeof WebSocket === "undefined") {
-    showFailToast("您的浏览器不支持WebSocket");
-    return;
-  }
-
-  const message = {
-    fromId: stats.value.user.id,
-    toId: stats.value.chatUser.id,
-    text: stats.value.text,
-    chatType: stats.value.chatType,
-    teamId: stats.value.team.teamId,
-  };
-
-  socket?.send(JSON.stringify(message));
-  stats.value.messages.push({ user: stats.value.user.id, text: stats.value.text });
-  createContent(null, stats.value.user, stats.value.text);
-  stats.value.text = '';
-
-  nextTick(() => {
-    const lastElement = chatRoom.value?.lastElementChild;
-    lastElement?.scrollIntoView();
-  });
-};
-
-// 用户导航
-const showUser = (id: number): void => {
-  router.push({
-    path: '/user/detail',
-    query: { id }
-  });
-};
-
-// 暴露给window对象
-window.showUser = showUser;
-
-// 生命周期钩子
+const chatRoom = ref(null)
+const DEFAULT_TITLE = "聊天"
+const title = ref(DEFAULT_TITLE)
 onMounted(async () => {
-  const { id, username, userType, teamId, teamName, teamType } = route.query;
-  
-  stats.value.chatUser.id = Number(id);
-  stats.value.team.teamId = Number(teamId);
-  stats.value.chatUser.username = username as string;
-  stats.value.team.teamName = teamName as string;
-
-  if (userType && Number(userType) === stats.value.chatEnum.PRIVATE_CHAT) {
-    stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT;
-    title.value = stats.value.chatUser.username;
-  } else if (teamType && Number(teamType) === stats.value.chatEnum.TEAM_CHAT) {
-    stats.value.chatType = stats.value.chatEnum.TEAM_CHAT;
-    title.value = stats.value.team.teamName;
-  } else {
-    stats.value.chatType = stats.value.chatEnum.HALL_CHAT;
-    title.value = "公共聊天室";
-  }
-
-  stats.value.user = await getCurrentUser();
-
-  await loadInitialMessages();
-  init();
-
-  await nextTick();
-  const lastElement = chatRoom.value?.lastElementChild;
-  lastElement?.scrollIntoView();
-});
-
-// 加载初始消息
-const loadInitialMessages = async (): Promise<void> => {
-  try {
-    if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
-      const privateMessage = await myAxios.post("/chat/privateChat", {
-        toId: stats.value.chatUser.id,
-      });
-      
-      privateMessage.data.data.forEach((chat: ChatMessage) => {
-        if (chat.isMy) {
-          createContent(null, chat.fromUser, chat.text);
-        } else {
-          createContent(chat.toUser, null, chat.text, null, chat.createTime);
-        }
-      });
-    } else if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
-      const hallMessage = await myAxios.get("/chat/hallChat");
-      
-      hallMessage.data.data.forEach((chat: ChatMessage) => {
-        if (chat.isMy) {
-          createContent(null, chat.fromUser, chat.text);
-        } else {
-          createContent(chat.fromUser, null, chat.text, chat.isAdmin, chat.createTime);
-        }
-      });
-    } else if (stats.value.chatType === stats.value.chatEnum.TEAM_CHAT) {
-      const teamMessage = await myAxios.post("/chat/teamChat", {
-        teamId: stats.value.team.teamId
-      });
-      
-      teamMessage.data.data.forEach((chat: ChatMessage) => {
-        if (chat.isMy) {
-          createContent(null, chat.fromUser, chat.text);
-        } else {
-          createContent(chat.fromUser, null, chat.text, chat.isAdmin, chat.createTime);
-        }
-      });
+    let {id, username, userType, teamId, teamName, teamType} = route.query
+    stats.value.chatUser.id = Number.parseInt(id)
+    stats.value.team.teamId = Number.parseInt(teamId)
+    stats.value.chatUser.username = username
+    stats.value.team.teamName = teamName
+    if (userType && Number.parseInt(userType) === stats.value.chatEnum.PRIVATE_CHAT) {
+        stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT
+        title.value = stats.value.chatUser.username
+    } else if (teamType && Number.parseInt(teamType) === stats.value.chatEnum.TEAM_CHAT) {
+        stats.value.chatType = stats.value.chatEnum.TEAM_CHAT
+        title.value = stats.value.team.teamName
+    } else {
+        stats.value.chatType = stats.value.chatEnum.HALL_CHAT
+        title.value = "公共聊天室"
     }
-  } catch (error) {
-    console.error('Failed to load initial messages:', error);
-    showFailToast("加载消息失败，请稍后重试");
-  }
-};
+    stats.value.user = await getCurrentUser()
+
+
+    // 私聊
+    if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
+        const privateMessage = await myAxios.post("/chat/privateChat",
+            {
+                toId: stats.value.chatUser.id,
+            })
+        privateMessage.data.data.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.fromUser, chat.text)
+            } else {
+                createContent(chat.toUser, null, chat.text, null, chat.createTime)
+            }
+        })
+    }
+    if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
+        const hallMessage = await myAxios.get("/chat/hallChat")
+        hallMessage.data.data.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.fromUser, chat.text)
+            } else {
+                createContent(chat.fromUser, null, chat.text, chat.isAdmin, chat.createTime)
+            }
+        })
+    }
+    if (stats.value.chatType === stats.value.chatEnum.TEAM_CHAT) {
+        const teamMessage = await myAxios.post("/chat/teamChat",
+            {
+                teamId: stats.value.team.teamId
+            })
+        teamMessage.data.data.forEach(chat => {
+            if (chat.isMy === true) {
+                createContent(null, chat.fromUser, chat.text)
+            } else {
+                createContent(chat.fromUser, null, chat.text, chat.isAdmin, chat.createTime)
+            }
+        })
+    }
+    init()
+    await nextTick()
+    const lastElement = chatRoom.value.lastElementChild
+    lastElement.scrollIntoView()
+})
+
+const init = () => {
+    let uid = stats.value.user?.id;
+    if (typeof (WebSocket) == "undefined") {
+        showFailToast("您的浏览器不支持WebSocket")
+    } else {
+        let socketUrl = 'ws://' + URL + '/websocket/' + uid + '/' + stats.value.team.teamId;
+        if (socket != null) {
+            socket.close();
+            socket = null;
+        }
+        // 开启一个websocket服务
+        socket = new WebSocket(socketUrl);
+        //打开事件
+        socket.onopen = function () {
+            startHeartbeat();
+        };
+        //  浏览器端收消息，获得从服务端发送过来的文本消息
+        socket.onmessage = function (msg) {
+            if (msg.data === "pong") {
+                return;
+            }
+            // 对收到的json数据进行解析，
+            let data = JSON.parse(msg.data)
+            if (data.error) {
+                showFailToast(data.error)
+                return
+            }
+            // 获取在线人员信息
+            if (data.users) {
+                stats.value.users = data.users.filter(user => {
+                    return user.id !== uid
+                })
+                // 获取当前连接的所有用户信息，并且排除自身，自己不会出现在自己的聊天列表里
+            } else {
+                let flag;
+                if (stats.value.chatType === data.chatType) {
+                    // 单聊
+                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.fromUser?.id)
+                }
+                if ((stats.value.chatType === data.chatType)) {
+                    // 大厅
+                    flag = (data.fromUser?.id != uid)
+                }
+                // 队伍
+                if (stats.value.chatType === data.chatType && data.teamId && stats.value.team.teamId === data.teamId) {
+                    flag = (data.fromUser?.id != uid)
+                }
+                if (flag) {
+                    stats.value.messages.push(data)
+                    // 构建消息内容
+                    createContent(data.fromUser, null, data.text, data.isAdmin, data.createTime)
+                }
+                nextTick(() => {
+                    const lastElement = chatRoom.value.lastElementChild
+                    lastElement.scrollIntoView()
+                })
+                flag = null;
+            }
+        };
+        //关闭事件
+        socket.onclose = function () {
+            stopHeartbeat();
+            setTimeout(init, 5000); // 5秒后重连
+        };
+        //发生了错误事件
+        socket.onerror = function () {
+            showFailToast("发生了错误")
+        }
+    }
+}
+
+const send = () => {
+    if (stats.value.chatUser.id === 0) {
+        return;
+    }
+    if (stats.value.chatUser.id === stats.value.user.id) {
+        showFailToast("不能给自己发信息")
+        return;
+    }
+    if (!stats.value.text.trim()) {
+        showFailToast("请输入内容")
+    } else {
+        if (typeof (WebSocket) == "undefined") {
+            showFailToast("您的浏览器不支持WebSocket")
+        } else {
+            let message = {
+                fromId: stats.value.user.id,
+                toId: stats.value.chatUser.id,
+                text: stats.value.text,
+                chatType: stats.value.chatType,
+                teamId: stats.value.team.teamId,
+            }
+            socket.send(JSON.stringify(message));
+            stats.value.messages.push({user: stats.value.user.id, text: stats.value.text})
+            createContent(null, stats.value.user, stats.value.text)
+            stats.value.text = '';
+            nextTick(() => {
+                const lastElement = chatRoom.value.lastElementChild
+                lastElement.scrollIntoView()
+            })
+        }
+    }
+}
+
+const showUser = (id) => {
+    router.push({
+        path: '/user/detail',
+        query: {
+            id: id
+        }
+    })
+}
+
+/**
+ * 这个方法是用来将 json的聊天消息数据转换成 html的。
+ */
+const createContent = (remoteUser, nowUser, text, isAdmin, createTime) => {
+    // 当前用户消息
+    let html;
+    if (nowUser) {
+        // nowUser 表示是否显示当前用户发送的聊天消息，绿色气泡
+        html = `
+    <div class="message self">
+    <div class="myInfo info">
+      <img :alt=${nowUser.username} class="avatar" onclick="showUser(${nowUser.id})" src=${nowUser.avatarUrl}>
+    </div>
+      <p class="text">${text}</p>
+    </div>
+`
+    } else if (remoteUser) {
+        // remoteUser表示远程用户聊天消息，灰色的气泡
+        html = `
+     <div class="message other">
+      <img :alt=${remoteUser.username} class="avatar" onclick="showUser(${remoteUser.id})" src=${remoteUser.avatarUrl}>
+    <div class="info">
+      <span class="username">${remoteUser.username.length < 10 ? remoteUser.username : remoteUser.username}&nbsp;&nbsp;&nbsp;${createTime}</span>
+      <p class="${isAdmin ? 'admin text' : 'text'}" >${text}</p>
+    </div>
+    </div>
+`
+    }
+    stats.value.content += html;
+}
+window.showUser = showUser
 </script>
 <style>
 .chat-container {
