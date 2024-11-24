@@ -27,10 +27,10 @@
         </div>
         <div>
             <van-space style="background: #f3f2f5;width: 100%;margin: 0" align="center"
-                       @click="toBlog(comment.blog.id)">
-                <van-image v-if="comment.blog.coverImage" :src="comment.blog.coverImage" width="50" height="50"
+                       @click="comment.blog?.id && toBlog(comment.blog.id)">
+                <van-image v-if="comment.blog?.coverImage" :src="comment.blog.coverImage" width="50" height="50"
                            style="margin-left: 10px"/>
-                <van-cell :title="comment.blog.author.username" :label="comment.blog.title"
+                <van-cell :title="comment.blog?.author.username" :label="comment.blog?.title"
                           style="background: #f3f2f5;margin: 0">
                 </van-cell>
             </van-space>
@@ -45,16 +45,16 @@ import { useRouter } from "vue-router";
 import { showConfirmDialog, showFailToast } from "vant";
 import myAxios from "../plugins/my-axios";
 import { getCurrentUser } from "../services/user";
-import type { CommentType } from "../models/comment";
+import { CommentType } from "../types/comment";
 
 interface User {
-  id: number;
-  role: number;
-  // 根据实际用户对象添加其他属性
+    id: number;
+    role: number;
+    // 根据实际用户对象添加其他属性
 }
 
 interface Props {
-  commentList: CommentType[];
+    commentList: CommentType[];
 }
 
 // Props 和 Emits 定义
@@ -67,56 +67,56 @@ const router = useRouter();
 
 // 点赞评论
 const likeComment = async (comment: CommentType): Promise<void> => {
-  try {
-    const res = await myAxios.put(`/comments/like/${comment.id}`);
-    if (res?.data.code === 0) {
-      const res_ = await myAxios.get(`/comments/${comment.id}`);
-      if (res_?.data.code === 0) {
-        comment.likedNum = res_.data.data.likedNum;
-        comment.isLiked = res_.data.data.isLiked;
-      }
+    try {
+        const res = await myAxios.put(`/comments/like/${comment.id}`);
+        if (res?.data.code === 0) {
+            const res_ = await myAxios.get(`/comments/${comment.id}`);
+            if (res_?.data.code === 0) {
+                comment.likedNum = res_.data.data.likedNum;
+                comment.isLiked = res_.data.data.isLiked;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to like comment:', error);
+        showFailToast("操作失败，请稍后重试");
     }
-  } catch (error) {
-    console.error('Failed to like comment:', error);
-    showFailToast("操作失败，请稍后重试");
-  }
 };
 
 // 删除评论
 const deleteComment = async (id: number): Promise<void> => {
-  try {
-    await showConfirmDialog({
-      title: '确定要删除评论吗',
-      message: '此操作无法撤回',
-    });
+    try {
+        await showConfirmDialog({
+            title: '确定要删除评论吗',
+            message: '此操作无法撤回',
+        });
 
-    const res = await myAxios.delete(`/comments/${id}`);
-    if (res?.data.code === 0) {
-      emits("refresh");
-    } else {
-      showFailToast(`删除失败${res.data.description ? `,${res.data.description}` : ''}`);
+        const res = await myAxios.delete(`/comments/${id}`);
+        if (res?.data.code === 0) {
+            emits("refresh");
+        } else {
+            showFailToast(`删除失败${res.data.description ? `,${res.data.description}` : ''}`);
+        }
+    } catch {
+        // 用户取消删除操作
     }
-  } catch {
-    // 用户取消删除操作
-  }
 };
 
 // 导航到博客
 const toBlog = (blogId: number): void => {
-  router.push({
-    path: "/blog",
-    query: { id: blogId }
-  });
+    router.push({
+        path: "/blog",
+        query: { id: blogId }
+    });
 };
 
 // 生命周期钩子
 onMounted(async () => {
-  try {
-    currentUser.value = await getCurrentUser();
-  } catch (error) {
-    console.error('Failed to get current user:', error);
-    showFailToast("获取用户信息失败");
-  }
+    try {
+        currentUser.value = await getCurrentUser();
+    } catch (error) {
+        console.error('Failed to get current user:', error);
+        showFailToast("获取用户信息失败");
+    }
 });
 </script>
 

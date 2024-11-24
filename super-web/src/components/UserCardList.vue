@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import type { UserType } from "../models/user";
+import { UserType } from "../types/user";
 
 interface Props {
     userList: UserType[];

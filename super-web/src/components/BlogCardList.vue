@@ -37,7 +37,7 @@
 import { useRouter } from "vue-router";
 import { showFailToast } from "vant";
 import { getCurrentUser } from "../services/user";
-import { BlogType } from "../models/blog";
+import { BlogType } from "../types/blog";
 
 interface BlogCardListProps {
     blogList: BlogType[];

@@ -23,125 +23,98 @@
         </van-cell-group>
     </div>
 </template>
-<script setup lang="ts">
+<script setup>
 import { nextTick, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { showFailToast } from "vant";
-import { getCurrentUser } from "../services/user";
-import myAxios from "../plugins/my-axios";
 
-interface User {
-  id: number;
-  username: string;
-  avatarUrl?: string;
-}
-
-interface AIUser {
-  username: string;
-  avatarUrl: string;
-}
-
-interface ChatStats {
-  user: User;
-  ai: AIUser;
-  text: string;
-  content: string;
-}
+import { getCurrentUser } from "../services/user.ts";
+import myAxios, { URL } from "../plugins/my-axios.ts";
 
 const defaultMessage = "你好,我是速配SUPER的智能助手,欢迎问我任何问题。";
+const route = useRoute();
 const router = useRouter();
-const chatRoom = ref<HTMLElement | null>(null);
-
-const stats = ref<ChatStats>({
-  user: {
-    id: 0,
-    username: "",
-    avatarUrl: "",
-  },
-  ai: {
-    username: "AI",
-    avatarUrl: "https://img.zcool.cn/community/0179e358a53d9aa801219c77c25d56.jpg@1280w_1l_2o_100sh.jpg",
-  },
-  text: "",
-  content: "",
-});
-
-const onClickLeft = (): void => {
-  router.push("/message");
+const chatRoom = ref(null);
+const onClickLeft = () => {
+    router.push("/message");
 };
-
-onMounted(async () => {
-  stats.value.user = await getCurrentUser();
-  createContent(stats.value.ai, null, defaultMessage);
-});
-
-const send = async (): Promise<void> => {
-  if (!stats.value.text.trim()) {
-    showFailToast("请输入内容");
-    return;
-  }
-
-  createContent(null, stats.value.user, stats.value.text);
-  const res = await myAxios.post("/ai", {
-    message: stats.value.text,
-  });
-  stats.value.text = "";
-
-  if (res.data.code === 0) {
-    createContent(stats.value.ai, null, res.data.data);
-  }
-
-  await nextTick(() => {
-    const lastElement = chatRoom.value?.lastElementChild;
-    lastElement?.scrollIntoView();
-  });
-};
-
-const showUser = (id: number): void => {
-  router.push({
-    path: "/user/detail",
-    query: {
-      id: id,
+const stats = ref({
+    user: {
+        id: 0,
+        username: "",
+        avatarUrl: "",
     },
-  });
+    ai: {
+        username: "AI",
+        avatarUrl: "https://img.zcool.cn/community/0179e358a53d9aa801219c77c25d56.jpg@1280w_1l_2o_100sh.jpg",
+    },
+    text: "",
+    content: "",
+});
+onMounted(async () => {
+    stats.value.user = await getCurrentUser();
+    createContent(stats.value.ai, null, defaultMessage);
+});
+
+const send = async () => {
+    if (!stats.value.text.trim()) {
+        showFailToast("请输入内容");
+    } else {
+        createContent(null, stats.value.user, stats.value.text);
+        let res = await myAxios.post("/ai", {
+            message: stats.value.text,
+        });
+        stats.value.text = "";
+        if (res.data.code === 0) {
+            createContent(stats.value.ai, null, res.data.data);
+        }
+        await nextTick(() => {
+            const lastElement = chatRoom.value.lastElementChild;
+            lastElement.scrollIntoView();
+        });
+    }
 };
 
-const createContent = (remoteUser: AIUser | null, nowUser: User | null, text: string): void => {
-  let html = '';
+const showUser = (id) => {
+    router.push({
+        path: "/user/detail",
+        query: {
+            id: id,
+        },
+    });
+};
 
-  if (nowUser) {
-    html = `
+/**
+ * 这个方法是用来将 json的聊天消息数据转换成 html的。
+ */
+const createContent = (remoteUser, nowUser, text) => {
+    // 当前用户消息
+    let html;
+    if (nowUser) {
+        // nowUser 表示是否显示当前用户发送的聊天消息，绿色气泡
+        html = `
     <div class="message self">
-      <div class="myInfo info">
-        <img alt="${nowUser.username}" class="avatar" onclick="showUser(${nowUser.id})" src="${nowUser.avatarUrl}">
-      </div>
+    <div class="myInfo info">
+      <img :alt="${nowUser.username}" class="avatar" onclick="showUser(${nowUser.id})" src="${nowUser.avatarUrl}">
+    </div>
       <p class="text">${text}</p>
     </div>
-    `;
-  } else if (remoteUser) {
-    html = `
-    <div class="message other">
-      <img alt="${remoteUser.username}" class="avatar" src="${remoteUser.avatarUrl}">
-      <div class="info">
-        <span class="username">${remoteUser.username.length < 10 ? remoteUser.username : remoteUser.username}&nbsp;&nbsp;&nbsp;</span>
-        <p class="text">${text}</p>
-      </div>
+`;
+    } else if (remoteUser) {
+        // remoteUser表示远程用户聊天消息，灰色的气泡
+        html = `
+     <div class="message other">
+      <img :alt="${remoteUser.username}" class="avatar" src="${remoteUser.avatarUrl}">
+    <div class="info">
+      <span class="username">${remoteUser.username.length < 10 ? remoteUser.username : remoteUser.username}&nbsp;&nbsp;&nbsp;</span>
+      <p class="text" >${text}</p>
     </div>
-    `;
-  }
-
-  stats.value.content += html;
+    </div>
+`;
+    }
+    stats.value.content += html;
 };
-
-// 由于使用了 onclick 内联事件，需要将 showUser 暴露到全局
 window.showUser = showUser;
-
-// 为 window 对象添加 showUser 方法的类型声明
-declare global {
-  interface Window {
-    showUser: (id: number) => void;
-  }
-}
 </script>
 <style>
 .chat-container {

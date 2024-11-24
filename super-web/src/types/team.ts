@@ -1,20 +1,17 @@
-import { UserType } from "./user";
-
-export type TeamType = {
+export interface TeamType {
     id: number;
     name: string;
-    description: string,
-    coverImage: string,
+    description: string;
+    coverImage: string;
     expireTime?: Date;
     maxNum: number;
     password?: string;
     status: number;
     userId: number;
-    leaderName: string,
+    leaderName: string;
     hasJoin: boolean;
     hasJoinNum: number;
     createTime: Date;
     updateTime: Date;
-    createUser?: UserType;
     joinedUserAvatars?: string[];
-}
+} 

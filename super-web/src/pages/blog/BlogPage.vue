@@ -156,6 +156,7 @@ import { showConfirmDialog, showFailToast, showSuccessToast } from "vant";
 import myAxios from "../../plugins/my-axios";
 import CommentList from "../../components/CommentList.vue";
 import { getCurrentUser } from "../../services/user";
+import { CommentType } from "../../types/comment";
 
 interface Author {
     id: number;
@@ -174,23 +175,6 @@ interface Blog {
     isLike: boolean;
     images?: string;
     author?: Author;
-}
-
-interface CommentType {
-    id: number;
-    content: string;
-    userId: number;
-    commentUser: {
-        id: number;
-        username: string;
-        avatarUrl: string;
-    };
-    blogId: number;
-    isLiked: boolean;
-    likedNum: number;
-    createdTime: string;
-    replyNum: number;
-    parentId: number | null;
 }
 
 interface User {

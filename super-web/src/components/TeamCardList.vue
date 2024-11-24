@@ -62,19 +62,15 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { showConfirmDialog, showFailToast, showSuccessToast } from "vant";
-import { TeamType } from "../models/team";
+import { TeamType } from "../types/team";
 import { teamStatusEnum } from "../constants/team";
 import { getCurrentUser } from "../services/user";
 import defaultImg from "../../public/defalutTeamImg.jpg";
 import myAxios from "../plugins/my-axios";
+import { UserType } from "../types/user";
 
 interface Props {
     teamList: TeamType[];
-}
-
-interface User {
-    id: number;
-    role?: number;
 }
 
 // Props 定义
@@ -84,7 +80,7 @@ const emits = defineEmits(["refresh"]);
 // 响应式状态定义
 const showPasswordDialog = ref<boolean>(false);
 const teamPassword = ref<string>("");
-const currentUser = ref<User | null>(null);
+const currentUser = ref<UserType | null>(null);
 const joinTeamId = ref<number>();
 const router = useRouter();
 

@@ -54,7 +54,7 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { showFailToast } from "vant";
 import { getCurrentUser } from "../services/user";
-import type { MessageType } from "../models/like";
+import { MessageType } from "../types/message";
 
 interface User {
     id: number;

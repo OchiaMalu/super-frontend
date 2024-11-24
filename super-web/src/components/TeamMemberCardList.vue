@@ -26,8 +26,8 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import myAxios from "../plugins/my-axios";
-import type { UserType } from "../models/user";
-import type { TeamType } from "../models/team";
+import { UserType } from "../types/user";
+import { TeamType } from "../types/team";
 
 interface Props {
     userList: UserType[];

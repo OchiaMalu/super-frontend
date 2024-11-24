@@ -34,7 +34,7 @@ import { onMounted, ref } from "vue";
 import { showConfirmDialog, showFailToast } from "vant";
 import myAxios from "../plugins/my-axios";
 import { getCurrentUser } from "../services/user";
-import type { CommentType } from "../models/comment";
+import { CommentType } from "../types/comment";
 
 interface User {
     id: number;
