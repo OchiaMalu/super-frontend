@@ -5,7 +5,8 @@
               :desc="user.profile"
     >
         <template #thumb>
-            <van-image round width="88" height="88" style="margin-right: 10px" :src="user.avatarUrl" @click="showUserDetail(user.id)"/>
+            <van-image round width="88" height="88" style="margin-right: 10px" :src="user.avatarUrl"
+                       @click="showUserDetail(user.id)" />
         </template>
         <template #tags>
             <van-tag v-for="tag in user.tags" plain type="danger" style="margin-right: 8px;margin-top: 8px"
@@ -36,7 +37,7 @@ interface Props {
 
 // Props 和 Emits 定义
 const props = defineProps<Props>();
-const emits = defineEmits(['refresh']);
+const emits = defineEmits(["refresh"]);
 
 const router = useRouter();
 
@@ -44,7 +45,7 @@ const router = useRouter();
 const showUserDetail = (id: number): void => {
     router.push({
         path: "/user/detail",
-        query: { id }
+        query: { id },
     });
 };
 
@@ -53,14 +54,14 @@ const kickOut = async (userId: number): Promise<void> => {
     try {
         const res = await myAxios.post("/team/kick", {
             teamId: props.team.id,
-            userId
+            userId,
         });
-        
+
         if (res?.data.code === 0) {
             emits("refresh");
         }
     } catch (error) {
-        console.error('Failed to kick out user:', error);
+        console.error("Failed to kick out user:", error);
     }
 };
 </script>

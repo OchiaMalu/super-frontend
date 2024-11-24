@@ -6,19 +6,19 @@
             :title="blog.title"
             @click="toBlog(blog.id)">
             <template #right-icon>
-                <van-image v-if="blog.coverImage" :src="blog.coverImage" width="88px" height="88px"/>
+                <van-image v-if="blog.coverImage" :src="blog.coverImage" width="88px" height="88px" />
             </template>
             <template #title>
-                <van-text-ellipsis style="margin-left: 20px" :content="blog.title" rows="1"/>
+                <van-text-ellipsis style="margin-left: 20px" :content="blog.title" rows="1" />
             </template>
             <template #value>
                 <div style="margin-top: 60px;margin-right: 10px">
                     <van-icon name="envelop-o" size="14" style="margin-right: 5px">
                         <span style="margin-left: 2px">{{ blog.commentsNum }}</span>
                     </van-icon>
-                    <van-icon 
-                        :name="blog.isLike ? 'good-job' : 'good-job-o'" 
-                        :color="blog.isLike ? 'red' : undefined" 
+                    <van-icon
+                        :name="blog.isLike ? 'good-job' : 'good-job-o'"
+                        :color="blog.isLike ? 'red' : undefined"
                         size="14"
                         :style="blog.isLike ? 'margin-right: 2px' : ''"
                     >
@@ -52,17 +52,17 @@ const toBlog = async (blogId: number): Promise<void> => {
         const currentUser = await getCurrentUser();
         if (currentUser) {
             await router.push({
-                path: '/blog',
+                path: "/blog",
                 query: {
-                    id: blogId
-                }
+                    id: blogId,
+                },
             });
         } else {
             showFailToast("未登录");
             await router.replace("/user/login");
         }
     } catch (error) {
-        console.error('Failed to navigate to blog:', error);
+        console.error("Failed to navigate to blog:", error);
         showFailToast("导航失败，请稍后重试");
     }
 };

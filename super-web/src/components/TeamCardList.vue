@@ -13,7 +13,8 @@
             <van-tag plain type="danger" style="margin-right: 8px;margin-top: 8px" @click="getTeamDetail(team.id)">
                 {{ teamStatusEnum[team.status] }}
             </van-tag>
-            <van-tag v-if="team.hasJoinNum === team.maxNum" plain type="danger" style="margin-right: 8px;margin-top: 8px"
+            <van-tag v-if="team.hasJoinNum === team.maxNum" plain type="danger"
+                     style="margin-right: 8px;margin-top: 8px"
                      @click="getTeamDetail(team.id)">
                 已满
             </van-tag>
@@ -43,7 +44,8 @@
                         @click="doUpdateTeam(team.id)">
                 更新队伍
             </van-button>
-            <van-button v-if="team.userId === currentUser?.id || currentUser?.role === 1" size="small" plain type="danger"
+            <van-button v-if="team.userId === currentUser?.id || currentUser?.role === 1" size="small" plain
+                        type="danger"
                         @click="doDeleteTeam(team.id)">
                 解散队伍
             </van-button>
@@ -77,7 +79,7 @@ interface User {
 
 // Props 定义
 const props = defineProps<Props>();
-const emits = defineEmits(['refresh']);
+const emits = defineEmits(["refresh"]);
 
 // 响应式状态定义
 const showPasswordDialog = ref<boolean>(false);
@@ -102,7 +104,7 @@ const joinTeam = async (teamId: number, password: string = ""): Promise<void> =>
         }
         doClear();
     } catch (error) {
-        console.error('Failed to join team:', error);
+        console.error("Failed to join team:", error);
         showFailToast("加入失败，请稍后重试");
     }
 };
@@ -139,7 +141,7 @@ const doQuitTeam = async (id: number): Promise<void> => {
             showFailToast(`退出队伍失败${res.data.description ? `,${res.data.description}` : ""}`);
         }
     } catch (error) {
-        console.error('Failed to quit team:', error);
+        console.error("Failed to quit team:", error);
         showFailToast("退出失败，请稍后重试");
     }
 };
@@ -188,7 +190,7 @@ onMounted(async () => {
     try {
         currentUser.value = await getCurrentUser();
     } catch (error) {
-        console.error('Failed to get current user:', error);
+        console.error("Failed to get current user:", error);
     }
 });
 </script>
@@ -213,6 +215,7 @@ onMounted(async () => {
     width: 247px;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
 :deep(.van-icon__image) {

@@ -1,18 +1,16 @@
-import {UserType} from "./user";
-import {BlogType} from "./blog";
-
 export type CommentType = {
-    id: number,
-    userId: number,
-    commentUser: UserType,
-    blogId: number,
-    parentId?: number,
-    answerId?: number,
-    isLiked: boolean,
-    content: string,
-    likedNum: number,
-    status: number,
-    blog: BlogType,
-    createTime: Date,
-    updateTime: Date
+    id: number;
+    content: string;
+    userId: number;
+    commentUser: {
+        id: number;
+        username: string;
+        avatarUrl: string;
+    };
+    blogId: number;
+    isLiked: boolean;
+    likedNum: number;
+    createdTime: string;
+    replyNum: number;
+    parentId: number | null;
 }

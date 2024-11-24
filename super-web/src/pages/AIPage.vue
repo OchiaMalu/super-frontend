@@ -25,7 +25,7 @@
 </template>
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { showFailToast } from "vant";
 import { getCurrentUser } from "../services/user";
 import myAxios from "../plugins/my-axios";
@@ -33,7 +33,7 @@ import myAxios from "../plugins/my-axios";
 interface User {
   id: number;
   username: string;
-  avatarUrl: string;
+  avatarUrl?: string;
 }
 
 interface AIUser {
@@ -49,7 +49,6 @@ interface ChatStats {
 }
 
 const defaultMessage = "你好,我是速配SUPER的智能助手,欢迎问我任何问题。";
-const route = useRoute();
 const router = useRouter();
 const chatRoom = ref<HTMLElement | null>(null);
 
