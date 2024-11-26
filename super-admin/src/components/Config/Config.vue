@@ -3,13 +3,20 @@
 import { ArrowRight } from "@element-plus/icons-vue";
 import { onMounted, ref } from "vue";
 import myAxios from "../../plugins/my-axios.ts";
-import { UploadInstance, UploadProps } from "element-plus";
+import { UploadInstance, UploadProps, UploadFile } from "element-plus";
 import { ElMessage } from "element-plus";
+
+// 定义接口
+interface FileItem {
+    name: number;
+    url: string;
+    status?: string;
+}
 
 const noticeText = ref("");
 const input = ref("");
-const fileList = ref([]);
-const imgs = ref([]);
+const fileList = ref<FileItem[]>([]);
+const imgs = ref<string[]>([]);
 const isDisplay = ref(true);
 
 onMounted(async () => {
@@ -22,7 +29,7 @@ const checkSuccessImage = () => {
     if (fileList.value.length === 0) {
         isDisplay.value = true;
     }
-    fileList.value.forEach((item) => {
+    fileList.value.forEach((item: FileItem) => {
         if (item.status === "success") {
             isDisplay.value = false;
         }
@@ -44,12 +51,12 @@ const getSwiper = async () => {
     if (res.data.code === 0) {
         if (res.data.data !== null) {
             let index = 1;
-            res.data.data.forEach((item) => {
-                const temp = { "name": index, "url": item };
+            res.data.data.forEach((item: string) => {
+                const temp: FileItem = { "name": index, "url": item };
                 fileList.value.push(temp);
                 index = index + 1;
             });
-            fileList.value.forEach((item) => {
+            fileList.value.forEach((item: FileItem) => {
                 imgs.value.push(item.url);
             });
         }
@@ -77,7 +84,7 @@ const uploadRef = ref<UploadInstance>();
 const submitUpload = () => {
     uploadRef.value!.submit();
 };
-const handleRemove: UploadProps["onRemove"] = async (file) => {
+const handleRemove: UploadProps["onRemove"] = async (file: UploadFile) => {
     let res = await myAxios.post("/config/remove", file.url, {
         headers: {
             "Content-Type": "application/json",
@@ -88,7 +95,7 @@ const handleRemove: UploadProps["onRemove"] = async (file) => {
             message: "更新成功",
             type: "success",
         });
-        imgs.value=[]
+        imgs.value = [];
         fileList.value = [];
         await getSwiper();
     } else {
@@ -97,10 +104,14 @@ const handleRemove: UploadProps["onRemove"] = async (file) => {
     checkSuccessImage();
 };
 
-const handleUpload = async (param) => {
-    let fileObj = param.file; // 相当于input里取得的files
-    let fd = new FormData();// FormData 对象
-    fd.append("file", fileObj);// 文件对象
+interface UploadParam {
+    file: File;
+}
+
+const handleUpload = async (param: UploadParam) => {
+    let fileObj = param.file;
+    let fd = new FormData();
+    fd.append("file", fileObj);
     let res = await myAxios.post("/config/upload", fd, {
         headers: {
             "Content-Type": "multipart/form-data",
@@ -111,7 +122,7 @@ const handleUpload = async (param) => {
             message: "更新成功",
             type: "success",
         });
-        imgs.value=[]
+        imgs.value = [];
         fileList.value = [];
         await getSwiper();
     } else {

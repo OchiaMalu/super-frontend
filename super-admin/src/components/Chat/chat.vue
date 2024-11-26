@@ -4,11 +4,12 @@ import { ArrowRight, Edit } from "@element-plus/icons-vue";
 import { ref } from "vue";
 
 const tableData = ref([
-    {"avatarUrl":"https://ochiamalu.top/public/favicon.ico",
-    "name":"公共聊天室",
-    "type":"公共聊天室",
-    }
-])
+    {
+        "avatarUrl": "https://ochiamalu.top/public/favicon.ico",
+        "name": "公共聊天室",
+        "type": "公共聊天室",
+    },
+]);
 </script>
 
 <template>
@@ -26,22 +27,22 @@ const tableData = ref([
                     />
                 </template>
             </el-table-column>
-            <el-table-column prop="name" label="名称"/>
-            <el-table-column prop="type" label="类型"/>
+            <el-table-column prop="name" label="名称" />
+            <el-table-column prop="type" label="类型" />
             <el-table-column fixed="right" label="操作" width="120px" slot-scope="scope">
                 <template #default="scope">
-                    <el-button type="primary" :icon="Edit" circle @click="getUserInfo(scope.row.id)"/>
+                    <el-button type="primary" :icon="Edit" circle @click="getUserInfo(scope.row.id)" />
                 </template>
             </el-table-column>
         </el-table>
-<!--        <el-pagination-->
-<!--            v-model:current-page="currentPage"-->
-<!--            :page-size="pageSize"-->
-<!--            :background="true"-->
-<!--            layout="total, prev, pager, next"-->
-<!--            :total="total"-->
-<!--            @current-change="handleCurrentChange"-->
-<!--        />-->
+        <!--        <el-pagination-->
+        <!--            v-model:current-page="currentPage"-->
+        <!--            :page-size="pageSize"-->
+        <!--            :background="true"-->
+        <!--            layout="total, prev, pager, next"-->
+        <!--            :total="total"-->
+        <!--            @current-change="handleCurrentChange"-->
+        <!--        />-->
     </el-card>
 </template>
 

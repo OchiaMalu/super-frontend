@@ -1,4 +1,4 @@
-import Login from "../components/Login.vue";
+import Login from "../components/Login/Login.vue";
 import Home from "../components/Home.vue";
 import User from "../components/UserManage/User.vue";
 import DashBoard from "../components/DashBoard/DashBoard.vue";
