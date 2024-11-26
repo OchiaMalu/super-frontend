@@ -1,8 +1,8 @@
 <template>
     <van-sticky>
         <van-nav-bar
-                title="标签"
-                @click-right="onClickRight"
+            title="标签"
+            @click-right="onClickRight"
         >
             <template #right>
                 跳过
@@ -11,9 +11,9 @@
     </van-sticky>
     <form action="/">
         <van-search
-                v-model="searchText"
-                placeholder="请输入要搜索的标签"
-                @search="onSearch"
+            v-model="searchText"
+            placeholder="请输入要搜索的标签"
+            @search="onSearch"
         />
         <div v-if="activeIds.length > 0">
             <van-divider content-position="left">已选择标签</van-divider>
@@ -27,9 +27,9 @@
         </div>
         <van-divider content-position="left">选择标签</van-divider>
         <van-tree-select
-                v-model:active-id="activeIds"
-                v-model:main-active-index="activeIndex"
-                :items="tagList"
+            v-model:active-id="activeIds"
+            v-model:main-active-index="activeIndex"
+            :items="tagList"
         />
         <van-divider content-position="left">自定义标签</van-divider>
         <van-cell-group inset>
@@ -46,62 +46,190 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { TreeSelectItem } from 'vant'
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { showFailToast } from "vant";
+import myAxios from "../plugins/my-axios";
 
-// 定义响应式状态
-const searchText = ref('')
-const activeIds = ref<string[]>([])
-const activeIndex = ref(0)
-const userDefinedTag = ref('')
-
-// 标签列表数据
-const tagList = ref<TreeSelectItem[]>([
-  {
-    text: '热门标签',
-    children: [
-      { text: '前端', id: 'frontend' },
-      { text: '后端', id: 'backend' },
-      { text: '设计', id: 'design' }
-    ]
-  },
-  {
-    text: '技术方向',
-    children: [
-      { text: 'Vue', id: 'vue' },
-      { text: 'React', id: 'react' },
-      { text: 'Node.js', id: 'nodejs' }
-    ]
-  }
-])
-
-// 方法定义
-const onClickRight = () => {
-  // 处理跳过逻辑
+interface TagItem {
+    text: string;
+    children: {
+        text: string;
+        id: string;
+    }[];
 }
 
-const onSearch = (value: string) => {
-  // 处理搜索逻辑
-  console.log('搜索:', value)
-}
+// 响应式状态定义
+const userDefinedTag = ref<string>("");
+const activeIds = ref<string[]>([]);
+const activeIndex = ref<number>(0);
+const searchText = ref<string>("");
+const tagList = ref<TagItem[]>([]);
 
-const close = (tag: string) => {
-  activeIds.value = activeIds.value.filter(t => t !== tag)
-}
+const router = useRouter();
 
-const addUserDefinedTag = () => {
-  if (!userDefinedTag.value) return
-  if (!activeIds.value.includes(userDefinedTag.value)) {
-    activeIds.value.push(userDefinedTag.value)
-  }
-  userDefinedTag.value = ''
-}
+// 添加自定义标签
+const addUserDefinedTag = (): void => {
+    if (userDefinedTag.value !== "") {
+        activeIds.value.push(userDefinedTag.value);
+        userDefinedTag.value = "";
+    } else {
+        showFailToast("请先输入标签名");
+    }
+};
 
-const updateTag = () => {
-  // 处理标签更新逻辑
-  console.log('已选择的标签:', activeIds.value)
-}
+// 关闭标签
+const close = (tag: string): void => {
+    activeIds.value = activeIds.value.filter((item) => {
+        return item !== tag;
+    });
+};
+
+// 原始标签列表
+const originTagList: TagItem[] = [
+    {
+        text: "性别",
+        children: [
+            { text: "男", id: "男" },
+            { text: "女", id: "女" },
+            { text: "保密", id: "保密" },
+        ],
+    },
+    {
+        text: "年级",
+        children: [
+            { text: "高一", id: "高一" },
+            { text: "高二", id: "高二" },
+            { text: "高三", id: "高三" },
+            { text: "大一", id: "大一" },
+            { text: "大二", id: "大二" },
+            { text: "大三", id: "大三" },
+            { text: "大四", id: "大四" },
+            { text: "研究生", id: "研究生" },
+            { text: "已工作", id: "已工作" },
+        ],
+    },
+    {
+        text: "编程",
+        children: [
+            { text: "Java", id: "Java" },
+            { text: "Python", id: "Python" },
+            { text: "C++", id: "C++" },
+            { text: "JavaScript", id: "JavaScript" },
+            { text: "Ruby", id: "Ruby" },
+            { text: "PHP", id: "PHP" },
+            { text: "Swift", id: "Swift" },
+            { text: "Objective-C", id: "Objective-C" },
+            { text: "C#", id: "C#" },
+            { text: "Go", id: "Go" },
+            { text: "Kotlin", id: "Kotlin" },
+            { text: "TypeScript", id: "TypeScript" },
+            { text: "Rust", id: "Rust" },
+            { text: "Lua", id: "Lua" },
+            { text: "Perl", id: "Perl" },
+            { text: "Scala", id: "Scala" },
+            { text: "Dart", id: "Dart" },
+            { text: "R", id: "R" },
+            { text: "MATLAB", id: "MATLAB" },
+            { text: "Haskell", id: "Haskell" },
+            { text: "Julia", id: "Julia" },
+            { text: "Groovy", id: "Groovy" },
+            { text: "Shell", id: "Shell" },
+            { text: "Assembly", id: "Assembly" },
+            { text: "F#", id: "F#" },
+            { text: "Clojure", id: "Clojure" },
+            { text: "Erlang", id: "Erlang" },
+            { text: "Lisp", id: "Lisp" },
+            { text: "Prolog", id: "Prolog" },
+            { text: "Smalltalk", id: "Smalltalk" },
+        ],
+    },
+    {
+        text: "兴趣爱好",
+        children: [
+            { text: "阅读", id: "阅读" },
+            { text: "旅游", id: "旅游" },
+            { text: "游戏", id: "游戏" },
+            { text: "音乐", id: "音乐" },
+            { text: "电影", id: "电影" },
+            { text: "美食", id: "美食" },
+            { text: "健身", id: "健身" },
+            { text: "编程", id: "编程" },
+            { text: "摄影", id: "摄影" },
+            { text: "绘画", id: "绘画" },
+            { text: "写作", id: "写作" },
+            { text: "手工", id: "手工" },
+            { text: "园艺", id: "园艺" },
+            { text: "钓鱼", id: "钓鱼" },
+            { text: "篮球", id: "篮球" },
+            { text: "足球", id: "足球" },
+            { text: "棒球", id: "棒球" },
+            { text: "乒乓球", id: "乒乓球" },
+            { text: "羽毛球", id: "羽毛球" },
+            { text: "网球", id: "网球" },
+        ],
+    },
+    {
+        text: "职业",
+        children: [
+            { text: "医生", id: "医生" },
+            { text: "律师", id: "律师" },
+            { text: "教师", id: "教师" },
+            { text: "工程师", id: "工程师" },
+            { text: "程序员", id: "程序员" },
+            { text: "设计师", id: "设计师" },
+            { text: "销售", id: "销售" },
+            { text: "市场营销", id: "市场营销" },
+            { text: "会计师", id: "会计师" },
+            { text: "金融分析师", id: "金融分析师" },
+            { text: "投资银行家", id: "投资银行家" },
+            { text: "记者", id: "记者" },
+            { text: "编辑", id: "编辑" },
+            { text: "作家", id: "作家" },
+            { text: "演员", id: "演员" },
+            { text: "导演", id: "导演" },
+            { text: "音乐家", id: "音乐家" },
+            { text: "画家", id: "画家" },
+            { text: "建筑师", id: "建筑师" },
+            { text: "厨师", id: "厨师" },
+            { text: "学生", id: "学生" },
+        ],
+    },
+];
+
+// 搜索处理
+const onSearch = (): void => {
+    tagList.value = originTagList.map(parentTag => {
+        const tempChildren = [...parentTag.children];
+        const tempParentTag = { ...parentTag };
+        tempParentTag.children = tempChildren.filter(item => item.text.includes(searchText.value));
+        return tempParentTag;
+    });
+};
+
+// 更新标签
+const updateTag = async (): Promise<void> => {
+    const res = await myAxios.put("/user/update/tags", activeIds.value);
+    if (res?.data.code === 0) {
+        await router.replace("/user");
+    }
+};
+
+// 点击右侧按钮
+const onClickRight = (): void => {
+    router.replace("/");
+};
+
+// 生命周期钩子
+onMounted(async () => {
+    tagList.value = originTagList;
+    const res = await myAxios.get("/user/tags");
+    if (res?.data.code === 0) {
+        activeIds.value = res.data.data;
+    }
+});
 </script>
 
 <style scoped>
+
 </style>
