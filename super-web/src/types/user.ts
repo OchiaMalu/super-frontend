@@ -13,10 +13,12 @@ export interface UserType {
     isFollow: boolean;
     userStatus: number;
     userRole: number;
+    createTime?: Date;
+    updateTime?: Date;
 }
 
-export class ApiResponse<T> {
-    code: number
-    data: T
-    description?: string
+export interface ApiResponse<T> {
+    code: number;
+    data: T;
+    description?: string;
 }

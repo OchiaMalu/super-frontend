@@ -12,83 +12,70 @@
                 finished-text="没有更多了"
                 @load="onLoad"
             >
-                <UserCardList :user-list="userList" />
+                <UserCardList :user-list="userList"/>
             </van-list>
         </van-pull-refresh>
-        <van-back-top right="20px" bottom="60px" />
+        <van-back-top right="20px" bottom="60px"/>
         <van-empty v-if="(!userList ||　userList.length===0) && listLoading===false" image="search"
-                   description="暂无符合要求的用户" />
+                   description="暂无符合要求的用户"/>
     </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from "vue";
-import { useRoute } from "vue-router";
-import myAxios from "../plugins/my-axios";
-import { showFailToast } from "vant";
-import qs from "qs";
+<script setup>
+import {useRoute} from "vue-router";
+import {onMounted, ref} from "vue";
+import myAxios from "../plugins/my-axios.ts";
+import {showFailToast, showSuccessToast, showToast} from "vant";
+import qs from 'qs';
 import UserCardList from "../components/UserCardList.vue";
-import type { UserType, ApiResponse } from "../types/user";
 
-interface SearchResponse {
-    records: UserType[];
-}
+let route = useRoute();
+const {tags} = route.query
+const userList = ref([])
+const currentPage = ref(0)
+const refreshLoading = ref(false)
+const listLoading = ref(false)
+const listFinished = ref(false)
 
-interface SearchParams {
-    currentPage: number;
-    tagNameList: string | string[];
-}
-
-const route = useRoute();
-const { tags } = route.query;
-const userList = ref<UserType[]>([]);
-const currentPage = ref(0);
-const refreshLoading = ref(false);
-const listLoading = ref(false);
-const listFinished = ref(false);
-
-async function getSearchResult(currentPage: number) {
-    const res = await myAxios.get<ApiResponse<SearchResponse>>("/user/search/tags", {
+async function getSearchResult(currentPage) {
+    const res = await myAxios.get("/user/search/tags?currentPage=" + currentPage, {
         params: {
-            currentPage,
-            tagNameList: tags,
-        } as SearchParams,
-        paramsSerializer: (params: SearchParams) => {
-            return qs.stringify(params, { indices: false });
+            tagNameList: tags
         },
-    });
-
+        paramsSerializer: params => {
+            return qs.stringify(params, {indices: false})
+        }
+    })
     if (res.data.code === 0) {
         if (res.data.data.records.length !== 0) {
-            res.data.data.records.forEach((user: UserType) => {
-                user.status = user.userStatus;
-                user.role = user.userRole;
-                user.isFollow = false;
-                user.updateTime = user.createTime;
-            });
-            userList.value.push(...res.data.data.records);
+            res.data.data.records.forEach(user => {
+                if (user.tags) {
+                    user.tags = JSON.parse(user.tags)
+                }
+            })
+            res.data.data.records.forEach((item) => userList.value.push(item))
         } else {
-            listFinished.value = true;
+            listFinished.value = true
         }
     } else {
-        showFailToast("搜索失败" + (res.data.description ? `,${res.data.description}` : ""));
-        listFinished.value = true;
+        showFailToast("搜索失败" + (res.data.description ? `,${res.data.description}` : ''))
+        listFinished.value = true
     }
 }
 
 const onLoad = async () => {
-    currentPage.value++;
-    await getSearchResult(currentPage.value);
+    currentPage.value++
+    await getSearchResult(currentPage.value)
     listLoading.value = false;
-};
+}
 
 const onRefresh = async () => {
-    currentPage.value = 1;
-    userList.value = [];
-    await getSearchResult(currentPage.value);
-    refreshLoading.value = false;
+    currentPage.value = 1
+    userList.value = []
+    await getSearchResult(currentPage.value)
+    refreshLoading.value = false
     listLoading.value = false;
-};
+}
 </script>
 
 <style scoped>
