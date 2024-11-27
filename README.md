@@ -138,11 +138,11 @@ https://gitee.com/ochiamaluo/super-frontend/tree/master/super-admin
 
 ### 软件架构
 
-![image-20230623201717125](doc/images/1.png)
+<img src="doc/images/1.png" alt="image-20230623201717125" style="zoom: 67%;" />
 
 ### 数据库架构
 
-![image-20230623203721932](doc/images/2.jpg)
+<img src="doc/images/2.jpg" alt="image-20230623203721932" style="zoom: 50%;" />
 
 ## 前端部署
 
@@ -174,4 +174,4 @@ https://gitee.com/ochiamaluo/super-frontend/tree/master/super-admin
 6. 等待作者合并
 
 ## 联系我
-![contact us](super-web/public/customer-service.jpg)
+<img src="super-web/public/customer-service.jpg" alt="contact us" style="zoom:25%;" />
