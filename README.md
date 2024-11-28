@@ -174,4 +174,4 @@ https://gitee.com/ochiamaluo/super-frontend/tree/master/super-admin
 6. 等待作者合并
 
 ## 联系我
-<img src="super-web/public/customer-service.jpg" alt="contact us" style="zoom:25%;" />
+<img src="super-web/public/customer-service.jpg" alt="contact us" width="500" />
