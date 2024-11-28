@@ -1,5 +1,5 @@
 <p align="center">
-<img src="doc/images/main.png" alt="image-20230623213937364" width="300" align="center" />
+<img src="doc/images/main.png" alt="image-20230623213937364" width="500" align="center" />
 </p>
 <p align=center>
    SUPER速配-用户匹配系统
@@ -138,11 +138,11 @@ https://gitee.com/ochiamaluo/super-frontend/tree/master/super-admin
 
 ### 软件架构
 
-<img src="doc/images/1.png" alt="image-20230623201717125" width="500" />
+<img src="doc/images/1.png" alt="image-20230623201717125" />
 
 ### 数据库架构
 
-<img src="doc/images/2.jpg" alt="image-20230623203721932" width="500" />
+<img src="doc/images/2.jpg" alt="image-20230623203721932" />
 
 ## 前端部署
 
