@@ -12,10 +12,10 @@
 
         <!-- 聊天消息区域 -->
         <div class="chat-messages" ref="chatRoom">
-            <div v-for="(message, index) in messages" :key="index" 
+            <div v-for="(message, index) in messages" :key="index"
                  :class="['message-item', message.isMy ? 'message-right' : 'message-left']">
                 <div class="message-avatar" @click="showUser(message.isMy ? message.fromUser.id : message.fromUser.id)">
-                    <img :src="message.isMy ? message.fromUser.avatarUrl : message.fromUser.avatarUrl" 
+                    <img :src="message.isMy ? message.fromUser.avatarUrl : message.fromUser.avatarUrl"
                          :alt="message.isMy ? message.fromUser.username : message.fromUser.username">
                 </div>
                 <div class="message-content">
@@ -23,7 +23,7 @@
                         <span>{{ message.fromUser.username }}</span>
                         <span class="message-time">{{ message.createTime }}</span>
                     </div>
-                    <div class="message-bubble" 
+                    <div class="message-bubble"
                          :class="{
                              'admin-message': !message.isMy && message.isAdmin,
                              'message-right-bubble': message.isMy
@@ -36,48 +36,57 @@
 
         <!-- 底部输入框 -->
         <div class="chat-input">
-            <van-field
-                v-model="inputText"
-                placeholder="发送消息..."
-                :border="false"
-                @keypress.enter="send"
-            >
-                <template #button>
-                    <van-button 
-                        size="small" 
-                        type="primary" 
-                        @click="send"
-                        :disabled="!inputText.trim()"
-                    >发送</van-button>
-                </template>
-            </van-field>
+            <div class="input-container">
+                <van-icon class="emoji-btn" name="smile-o" @click="showEmojiPicker = !showEmojiPicker" />
+                <input
+                    v-model="inputText"
+                    type="text"
+                    class="message-input"
+                    placeholder="发送消息..."
+                    @keypress.enter="send"
+                />
+                <button
+                    class="send-btn"
+                    :class="{ 'send-btn-disabled': !inputText.trim() }"
+                    @click="send"
+                >
+                    发送
+                </button>
+            </div>
+
+            <!-- Emoji选择器 -->
+            <div v-if="showEmojiPicker" class="emoji-picker">
+                <EmojiPicker @select="onEmojiSelect" />
+            </div>
         </div>
     </div>
 </template>
 <script setup>
-import {nextTick, onMounted, ref} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import {showFailToast} from "vant";
+import { nextTick, onMounted, ref, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { showFailToast } from "vant";
+import EmojiPicker from "vue3-emoji-picker";
+import "vue3-emoji-picker/css";
 
-import {getCurrentUser} from "../services/user.ts";
-import myAxios, {URL} from "../plugins/my-axios.ts";
+import { getCurrentUser } from "../services/user.ts";
+import myAxios, { URL } from "../plugins/my-axios.ts";
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 const onClickLeft = () => {
-    router.push("/message")
+    router.push("/message");
 };
 const stats = ref({
     user: {
         id: 0,
         username: "",
-        avatarUrl: ''
+        avatarUrl: "",
     },
     isCollapse: false,
     users: [],
     chatUser: {
         id: 0,
-        username: ''
+        username: "",
     },
     chatEnum: {
         // 私聊
@@ -85,17 +94,17 @@ const stats = ref({
         // 队伍聊天
         TEAM_CHAT: 2,
         // 大厅
-        HALL_CHAT: 3
+        HALL_CHAT: 3,
     },
     chatType: null,
     team: {
         teamId: 0,
-        teamName: ''
+        teamName: "",
     },
     text: "",
     messages: [],
-    content: ''
-})
+    content: "",
+});
 
 let socket = null;
 const heartbeatInterval = 30 * 1000; // 30秒
@@ -107,93 +116,112 @@ const startHeartbeat = () => {
             socket.send("PING");
         }
     }, heartbeatInterval);
-}
+};
 
 const stopHeartbeat = () => {
     clearInterval(heartbeatTimer);
     heartbeatTimer = null;
-}
+};
 
-const chatRoom = ref(null)
-const DEFAULT_TITLE = "聊天"
-const title = ref(DEFAULT_TITLE)
-const messages = ref([])
+const chatRoom = ref(null);
+const DEFAULT_TITLE = "聊天";
+const title = ref(DEFAULT_TITLE);
+const messages = ref([]);
+
+const showEmojiPicker = ref(false);
+
+const onEmojiSelect = (emoji) => {
+    inputText.value += emoji.i;
+    showEmojiPicker.value = false;
+};
+
+// 点击其他地方关闭emoji选择器
+const closeEmojiPicker = (e) => {
+    if (!e.target.closest(".emoji-picker") && !e.target.closest(".van-icon-smile-o")) {
+        showEmojiPicker.value = false;
+    }
+};
 
 onMounted(async () => {
-    let {id, username, userType, teamId, teamName, teamType} = route.query
-    stats.value.chatUser.id = Number.parseInt(id)
-    stats.value.team.teamId = Number.parseInt(teamId)
-    stats.value.chatUser.username = username
-    stats.value.team.teamName = teamName
+    let { id, username, userType, teamId, teamName, teamType } = route.query;
+    stats.value.chatUser.id = Number.parseInt(id);
+    stats.value.team.teamId = Number.parseInt(teamId);
+    stats.value.chatUser.username = username;
+    stats.value.team.teamName = teamName;
     if (userType && Number.parseInt(userType) === stats.value.chatEnum.PRIVATE_CHAT) {
-        stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT
-        title.value = stats.value.chatUser.username
+        stats.value.chatType = stats.value.chatEnum.PRIVATE_CHAT;
+        title.value = stats.value.chatUser.username;
     } else if (teamType && Number.parseInt(teamType) === stats.value.chatEnum.TEAM_CHAT) {
-        stats.value.chatType = stats.value.chatEnum.TEAM_CHAT
-        title.value = stats.value.team.teamName
+        stats.value.chatType = stats.value.chatEnum.TEAM_CHAT;
+        title.value = stats.value.team.teamName;
     } else {
-        stats.value.chatType = stats.value.chatEnum.HALL_CHAT
-        title.value = "公共聊天室"
+        stats.value.chatType = stats.value.chatEnum.HALL_CHAT;
+        title.value = "公共聊天室";
     }
-    stats.value.user = await getCurrentUser()
+    stats.value.user = await getCurrentUser();
 
     // 私聊
     if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
         const privateMessage = await myAxios.post("/chat/privateChat", {
             toId: stats.value.chatUser.id,
-        })
+        });
         privateMessage.data.data.forEach(chat => {
             messages.value.push({
                 isMy: chat.isMy,
                 fromUser: chat.isMy ? chat.fromUser : chat.toUser,
                 text: chat.text,
-                createTime: chat.createTime
-            })
-        })
+                createTime: chat.createTime,
+            });
+        });
     }
-    
+
     // 大厅聊天
     if (stats.value.chatType === stats.value.chatEnum.HALL_CHAT) {
-        const hallMessage = await myAxios.get("/chat/hallChat")
+        const hallMessage = await myAxios.get("/chat/hallChat");
         hallMessage.data.data.forEach(chat => {
             messages.value.push({
                 isMy: chat.isMy,
                 fromUser: chat.fromUser,
                 text: chat.text,
                 isAdmin: chat.isAdmin,
-                createTime: chat.createTime
-            })
-        })
+                createTime: chat.createTime,
+            });
+        });
     }
-    
+
     // 队伍聊天
     if (stats.value.chatType === stats.value.chatEnum.TEAM_CHAT) {
         const teamMessage = await myAxios.post("/chat/teamChat", {
-            teamId: stats.value.team.teamId
-        })
+            teamId: stats.value.team.teamId,
+        });
         teamMessage.data.data.forEach(chat => {
             messages.value.push({
                 isMy: chat.isMy,
                 fromUser: chat.fromUser,
                 text: chat.text,
                 isAdmin: chat.isAdmin,
-                createTime: chat.createTime
-            })
-        })
+                createTime: chat.createTime,
+            });
+        });
     }
-    
-    init()
-    await nextTick()
-    const chatRoom = document.querySelector('.chat-messages')
-    chatRoom.scrollTop = chatRoom.scrollHeight
-})
+
+    init();
+    await nextTick();
+    const chatRoom = document.querySelector(".chat-messages");
+    chatRoom.scrollTop = chatRoom.scrollHeight;
+    document.addEventListener("click", closeEmojiPicker);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("click", closeEmojiPicker);
+});
 
 const init = () => {
     let uid = stats.value.user?.id;
     if (typeof (WebSocket) == "undefined") {
-        showFailToast("您的浏览器不支持WebSocket")
+        showFailToast("您的浏览器不支持WebSocket");
     } else {
-        let socketUrl = 'ws://' + URL + '/websocket/' + uid + '/' + stats.value.team.teamId;
+        let socketUrl = "ws://" + URL + "/websocket/" + uid + "/" + stats.value.team.teamId;
         if (socket != null) {
             socket.close();
             socket = null;
@@ -201,38 +229,38 @@ const init = () => {
         // 开启一个websocket服务
         socket = new WebSocket(socketUrl);
         //打开事件
-        socket.onopen = function () {
+        socket.onopen = function() {
             startHeartbeat();
         };
         //  浏览器端收消息，获得从服务端发送过来的文本消息
-        socket.onmessage = function (msg) {
+        socket.onmessage = function(msg) {
             if (msg.data === "pong") {
                 return;
             }
             // 对收到的json数据进行解析，
-            let data = JSON.parse(msg.data)
+            let data = JSON.parse(msg.data);
             if (data.error) {
-                showFailToast(data.error)
-                return
+                showFailToast(data.error);
+                return;
             }
             // 获取在线人员信息
             if (data.users) {
                 stats.value.users = data.users.filter(user => {
-                    return user.id !== uid
-                })
+                    return user.id !== uid;
+                });
             } else {
                 let flag;
                 if (stats.value.chatType === data.chatType) {
                     // 单聊
-                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.fromUser?.id)
+                    flag = (uid === data.toUser?.id && stats.value.chatUser?.id === data.fromUser?.id);
                 }
                 if ((stats.value.chatType === data.chatType)) {
                     // 大厅
-                    flag = (data.fromUser?.id != uid)
+                    flag = (data.fromUser?.id != uid);
                 }
                 // 队伍
                 if (stats.value.chatType === data.chatType && data.teamId && stats.value.team.teamId === data.teamId) {
-                    flag = (data.fromUser?.id != uid)
+                    flag = (data.fromUser?.id != uid);
                 }
                 if (flag) {
                     messages.value.push({
@@ -240,83 +268,83 @@ const init = () => {
                         fromUser: data.fromUser,
                         text: data.text,
                         isAdmin: data.isAdmin,
-                        createTime: data.createTime
-                    })
+                        createTime: data.createTime,
+                    });
                 }
                 nextTick(() => {
-                    const chatRoom = document.querySelector('.chat-messages')
-                    chatRoom.scrollTop = chatRoom.scrollHeight
-                })
+                    const chatRoom = document.querySelector(".chat-messages");
+                    chatRoom.scrollTop = chatRoom.scrollHeight;
+                });
             }
         };
         //关闭事件
-        socket.onclose = function () {
+        socket.onclose = function() {
             stopHeartbeat();
             setTimeout(init, 5000); // 5秒后重连
         };
         //发生了错误事件
-        socket.onerror = function () {
-            showFailToast("发生了错误")
-        }
+        socket.onerror = function() {
+            showFailToast("发生了错误");
+        };
     }
-}
+};
 
 const send = () => {
     if (stats.value.chatUser.id === 0) {
         return;
     }
     if (stats.value.chatUser.id === stats.value.user.id) {
-        showFailToast("不能给自己发信息")
+        showFailToast("不能给自己发信息");
         return;
     }
     if (!inputText.value.trim()) {
-        showFailToast("请输入内容")
+        showFailToast("请输入内容");
         return;
     }
-    
+
     if (typeof (WebSocket) == "undefined") {
-        showFailToast("您的浏览器不支持WebSocket")
+        showFailToast("您的浏览器不支持WebSocket");
         return;
     }
-    
+
     let message = {
         fromId: stats.value.user.id,
         toId: stats.value.chatUser.id,
         text: inputText.value,
         chatType: stats.value.chatType,
         teamId: stats.value.team.teamId,
-    }
-    
+    };
+
     socket.send(JSON.stringify(message));
-    
+
     // 添加自己的消息到显示列表
     messages.value.push({
         isMy: true,
         fromUser: stats.value.user,
         text: inputText.value,
-        createTime: new Date().toLocaleTimeString()
-    })
-    
-    inputText.value = '';
-    
+        createTime: new Date().toLocaleTimeString(),
+    });
+
+    inputText.value = "";
+
     nextTick(() => {
-        const chatRoom = document.querySelector('.chat-messages')
-        chatRoom.scrollTop = chatRoom.scrollHeight
-    })
-}
+        const chatRoom = document.querySelector(".chat-messages");
+        chatRoom.scrollTop = chatRoom.scrollHeight;
+    });
+};
 
 const showUser = (id) => {
     router.push({
-        path: '/user/detail',
+        path: "/user/detail",
         query: {
-            id: id
-        }
-    })
-}
+            id: id,
+        },
+    });
+};
 
-const inputText = ref('')
+const inputText = ref("");
 
-window.showUser = showUser
+window.showUser = showUser;
 </script>
 <style>
 .chat-page {
@@ -413,19 +441,80 @@ window.showUser = showUser
     left: 0;
     right: 0;
     background-color: #fff;
-    padding: 4px 12px;
+    padding: 8px 12px;
     border-top: 1px solid #eee;
 }
 
-:deep(.van-field__body) {
-    background-color: #f5f5f5;
-    border-radius: 20px;
-    padding: 2px 12px;
-    min-height: 36px;
+.input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
 }
 
-:deep(.van-button--small) {
+.emoji-btn {
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 4px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.message-input {
+    flex: 1;
+    height: 36px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 18px;
+    background-color: #f5f5f5;
+    font-size: 14px;
+    outline: none;
+}
+
+.message-input::placeholder {
+    color: #999;
+}
+
+.send-btn {
+    padding: 0 16px;
     height: 32px;
-    line-height: 30px;
+    border: none;
+    border-radius: 16px;
+    background-color: #007AFF;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.send-btn:hover {
+    background-color: #0056b3;
+}
+
+.send-btn-disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.send-btn-disabled:hover {
+    background-color: #ccc;
+}
+
+.emoji-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 12px;
+    z-index: 1000;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.emoji-picker) {
+    --ep-color-border: #e0e0e0;
+    --ep-color-sbg: #f7f7f7;
+    width: 300px !important;
+    max-height: 320px !important;
 }
 </style>
