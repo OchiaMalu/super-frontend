@@ -46,7 +46,7 @@ const stats = ref({
     },
     ai: {
         username: "AI",
-        avatarUrl: "https://img.zcool.cn/community/0179e358a53d9aa801219c77c25d56.jpg@1280w_1l_2o_100sh.jpg",
+        avatarUrl: "../../public/robot.png",
     },
     text: "",
     content: "",

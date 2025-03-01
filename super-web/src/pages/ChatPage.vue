@@ -23,13 +23,18 @@
                         <span>{{ message.fromUser.username }}</span>
                         <span class="message-time">{{ message.createTime }}</span>
                     </div>
-                    <div class="message-bubble"
-                         :class="{
-                             'admin-message': !message.isMy && message.isAdmin,
-                             'message-right-bubble': message.isMy
-                         }">
-                        {{ message.text }}
-                    </div>
+                    <template v-if="message.messageType === 'image'">
+                        <img :src="message.text" class="message-image" @click="previewImage(message.text)" />
+                    </template>
+                    <template v-else>
+                        <div class="message-bubble"
+                             :class="{
+                                 'admin-message': !message.isMy && message.isAdmin,
+                                 'message-right-bubble': message.isMy
+                             }">
+                            {{ message.text }}
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -46,12 +51,26 @@
                     @keypress.enter="send"
                 />
                 <button
+                    v-if="inputText.trim()"
                     class="send-btn"
-                    :class="{ 'send-btn-disabled': !inputText.trim() }"
                     @click="send"
                 >
                     发送
                 </button>
+                <div
+                    v-else
+                    class="upload-btn"
+                    @click="triggerUpload"
+                >
+                    <van-icon name="plus" />
+                    <input
+                        type="file"
+                        ref="fileInput"
+                        accept="image/*"
+                        style="display: none"
+                        @change="handleImageUpload"
+                    />
+                </div>
             </div>
 
             <!-- Emoji选择器 -->
@@ -64,7 +83,7 @@
 <script setup>
 import { nextTick, onMounted, ref, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { showFailToast } from "vant";
+import { showFailToast, ImagePreview, showImagePreview } from "vant";
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 
@@ -142,6 +161,69 @@ const closeEmojiPicker = (e) => {
     }
 };
 
+const fileInput = ref(null);
+
+const triggerUpload = () => {
+    fileInput.value.click();
+};
+
+const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 检查文件类型
+    if (!file.type.startsWith("image/")) {
+        showFailToast("请选择图片文件");
+        return;
+    }
+
+    // 检查文件大小（例如限制为 5MB）
+    if (file.size > 5 * 1024 * 1024) {
+        showFailToast("图片大小不能超过 5MB");
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // 上传图片到服务器
+        const response = await myAxios.post("/common/upload/file", formData);
+        const imageUrl = response.data.data;
+
+        // 发送图片消息
+        let message = {
+            fromId: stats.value.user.id,
+            toId: stats.value.chatUser.id,
+            text: imageUrl,
+            chatType: stats.value.chatType,
+            teamId: stats.value.team.teamId,
+            messageType: "image",
+        };
+
+        socket.send(JSON.stringify(message));
+
+        // 添加自己的图片消息到显示列表
+        messages.value.push({
+            isMy: true,
+            fromUser: stats.value.user,
+            text: imageUrl,
+            messageType: "image",
+            createTime: new Date().toLocaleTimeString(),
+        });
+
+        nextTick(() => {
+            const chatRoom = document.querySelector(".chat-messages");
+            chatRoom.scrollTop = chatRoom.scrollHeight;
+        });
+    } catch (error) {
+        showFailToast("图片上传失败");
+    }
+
+    // 清空文件输入框，允许重复选择同一文件
+    event.target.value = "";
+};
+
 onMounted(async () => {
     let { id, username, userType, teamId, teamName, teamType } = route.query;
     stats.value.chatUser.id = Number.parseInt(id);
@@ -160,7 +242,7 @@ onMounted(async () => {
     }
     stats.value.user = await getCurrentUser();
 
-    // 私聊
+    // 加载历史消息
     if (stats.value.chatType === stats.value.chatEnum.PRIVATE_CHAT) {
         const privateMessage = await myAxios.post("/chat/privateChat", {
             toId: stats.value.chatUser.id,
@@ -170,6 +252,7 @@ onMounted(async () => {
                 isMy: chat.isMy,
                 fromUser: chat.isMy ? chat.fromUser : chat.toUser,
                 text: chat.text,
+                messageType: chat.messageType,
                 createTime: chat.createTime,
             });
         });
@@ -183,6 +266,7 @@ onMounted(async () => {
                 isMy: chat.isMy,
                 fromUser: chat.fromUser,
                 text: chat.text,
+                messageType: chat.messageType,
                 isAdmin: chat.isAdmin,
                 createTime: chat.createTime,
             });
@@ -199,6 +283,7 @@ onMounted(async () => {
                 isMy: chat.isMy,
                 fromUser: chat.fromUser,
                 text: chat.text,
+                messageType: chat.messageType,
                 isAdmin: chat.isAdmin,
                 createTime: chat.createTime,
             });
@@ -206,9 +291,16 @@ onMounted(async () => {
     }
 
     init();
+
+    // 使用 nextTick 和 setTimeout 确保在消息渲染完成后滚动
     await nextTick();
-    const chatRoom = document.querySelector(".chat-messages");
-    chatRoom.scrollTop = chatRoom.scrollHeight;
+    setTimeout(() => {
+        const chatRoom = document.querySelector(".chat-messages");
+        if (chatRoom) {
+            chatRoom.scrollTop = chatRoom.scrollHeight;
+        }
+    }, 100);
+
     document.addEventListener("click", closeEmojiPicker);
 });
 
@@ -267,6 +359,7 @@ const init = () => {
                         isMy: false,
                         fromUser: data.fromUser,
                         text: data.text,
+                        messageType: data.messageType,
                         isAdmin: data.isAdmin,
                         createTime: data.createTime,
                     });
@@ -345,13 +438,17 @@ const showUser = (id) => {
 const inputText = ref("");
 
 window.showUser = showUser;
+
+const previewImage = (url) => {
+    showImagePreview([url]);
+};
 </script>
 <style>
 .chat-page {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #f7f7f7;
+    background-color: #ECECEC;
 }
 
 .chat-header {
@@ -362,6 +459,7 @@ window.showUser = showUser;
     flex: 1;
     overflow-y: auto;
     padding: 60px 12px 56px;
+    padding-bottom: 80px;
 }
 
 .message-item {
@@ -426,8 +524,8 @@ window.showUser = showUser;
 }
 
 .message-right-bubble {
-    background-color: #007AFF;
-    color: #fff;
+    background-color: #95EC6E;
+    color: black;
 }
 
 .admin-message {
@@ -440,7 +538,7 @@ window.showUser = showUser;
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #fff;
+    background-color: #F7F7F7;
     padding: 8px 12px;
     border-top: 1px solid #eee;
 }
@@ -449,7 +547,49 @@ window.showUser = showUser;
     display: flex;
     align-items: center;
     gap: 8px;
-    background-color: #fff;
+    background-color: #F7F7F7;
+    position: relative;
+}
+
+.message-input {
+    flex: 1;
+    height: 36px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 18px;
+    background-color: #FFFFFF;
+    font-size: 14px;
+    outline: none;
+}
+
+.send-btn {
+    height: 32px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 16px;
+    background-color: #007AFF;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.upload-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #007AFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upload-btn .van-icon {
+    color: #fff;
+    font-size: 20px;
 }
 
 .emoji-btn {
@@ -461,44 +601,8 @@ window.showUser = showUser;
     align-items: center;
 }
 
-.message-input {
-    flex: 1;
-    height: 36px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 18px;
-    background-color: #f5f5f5;
-    font-size: 14px;
-    outline: none;
-}
-
 .message-input::placeholder {
     color: #999;
-}
-
-.send-btn {
-    padding: 0 16px;
-    height: 32px;
-    border: none;
-    border-radius: 16px;
-    background-color: #007AFF;
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.send-btn:hover {
-    background-color: #0056b3;
-}
-
-.send-btn-disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-.send-btn-disabled:hover {
-    background-color: #ccc;
 }
 
 .emoji-picker {
@@ -516,5 +620,16 @@ window.showUser = showUser;
     --ep-color-sbg: #f7f7f7;
     width: 300px !important;
     max-height: 320px !important;
+}
+
+.message-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.message-bubble.image-message {
+    padding: 0;
 }
 </style>

@@ -40,7 +40,7 @@
                     <van-icon class-prefix="my-icon" name="wofadetiezi" size="23" style="margin-bottom: 8px"/>
                 </template>
             </van-grid-item>
-            <van-grid-item text="联系客服" @click="customerService">
+            <van-grid-item text="联系管理员" @click="customerService">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="fankui" size="23" style="margin-bottom: 8px"/>
                 </template>
@@ -59,6 +59,8 @@
         </div>
       <van-dialog v-model:show="showCustomerService" title="联系管理员">
             <van-image
+                height="60vh"
+                width="100%"
                 src="../../public/customer-service.jpg"
             />
         </van-dialog>

@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 
 import App from "./App.vue";
-import { Button, ConfigProvider, Icon, NavBar } from "vant";
+import { Button, ConfigProvider, Icon, ImagePreview, NavBar } from "vant";
 import "vant/lib/index.css";
 import * as VueRouter from "vue-router";
 import routes from "./config/routes.ts";
@@ -34,6 +34,7 @@ app.component("ai-layout", AIPage);
 app.use(Button);
 app.use(NavBar);
 app.use(Icon);
+app.use(ImagePreview);
 app.use(router);
 app.use(ConfigProvider);
 app.mount("#app");
