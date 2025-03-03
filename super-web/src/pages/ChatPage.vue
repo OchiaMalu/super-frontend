@@ -26,6 +26,25 @@
                     <template v-if="message.messageType === 'image'">
                         <img :src="message.text" class="message-image" @click="previewImage(message.text)" />
                     </template>
+                    <template v-else-if="message.messageType === 'emoticon'">
+                        <div class="emoticon-wrapper">
+                            <van-popover
+                                v-model:show="message.showPopover"
+                                :actions="emoticonActions"
+                                @select="onEmoticonAction($event, message.text)"
+                                placement="top"
+                                theme="dark"
+                            >
+                                <template #reference>
+                                    <img :src="message.text"
+                                         class="message-emoticon" 
+                                         @touchstart="handleTouchStart($event, message)"
+                                         @touchend="handleTouchEnd"
+                                         @contextmenu.prevent="showPopover(message)" />
+                                </template>
+                            </van-popover>
+                        </div>
+                    </template>
                     <template v-else>
                         <div class="message-bubble"
                              :class="{
@@ -74,18 +93,20 @@
             </div>
 
             <!-- Emoji选择器 -->
-            <div v-if="showEmojiPicker" class="emoji-picker">
-                <EmojiPicker @select="onEmojiSelect" />
+            <div v-if="showEmojiPicker" class="emoji-picker-wrapper">
+                <EmojiPicker
+                    @select="onEmojiSelect"
+                    @selectImage="onStickerSelect"
+                />
             </div>
         </div>
     </div>
 </template>
 <script setup>
-import { nextTick, onMounted, ref, onUnmounted } from "vue";
+import { nextTick, onMounted, ref, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { showFailToast, ImagePreview, showImagePreview } from "vant";
-import EmojiPicker from "vue3-emoji-picker";
-import "vue3-emoji-picker/css";
+import { showFailToast, ImagePreview, showImagePreview, showDialog, showToast, Popover as VanPopover } from "vant";
+import EmojiPicker from "../components/EmojiPicker.vue";
 
 import { getCurrentUser } from "../services/user.ts";
 import myAxios, { URL } from "../plugins/my-axios.ts";
@@ -149,14 +170,51 @@ const messages = ref([]);
 
 const showEmojiPicker = ref(false);
 
+// 监听 showEmojiPicker 的变化
+watch(showEmojiPicker, (newValue) => {
+    if (newValue) {
+        // 等待过渡动画完成后滚动到底部
+        setTimeout(() => {
+            const chatRoom = document.querySelector(".chat-messages");
+            chatRoom.scrollTop = chatRoom.scrollHeight;
+        }, 300); // 300ms 是过渡动画的时间
+    }
+});
+
 const onEmojiSelect = (emoji) => {
-    inputText.value += emoji.i;
-    showEmojiPicker.value = false;
+    inputText.value += emoji;
 };
 
-// 点击其他地方关闭emoji选择器
+const onStickerSelect = (imageUrl) => {
+    // 发送图片消息
+    let message = {
+        fromId: stats.value.user.id,
+        toId: stats.value.chatUser.id,
+        text: imageUrl,
+        chatType: stats.value.chatType,
+        teamId: stats.value.team.teamId,
+        messageType: "emoticon",
+    };
+
+    socket.send(JSON.stringify(message));
+
+    // 添加自己的图片消息到显示列表
+    messages.value.push({
+        isMy: true,
+        fromUser: stats.value.user,
+        text: imageUrl,
+        messageType: "emoticon",
+        createTime: new Date().toLocaleTimeString(),
+    });
+
+    nextTick(() => {
+        const chatRoom = document.querySelector(".chat-messages");
+        chatRoom.scrollTop = chatRoom.scrollHeight;
+    });
+};
+
 const closeEmojiPicker = (e) => {
-    if (!e.target.closest(".emoji-picker") && !e.target.closest(".van-icon-smile-o")) {
+    if (!e.target.closest(".emoji-picker-wrapper") && !e.target.closest(".van-icon-smile-o")) {
         showEmojiPicker.value = false;
     }
 };
@@ -224,6 +282,58 @@ const handleImageUpload = async (event) => {
     event.target.value = "";
 };
 
+const emoticonActions = [
+    { text: '添加到表情' }
+];
+
+let touchTimer = null;
+let touchTarget = null;
+
+const handleTouchStart = (event, message) => {
+    event.preventDefault();
+    touchTarget = message;
+    touchTimer = setTimeout(() => {
+        showPopover(message);
+    }, 500);
+};
+
+const handleTouchEnd = () => {
+    clearTimeout(touchTimer);
+};
+
+const showPopover = (message) => {
+    // 先关闭所有其他的 popover
+    messages.value.forEach(m => {
+        if (m !== message) {
+            m.showPopover = false;
+        }
+    });
+    message.showPopover = true;
+};
+
+const onEmoticonAction = async (action, url) => {
+    if (action.text === '添加到表情') {
+        try {
+            await myAxios.post("/emoticon/add?url=" + url);
+            showToast('添加成功');
+        } catch (error) {
+            showFailToast('添加失败');
+        }
+    }
+};
+
+const processMessage = (chat) => {
+    return {
+        isMy: chat.isMy,
+        fromUser: chat.isMy ? chat.fromUser : chat.toUser,
+        text: chat.text,
+        messageType: chat.messageType,
+        isAdmin: chat.isAdmin,
+        createTime: chat.createTime,
+        showPopover: false,
+    };
+};
+
 onMounted(async () => {
     let { id, username, userType, teamId, teamName, teamType } = route.query;
     stats.value.chatUser.id = Number.parseInt(id);
@@ -247,15 +357,7 @@ onMounted(async () => {
         const privateMessage = await myAxios.post("/chat/privateChat", {
             toId: stats.value.chatUser.id,
         });
-        privateMessage.data.data.forEach(chat => {
-            messages.value.push({
-                isMy: chat.isMy,
-                fromUser: chat.isMy ? chat.fromUser : chat.toUser,
-                text: chat.text,
-                messageType: chat.messageType,
-                createTime: chat.createTime,
-            });
-        });
+        messages.value = privateMessage.data.data.map(processMessage);
     }
 
     // 大厅聊天
@@ -449,17 +551,24 @@ const previewImage = (url) => {
     display: flex;
     flex-direction: column;
     background-color: #ECECEC;
+    position: relative;
 }
 
 .chat-header {
     height: 46px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
 }
 
 .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 60px 12px 56px;
-    padding-bottom: 80px;
+    padding: 60px 12px 0;
+    margin-bottom: v-bind('showEmojiPicker ? "370px" : "56px"');
+    transition: margin-bottom 0.3s ease;
 }
 
 .message-item {
@@ -541,6 +650,11 @@ const previewImage = (url) => {
     background-color: #F7F7F7;
     padding: 8px 12px;
     border-top: 1px solid #eee;
+    transition: height 0.3s ease;
+    height: v-bind('showEmojiPicker ? "370px" : "56px"');
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .input-container {
@@ -548,7 +662,6 @@ const previewImage = (url) => {
     align-items: center;
     gap: 8px;
     background-color: #F7F7F7;
-    position: relative;
 }
 
 .message-input {
@@ -605,21 +718,12 @@ const previewImage = (url) => {
     color: #999;
 }
 
-.emoji-picker {
-    position: absolute;
-    bottom: 100%;
-    left: 12px;
-    z-index: 1000;
+.emoji-picker-wrapper {
+    flex: 1;
+    overflow: hidden;
+    margin: 0;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-}
-
-:deep(.emoji-picker) {
-    --ep-color-border: #e0e0e0;
-    --ep-color-sbg: #f7f7f7;
-    width: 300px !important;
-    max-height: 320px !important;
 }
 
 .message-image {
@@ -631,5 +735,26 @@ const previewImage = (url) => {
 
 .message-bubble.image-message {
     padding: 0;
+}
+
+.emoticon-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.emoticon-popover {
+    --van-popover-action-height: 36px;
+    --van-popover-light-text-color: #fff;
+    --van-popover-dark-background: rgba(0, 0, 0, 0.75);
+}
+
+.message-emoticon {
+    width: 100px;
+    height: 100px;
+    border-radius: 4px;
+    object-fit: cover;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none; /* 防止触摸事件冲突 */
 }
 </style>

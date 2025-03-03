@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     BlogCardList: typeof import('./src/components/BlogCardList.vue')['default']
     CommentList: typeof import('./src/components/CommentList.vue')['default']
+    EmojiPicker: typeof import('./src/components/EmojiPicker.vue')['default']
     MessageDefalutGrid: typeof import('./src/components/MessageDefalutGrid.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
