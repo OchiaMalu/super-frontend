@@ -18,7 +18,7 @@
                            @click="like.blog?.id && toBlog(like.blog.id)">
                     <van-image v-if="like.blog?.coverImage" :src="like.blog.coverImage" width="50" height="50"
                                style="margin-left: 10px" />
-                    <van-cell :title="like.blog?.author.username" :label="like.blog?.title"
+                    <van-cell :title="like.blog?.author?.username || '该博文已被删除'" :label="like.blog?.title"
                               style="background: #f3f2f5;margin: 0">
                     </van-cell>
                 </van-space>

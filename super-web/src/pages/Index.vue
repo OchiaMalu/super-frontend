@@ -16,6 +16,7 @@
         <van-tabs v-model:active="active" @change="tabsChange">
             <van-tab title="👑 匹配用户">
                 <van-pull-refresh
+                    v-if="userList && userList.length > 0"
                     v-model="refreshLoading"
                     success-text="刷新成功"
                     @refresh="onRefresh">
@@ -34,12 +35,13 @@
                         <UserCardList :user-list="userList" />
                     </van-list>
                     <van-back-top right="20px" bottom="60px" />
-                    <van-empty v-if="(!userList ||　userList.length===0) && !listLoading && !searching" image="search"
-                               description="暂无用户" />
                 </van-pull-refresh>
+                <van-empty v-if="(!userList ||　userList.length===0) && !listLoading && !searching" image="search"
+                           description="暂无用户" />
             </van-tab>
             <van-tab title="📚 热门博文">
                 <van-pull-refresh
+                    v-if="blogList && blogList.length > 0"
                     v-model="refreshLoading"
                     success-text="刷新成功"
                     @refresh="blogRefresh">
@@ -58,9 +60,9 @@
                         <blog-card-list :blog-list="blogList" />
                     </van-list>
                     <van-back-top right="20px" bottom="60px" />
-                    <van-empty v-if="(!blogList ||　blogList.length===0) && !listLoading &&!searching" image="search"
-                               description="暂无博文" />
                 </van-pull-refresh>
+                <van-empty v-if="(!blogList || blogList.length===0) && !listLoading && !searching" image="search"
+                           description="暂无博文" />
             </van-tab>
             <van-loading vertical v-if="searching">
                 <template #icon>
@@ -81,16 +83,16 @@ import type { UserType } from "../types/user";
 import type { BlogType } from "../types/blog";
 
 interface PageResult<T> {
-  records: T[];
-  total: number;
-  size: number;
-  current: number;
+    records: T[];
+    total: number;
+    size: number;
+    current: number;
 }
 
 interface MyAxiosResponse<T> {
-  code: number;
-  data: T;
-  description?: string;
+    code: number;
+    data: T;
+    description?: string;
 }
 
 const searching = ref<boolean>(false);
@@ -115,6 +117,8 @@ const images = ref<string[]>([
 onMounted(async () => {
     await getNotice();
     await getSwiper();
+    await onRefresh();
+    await blogRefresh();
     if (sessionStorage.getItem("tabIndex") === "1") {
         active.value = 1;
     }
@@ -131,7 +135,7 @@ const getNotice = async (): Promise<void> => {
             noticeText.value = res.data.data;
         }
     } catch (error) {
-        console.error('Failed to fetch notice:', error);
+        console.error("Failed to fetch notice:", error);
     }
 };
 
@@ -142,7 +146,7 @@ const getSwiper = async (): Promise<void> => {
             images.value = res.data.data;
         }
     } catch (error) {
-        console.error('Failed to fetch swiper:', error);
+        console.error("Failed to fetch swiper:", error);
     }
 };
 
@@ -169,7 +173,7 @@ const getBlogList = async (currentPage: number): Promise<void> => {
             listLoading.value = false;
         }
     } catch (error) {
-        console.error('Failed to fetch blog list:', error);
+        console.error("Failed to fetch blog list:", error);
     }
 };
 
@@ -200,7 +204,7 @@ const getUserList = async (currentPage: number): Promise<void> => {
             showFailToast(`加载失败${res.data.description ? `,${res.data.description}` : ""}`);
         }
     } catch (error) {
-        console.error('Failed to fetch user list:', error);
+        console.error("Failed to fetch user list:", error);
     }
 };
 
@@ -217,7 +221,7 @@ const onRefresh = async (): Promise<void> => {
         listFinished.value = false;
         await getUserList(currentPage.value);
     } catch (error) {
-        console.error('Failed to refresh:', error);
+        console.error("Failed to refresh:", error);
     } finally {
         refreshLoading.value = false;
         listLoading.value = false;
@@ -231,7 +235,7 @@ const blogRefresh = async (): Promise<void> => {
         blogListFinished.value = false;
         await getBlogList(blogCurrentPage.value);
     } catch (error) {
-        console.error('Failed to refresh blogs:', error);
+        console.error("Failed to refresh blogs:", error);
     } finally {
         refreshLoading.value = false;
         listLoading.value = false;
