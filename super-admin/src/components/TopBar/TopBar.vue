@@ -10,6 +10,7 @@ const menuItems: MenuItem[] = [
     { path: "dashboard", title: "首页" },
     { path: "config", title: "配置" },
     { path: "user", title: "用户管理" },
+    { path: "tag", title: "标签管理" },
 ];
 
 // 状态定义

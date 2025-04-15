@@ -85,8 +85,7 @@ const close = (tag: string): void => {
     });
 };
 
-// 原始标签列表
-const originTagList: TagItem[] = [
+const internalTags: TagItem[] = [
     {
         text: "性别",
         children: [
@@ -197,9 +196,12 @@ const originTagList: TagItem[] = [
     },
 ];
 
+// 原始标签列表
+const originTagList = ref<TagItem[]>([]);
+
 // 搜索处理
 const onSearch = (): void => {
-    tagList.value = originTagList.map(parentTag => {
+    tagList.value = originTagList.value.map(parentTag => {
         const tempChildren = [...parentTag.children];
         const tempParentTag = { ...parentTag };
         tempParentTag.children = tempChildren.filter(item => item.text.includes(searchText.value));
@@ -222,11 +224,20 @@ const onClickRight = (): void => {
 
 // 生命周期钩子
 onMounted(async () => {
-    tagList.value = originTagList;
+    let response = await myAxios.get("/tag");
+    if (response?.data.code === 0) {
+        if (response.data.data) {
+            originTagList.value = response.data.data?.length > 0 ? response.data.data : internalTags;
+        } else {
+            originTagList.value = internalTags;
+        }
+    }
+    tagList.value = originTagList.value;
     const res = await myAxios.get("/user/tags");
     if (res?.data.code === 0) {
         activeIds.value = res.data.data;
     }
+
 });
 </script>
 
