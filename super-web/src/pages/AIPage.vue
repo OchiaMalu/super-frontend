@@ -22,6 +22,12 @@
             </van-field>
         </van-cell-group>
     </div>
+
+    <van-overlay :show="show" @click="show = false">
+        <div class="wrapper">
+            <van-loading v-show="show" type="spinner" color="#1989fa" />
+        </div>
+    </van-overlay>
 </template>
 <script setup>
 import { nextTick, onMounted, ref } from "vue";
@@ -31,6 +37,7 @@ import { showFailToast } from "vant";
 import { getCurrentUser } from "../services/user.ts";
 import myAxios, { URL } from "../plugins/my-axios.ts";
 
+const show = ref(false);
 const defaultMessage = "你好,我是速配SUPER的智能助手,欢迎问我任何问题。";
 const route = useRoute();
 const router = useRouter();
@@ -61,6 +68,7 @@ const send = async () => {
         showFailToast("请输入内容");
     } else {
         createContent(null, stats.value.user, stats.value.text);
+        show.value = true;
         let res = await myAxios.post("/ai", {
             message: stats.value.text,
         });
@@ -72,6 +80,7 @@ const send = async () => {
             const lastElement = chatRoom.value.lastElementChild;
             lastElement.scrollIntoView();
         });
+        show.value = false;
     }
 };
 
@@ -188,5 +197,12 @@ window.showUser = showUser;
 .self .text {
     background-color: #0084ff;
     color: #fff;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 </style>

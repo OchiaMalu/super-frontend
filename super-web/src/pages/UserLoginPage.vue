@@ -64,7 +64,7 @@ const onSubmit = async () => {
     })
 
     if (response.data.code === 0 && response.data.data) {
-        sessionStorage.setItem("token", response.data.data)
+        localStorage.setItem("token", response.data.data)
         showSuccessToast("登录成功")
         window.location.href = (route.query.redirectUrl as string) ?? '/'
     } else {

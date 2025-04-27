@@ -8,7 +8,7 @@ let myAxios = axios.create({
 });
 myAxios.defaults.withCredentials = true
 
-let token = sessionStorage.getItem("token");
+let token = localStorage.getItem("token");
 // 添加请求拦截器
 myAxios.interceptors.request.use(function (config) {
     if (token) {
