@@ -181,7 +181,7 @@ const onSubmit = async (): Promise<void> => {
 
     if (res?.data.code === 0) {
         showSuccessToast("注册成功");
-        sessionStorage.setItem("token", res.data.data);
+        localStorage.setItem("token", res.data.data);
         window.location.href = "/after";
     } else {
         showFailToast(`注册失败,${res?.data.description ?? ""}`);

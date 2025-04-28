@@ -22,6 +22,7 @@ const genderValue = ref("");
 const genderValueOption = [
     { value: "0", label: "女" },
     { value: "1", label: "男" },
+    { value: "2", label: "保密" },
 ] as const;
 
 const isAdmin = ref("0");
@@ -72,7 +73,7 @@ const processUserData = (user: User): User => {
         ...user,
         status: user.status === 0 ? "正常" : "封禁",
         role: user.role === 1 ? "管理员" : "普通用户",
-        gender: user.gender === 1 ? "男" : user.gender === 0 ? "女" : "未知",
+        gender: user.gender === 1 ? "男" : user.gender === 0 ? "女" : "保密",
     };
 };
 
