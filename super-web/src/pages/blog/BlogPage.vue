@@ -15,7 +15,7 @@
         <div style="width: 100%;height: 10px;background-color: black" />
         <van-swipe :autoplay="3000" lazy-render style="height: 200px">
             <van-swipe-item v-for="image in images" :key="image">
-                <img :src="image" style="height: 200px;width: 100%" alt="" />
+                <img :src="image" style="height: 200px;width: 100%" alt="" @click="previewImage(image)" />
             </van-swipe-item>
         </van-swipe>
         <div style="width: 100%;height: 10px;background-color: black" />
@@ -152,7 +152,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { showConfirmDialog, showFailToast, showSuccessToast } from "vant";
+import { showConfirmDialog, showFailToast, showImagePreview, showSuccessToast } from "vant";
 import myAxios from "../../plugins/my-axios";
 import CommentList from "../../components/CommentList.vue";
 import { getCurrentUser } from "../../services/user";
@@ -329,6 +329,10 @@ const followUser = async (authorData: Author): Promise<void> => {
 
 const refresh = (): void => {
     location.reload();
+};
+
+const previewImage = (url: string) => {
+    showImagePreview([url]);
 };
 
 // 生命周期钩子
