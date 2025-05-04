@@ -25,17 +25,17 @@
             </template>
         </van-cell>
         <van-grid :border="false">
-            <van-grid-item text="创建的队伍" to="/user/team/create">
+            <van-grid-item text="创建的队伍" to="/my/team/create">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="wochuangjiande" size="23" style="margin-bottom: 8px"/>
                 </template>
             </van-grid-item>
-            <van-grid-item text="加入的队伍" to="/user/team/join">
+            <van-grid-item text="加入的队伍" to="/my/team/join">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="jiarubanji" size="23" style="margin-bottom: 8px"/>
                 </template>
             </van-grid-item>
-            <van-grid-item text="我写的帖文" to="/user/blog">
+            <van-grid-item text="我写的帖文" to="/my/blog">
                 <template #icon>
                     <van-icon class-prefix="my-icon" name="wofadetiezi" size="23" style="margin-bottom: 8px"/>
                 </template>

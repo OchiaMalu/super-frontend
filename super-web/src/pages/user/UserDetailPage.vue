@@ -26,6 +26,8 @@
             <span v-else>该用户暂未填写性别</span>
         </van-cell>
         <van-cell title="邮箱" :value="user?.email || '该用户暂未填写邮箱'"/>
+        <van-cell v-if="user?.id !== currentUser?.id" title="他的博文" is-link @click="toBlog(user?.id)"/>
+        <van-cell v-if="user?.id !== currentUser?.id" title="他创建的队伍" is-link @click="toTeam(user?.id)"/>
     </van-cell-group>
     <div style="margin: 16px">
         <div v-if="user?.id !== currentUser?.id">
@@ -58,31 +60,11 @@ interface User {
     avatarUrl?: string;
     isFollow?: boolean;
 }
-
-// 响应式状态定义
-const addUserApply = ref<boolean>(false);
-const addUserApplyText = ref<string>("");
 const user = ref<User | null>(null);
 const currentUser = ref<User | null>(null);
 
 const route = useRoute();
 const router = useRouter();
-
-// 添加用户申请
-const toAddUserApply = async (id: number): Promise<void> => {
-    try {
-        const status = await myAxios.post("/friends/add", {
-            receiveId: id,
-            remark: addUserApplyText.value
-        });
-        
-        if (status) {
-            showSuccessToast("申请成功");
-        }
-    } catch (error) {
-        console.error('Failed to add user:', error);
-    }
-};
 
 // 关注用户
 const followUser = async (): Promise<void> => {
@@ -132,6 +114,24 @@ onMounted(async () => {
         console.error('Failed to fetch user details:', error);
     }
 });
+
+const toBlog = (id: number): void => {
+    router.push({
+        path: "/user/blog",
+        query: {
+            id: id
+        }
+    });
+};
+
+const toTeam = (id: number): void => {
+    router.push({
+        path: "/user/team/create",
+        query: {
+            id: id
+        }
+    });
+};
 </script>
 
 <style scoped>
