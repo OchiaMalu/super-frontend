@@ -42,7 +42,25 @@
                 </div>
             </template>
         </van-cell>
-        <van-cell :title="blog.content" />
+        <van-cell>
+            <template #title>
+                <div v-if="processedSegments.length === 0">
+                    {{ blog.content }}
+                </div>
+                <div v-else>
+                    <template v-for="(segment, index) in processedSegments" :key="index">
+                        <div v-if="segment.type === 'text'">{{ segment.content }}</div>
+                        <van-card
+                            v-else-if="segment.type === 'card' && segment.cardData"
+                            :desc="segment.cardData.desc"
+                            :title="segment.cardData.title"
+                            :thumb="segment.cardData.thumb"
+                            @click="toLinkedBlog(segment.cardData.id)"
+                        />
+                    </template>
+                </div>
+            </template>
+        </van-cell>
     </van-cell-group>
 
     <van-divider />
@@ -150,10 +168,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { showConfirmDialog, showFailToast, showImagePreview, showSuccessToast } from "vant";
-import myAxios from "../../plugins/my-axios";
+import myAxios, { URL } from "../../plugins/my-axios";
 import CommentList from "../../components/CommentList.vue";
 import { getCurrentUser } from "../../services/user";
 import { CommentType } from "../../types/comment";
@@ -183,6 +201,19 @@ interface User {
     // 根据实际用户对象添加其他属性
 }
 
+interface CardData {
+    id: string;
+    title: string;
+    desc: string;
+    thumb: string;
+}
+
+interface ContentSegment {
+    type: "text" | "card";
+    content?: string;
+    cardData?: CardData;
+}
+
 // 响应式状态定义
 const showBottom = ref<boolean>(false);
 const comment = ref<string>("");
@@ -191,6 +222,7 @@ const blog = ref<Blog>({} as Blog);
 const author = ref<Author>({} as Author);
 const commentList = ref<CommentType[]>([]);
 const currentUser = ref<User>({} as User);
+const processedSegments = ref<ContentSegment[]>([]);
 
 const router = useRouter();
 const route = useRoute();
@@ -335,28 +367,179 @@ const previewImage = (url: string) => {
     showImagePreview([url]);
 };
 
+const toLinkedBlog = (id: string): void => {
+    router.push({
+        path: "/blog",
+        query: {
+            id: id,
+        },
+    });
+};
+
+const parseContent = async (): Promise<void> => {
+    if (!blog.value.content) {
+        processedSegments.value = [];
+        return;
+    }
+
+    // 使用当前域名构建正则表达式
+    const host = window.location.host;
+    // 构建正则表达式，使用动态域名，同时支持http和https
+    const regexPattern = new RegExp(`\\s*(https?:\\/\\/${host.replace(/\./g, "\\.")}\/blog\\?id=(\\d+))\\s*`, "g");
+
+    let content = blog.value.content;
+    let contentArr: ContentSegment[] = [];
+    let lastIndex = 0;
+    let matches: { index: number; length: number; url: string; id: string }[] = [];
+
+    // 找出所有匹配项
+    let match;
+    while ((match = regexPattern.exec(content)) !== null) {
+        matches.push({
+            index: match.index,
+            length: match[0].length,
+            url: match[1], // 实际链接，不包含前后空格
+            id: match[2],
+        });
+    }
+
+    // 如果没有找到匹配项，直接返回原文本
+    if (matches.length === 0) {
+        processedSegments.value = [{
+            type: "text",
+            content: content,
+        }];
+        return;
+    }
+
+    // 处理文本和链接
+    for (const item of matches) {
+        // 添加链接前的文本
+        if (item.index > lastIndex) {
+            contentArr.push({
+                type: "text",
+                content: content.substring(lastIndex, item.index),
+            });
+        }
+
+        // 处理链接
+        try {
+            const res = await myAxios.get(`/blog/${item.id}`);
+            if (res?.data.code === 0) {
+                const linkedBlog = res.data.data;
+                let thumb = "";
+
+                // 获取第一张图片作为缩略图
+                if (linkedBlog.images) {
+                    const blogImages = linkedBlog.images.split(",");
+                    if (blogImages.length > 0) {
+                        thumb = blogImages[0];
+                    }
+                }
+
+                // 添加卡片
+                contentArr.push({
+                    type: "card",
+                    cardData: {
+                        id: item.id,
+                        title: linkedBlog.title || "无标题",
+                        desc: linkedBlog.content ?
+                            (linkedBlog.content.length > 20 ?
+                                linkedBlog.content.substring(0, 20) + "..." :
+                                linkedBlog.content) :
+                            "正文",
+                        thumb,
+                    },
+                });
+            } else {
+                // 如果获取失败，保留原链接文本
+                contentArr.push({
+                    type: "text",
+                    content: item.url,
+                });
+            }
+        } catch (error) {
+            // 发生错误，保留原链接文本
+            contentArr.push({
+                type: "text",
+                content: item.url,
+            });
+        }
+
+        lastIndex = item.index + item.length;
+    }
+
+    // 添加最后一段文本
+    if (lastIndex < content.length) {
+        contentArr.push({
+            type: "text",
+            content: content.substring(lastIndex),
+        });
+    }
+
+    // 更新处理后的内容片段
+    processedSegments.value = contentArr;
+
+    // 调试日志
+    console.log("处理后的内容片段:", processedSegments.value);
+};
+
+// 加载博文数据的函数
+const loadBlogData = async (blogId: string): Promise<void> => {
+    try {
+        const res = await myAxios.get(`/blog/${blogId}`);
+        
+        if (res?.data.code === 0) {
+            blog.value = res.data.data;
+            author.value = res.data.data.author;
+
+            if (res.data.data.images) {
+                images.value = res.data.data.images.split(",");
+            } else {
+                images.value = [];
+            }
+
+            await parseContent();
+            await listComments();
+        } else {
+            showFailToast(`加载失败${res.data.description ? `,${res.data.description}` : ""}`);
+        }
+    } catch (error) {
+        showFailToast("加载博文失败，请稍后重试");
+    }
+};
+
 // 生命周期钩子
 onMounted(async () => {
     currentUser.value = await getCurrentUser();
-    const id = route.query.id;
-    const res = await myAxios.get(`/blog/${id}`);
-
-    if (res?.data.code === 0) {
-        blog.value = res.data.data;
-        author.value = res.data.data.author;
-
-        if (res.data.data.images) {
-            images.value = res.data.data.images.split(",");
-        }
-
-        await listComments();
-    } else {
-        showFailToast(`加载失败${res.data.description ? `,${res.data.description}` : ""}`);
+    const id = route.query.id as string;
+    if (id) {
+        await loadBlogData(id);
     }
 });
+
+// 监听路由变化
+watch(
+    () => route.query.id,
+    async (newId) => {
+        if (newId) {
+            // 清空之前的数据
+            blog.value = {} as Blog;
+            author.value = {} as Author;
+            images.value = [];
+            processedSegments.value = [];
+            
+            // 加载新数据
+            await loadBlogData(newId as string);
+            
+            // 滚动到页面顶部
+            window.scrollTo(0, 0);
+        }
+    }
+);
 </script>
 
-<style>
+<style scoped>
 :deep(.van-field__value) {
     margin-right: 15px;
 }
@@ -387,5 +570,14 @@ onMounted(async () => {
 
 .copyToast {
     width: 100px;
+}
+
+:deep(.van-card__thumb) {
+    width: 44px !important;
+    height: 44px !important;
+}
+
+:deep(.van-card) {
+    height: 60px;
 }
 </style>
