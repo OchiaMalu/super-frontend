@@ -15,13 +15,13 @@
         </van-swipe>
         <van-tabs v-model:active="active" @change="tabsChange">
             <van-tab title="👑 匹配用户">
+                <van-search v-model="userSearch" placeholder="请输入搜索关键词" shape="round"
+                            @search="searchUser" />
                 <van-pull-refresh
                     v-if="userList && userList.length > 0"
                     v-model="refreshLoading"
                     success-text="刷新成功"
                     @refresh="onRefresh">
-                    <van-search v-model="userSearch" placeholder="请输入搜索关键词" shape="round"
-                                @search="searchUser" />
                     <van-list
                         v-model:loading="listLoading"
                         :finished="listFinished"
@@ -40,13 +40,13 @@
                            description="暂无用户" />
             </van-tab>
             <van-tab title="📚 热门博文">
+                <van-search v-model="blogSearch" placeholder="请输入搜索关键词" shape="round"
+                            @search="searchBlog" />
                 <van-pull-refresh
                     v-if="blogList && blogList.length > 0"
                     v-model="refreshLoading"
                     success-text="刷新成功"
                     @refresh="blogRefresh">
-                    <van-search v-model="blogSearch" placeholder="请输入搜索关键词" shape="round"
-                                @search="searchBlog" />
                     <van-list
                         v-model:loading="listLoading"
                         :finished="blogListFinished"
