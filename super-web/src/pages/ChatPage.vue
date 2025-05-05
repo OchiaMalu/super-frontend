@@ -37,7 +37,7 @@
                             >
                                 <template #reference>
                                     <img :src="message.text"
-                                         class="message-emoticon" 
+                                         class="message-emoticon"
                                          @touchstart="handleTouchStart($event, message)"
                                          @touchend="handleTouchEnd"
                                          @contextmenu.prevent="showPopover(message)" />
@@ -283,7 +283,7 @@ const handleImageUpload = async (event) => {
 };
 
 const emoticonActions = [
-    { text: '添加到表情' }
+    { text: "添加到表情" },
 ];
 
 let touchTimer = null;
@@ -312,12 +312,12 @@ const showPopover = (message) => {
 };
 
 const onEmoticonAction = async (action, url) => {
-    if (action.text === '添加到表情') {
+    if (action.text === "添加到表情") {
         try {
             await myAxios.post("/emoticon/add?url=" + url);
-            showToast('添加成功');
+            showToast("添加成功");
         } catch (error) {
-            showFailToast('添加失败');
+            showFailToast("添加失败");
         }
     }
 };
@@ -415,7 +415,12 @@ const init = () => {
     if (typeof (WebSocket) == "undefined") {
         showFailToast("您的浏览器不支持WebSocket");
     } else {
-        let socketUrl = "ws://" + URL + "/websocket/" + uid + "/" + stats.value.team.teamId;
+        let socketUrl;
+        if (window.location.href.startsWith("https")) {
+            socketUrl = "wss://" + URL + "/websocket/" + uid + "/" + stats.value.team.teamId;
+        } else {
+            socketUrl = "ws://" + URL + "/websocket/" + uid + "/" + stats.value.team.teamId;
+        }
         if (socket != null) {
             socket.close();
             socket = null;

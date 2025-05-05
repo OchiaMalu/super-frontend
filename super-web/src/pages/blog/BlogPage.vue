@@ -14,8 +14,8 @@
     <div v-if="images.length>0">
         <div style="width: 100%;height: 10px;background-color: black" />
         <van-swipe :autoplay="3000" lazy-render style="height: 200px">
-            <van-swipe-item v-for="image in images" :key="image">
-                <img :src="image" style="height: 200px;width: 100%" alt="" @click="previewImage(image)" />
+            <van-swipe-item v-for="image in images" :key="image" class="swipe-item">
+                <img :src="image" alt="" @click="previewImage(image)" class="swipe-img" />
             </van-swipe-item>
         </van-swipe>
         <div style="width: 100%;height: 10px;background-color: black" />
@@ -579,5 +579,20 @@ watch(
 
 :deep(.van-card) {
     height: 60px;
+}
+
+.swipe-item {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.swipe-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 </style>
