@@ -125,19 +125,13 @@ const createContent = (remoteUser, nowUser, text) => {
 };
 window.showUser = showUser;
 </script>
-<style>
+<style scoped>
 .chat-container {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
     overflow-y: auto;
-}
-
-.message {
-    display: flex;
-    align-items: center;
-    margin: 10px 10px;
 }
 
 .content {
@@ -147,11 +141,17 @@ window.showUser = showUser;
     flex-direction: column
 }
 
-.self {
+.content :deep(.message) {
+    display: flex;
+    align-items: center;
+    margin: 10px 10px;
+}
+
+.content :deep(.self) {
     align-self: flex-end;
 }
 
-.avatar {
+.content :deep(.avatar) {
     align-self: flex-start;
     width: 35px;
     height: 35px;
@@ -160,7 +160,7 @@ window.showUser = showUser;
     margin-left: 10px;
 }
 
-.username {
+.content :deep(.username) {
     align-self: flex-start;
     text-align: center;
     max-width: 200px;
@@ -172,17 +172,17 @@ window.showUser = showUser;
     background-color: #fff;
 }
 
-.info {
+.content :deep(.info) {
     display: flex;
     flex-direction: column;
     order: 2;
 }
 
-.myInfo {
+.content :deep(.myInfo) {
     align-self: flex-start;
 }
 
-.text {
+.content :deep(.text) {
     padding: 10px;
     border-radius: 10px;
     background-color: #eee;
@@ -190,11 +190,11 @@ window.showUser = showUser;
     word-break: break-all;
 }
 
-.other .text {
+.content :deep(.other) .text {
     align-self: flex-start;
 }
 
-.self .text {
+.content :deep(.self) .text {
     background-color: #0084ff;
     color: #fff;
 }

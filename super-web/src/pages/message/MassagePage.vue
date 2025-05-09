@@ -166,7 +166,7 @@ onMounted(async () => {
 });
 </script>
 
-<style>
+<style scoped>
 .icon_area {
     width: 50px;
     height: 50px;

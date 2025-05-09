@@ -142,11 +142,12 @@ const checkLogin = async (to: string, index: number): Promise<void> => {
     position: absolute;
     left: 15px;
     top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .icon {
-    margin-left: -3px;
-    margin-top: -3px;
     color: white;
 }
 

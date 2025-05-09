@@ -1,9 +1,10 @@
 <template>
-    <van-image
-        width="100%"
-        height="120"
-        :src="team.coverImage || defaultImg"
-    />
+    <div style="display: flex; justify-content: center;">
+        <van-image
+            width="180"
+            :src="team.coverImage || defaultImg"
+        />
+    </div>
     <van-cell-group inset>
         <van-cell v-if="currentUser?.role === 1 || currentUser?.id === team.userId" title="修改封面" icon="brush-o">
             <template #value>

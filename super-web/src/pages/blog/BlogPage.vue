@@ -12,13 +12,11 @@
         </van-nav-bar>
     </van-sticky>
     <div v-if="images.length>0">
-        <div style="width: 100%;height: 10px;background-color: black" />
         <van-swipe :autoplay="3000" lazy-render style="height: 200px">
             <van-swipe-item v-for="image in images" :key="image" class="swipe-item">
                 <img :src="image" alt="" @click="previewImage(image)" class="swipe-img" />
             </van-swipe-item>
         </van-swipe>
-        <div style="width: 100%;height: 10px;background-color: black" />
     </div>
 
 
@@ -479,16 +477,13 @@ const parseContent = async (): Promise<void> => {
 
     // 更新处理后的内容片段
     processedSegments.value = contentArr;
-
-    // 调试日志
-    console.log("处理后的内容片段:", processedSegments.value);
 };
 
 // 加载博文数据的函数
 const loadBlogData = async (blogId: string): Promise<void> => {
     try {
         const res = await myAxios.get(`/blog/${blogId}`);
-        
+
         if (res?.data.code === 0) {
             blog.value = res.data.data;
             author.value = res.data.data.author;
@@ -528,14 +523,14 @@ watch(
             author.value = {} as Author;
             images.value = [];
             processedSegments.value = [];
-            
+
             // 加载新数据
             await loadBlogData(newId as string);
-            
+
             // 滚动到页面顶部
             window.scrollTo(0, 0);
         }
-    }
+    },
 );
 </script>
 
@@ -575,6 +570,11 @@ watch(
 :deep(.van-card__thumb) {
     width: 44px !important;
     height: 44px !important;
+}
+
+:deep(.van-cell) {
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 :deep(.van-card) {

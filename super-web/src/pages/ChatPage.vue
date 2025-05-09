@@ -550,7 +550,7 @@ const previewImage = (url) => {
     showImagePreview([url]);
 };
 </script>
-<style>
+<style scoped>
 .chat-page {
     height: 100vh;
     display: flex;
