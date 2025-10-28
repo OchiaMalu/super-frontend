@@ -9,8 +9,10 @@
     <div style="position: relative;height: 100%;width: 100%">
         <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white" lazy-render
                    style="width: 90%;height: 150px;margin: 0 auto">
-            <van-swipe-item v-for="image in images" :key="image">
-                <img :src="image" style="width: 100%;height: 150px" />
+            <van-swipe-item v-for="image in images" :key="image.url">
+                <a :href="image.redirect">
+                    <img :src="image.url" style="width: 100%;height: 150px" />
+                </a>
             </van-swipe-item>
         </van-swipe>
         <van-tabs v-model:active="active" @change="tabsChange">
@@ -95,6 +97,11 @@ interface MyAxiosResponse<T> {
     description?: string;
 }
 
+interface Images {
+    url: string;
+    redirect?: string;
+}
+
 const searching = ref<boolean>(false);
 const listLoading = ref<boolean>(false);
 const listFinished = ref<boolean>(false);
@@ -107,11 +114,24 @@ const blogList = ref<BlogType[]>([]);
 const blogListFinished = ref<boolean>(false);
 const blogCurrentPage = ref<number>(0);
 const noticeText = ref<string>("富强、民主、文明、和谐；自由、平等、公正、法治；爱国、敬业、诚信、友善。");
-const images = ref<string[]>([
-    "https://img0.baidu.com/it/u=3358848204,1936258606&fm=253&fmt=auto&app=120&f=JPEG?w=1421&h=800",
-    "https://img2.baidu.com/it/u=3012806272,1276873993&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500",
-    "https://img0.baidu.com/it/u=741268616,1401664941&fm=253&fmt=auto&app=138&f=JPEG?w=748&h=500",
-    "https://img1.baidu.com/it/u=2389614815,1145894179&fm=253&fmt=auto&app=120&f=JPEG?w=1280&h=800",
+
+const images = ref<Images[]>([
+    {
+        url: "https://niu.ochiamalu.fun/Snipaste_2025-05-12_10-25-07.png",
+        redirect: "https://prodocs.top/",
+    },
+    {
+        url: "https://img0.baidu.com/it/u=3358848204,1936258606&fm=253&fmt=auto&app=120&f=JPEG?w=1421&h=800",
+    },
+    {
+        url: "https://img2.baidu.com/it/u=3012806272,1276873993&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500",
+    },
+    {
+        url: "https://img0.baidu.com/it/u=741268616,1401664941&fm=253&fmt=auto&app=138&f=JPEG?w=748&h=500",
+    },
+    {
+        url: "https://img1.baidu.com/it/u=2389614815,1145894179&fm=253&fmt=auto&app=120&f=JPEG?w=1280&h=800",
+    },
 ]);
 
 onMounted(async () => {
